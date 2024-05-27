@@ -1,0 +1,196 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE configuration
+    PUBLIC "-//mybatis.org//DTD Config 3.0//EN"
+    "http://mybatis.org/dtd/mybatis-3-config.dtd">
+	<configuration>
+        <settings>
+                <setting name="lazyLoadingEnabled" value="true" />
+                <!-- <setting name="cacheEnabled" value="true"/>
+                <setting name="localCacheScope" value="SESSION" />
+                -->
+        </settings>
+        <!-- Especificamos los alias de las entidades (paquete com.dina.genasoft.db.entity) -->
+        <typeAliases>
+       		 	<typeAlias alias="TAbonos" type="com.dina.genasoft.db.entity.TAbonos" />              	
+        		<typeAlias alias="TAcceso" type="com.dina.genasoft.db.entity.TAcceso" />
+        		<typeAlias alias="TAccesoHis" type="com.dina.genasoft.db.entity.TAccesoHis" />
+        		<typeAlias alias="TBalanceMasas" type="com.dina.genasoft.db.entity.TBalanceMasas" />
+        		<typeAlias alias="TBalanceMasasHis" type="com.dina.genasoft.db.entity.TBalanceMasasHis" />
+        		<typeAlias alias="TCalibresProductos" type="com.dina.genasoft.db.entity.TCalibresProductos" />
+        		<typeAlias alias="TCentros" type="com.dina.genasoft.db.entity.TCentros" />
+        		<typeAlias alias="TClientes" type="com.dina.genasoft.db.entity.TClientes" />
+        		<typeAlias alias="TColumnasTablasEmpleado" type="com.dina.genasoft.db.entity.TColumnasTablasEmpleado" />
+        		<typeAlias alias="TCompras" type="com.dina.genasoft.db.entity.TCompras" />
+        		<typeAlias alias="TCompras2022" type="com.dina.genasoft.db.entity.TCompras2022" />
+        		<typeAlias alias="TCompras2023" type="com.dina.genasoft.db.entity.TCompras2023" />
+        		<typeAlias alias="TCompras2024" type="com.dina.genasoft.db.entity.TCompras2024" />
+        		<typeAlias alias="TCompras2025" type="com.dina.genasoft.db.entity.TCompras2025" />
+        		<typeAlias alias="TCompras2026" type="com.dina.genasoft.db.entity.TCompras2026" />
+        		<typeAlias alias="TCompras2027" type="com.dina.genasoft.db.entity.TCompras2027" />
+        		<typeAlias alias="TCompras2028" type="com.dina.genasoft.db.entity.TCompras2028" />
+        		<typeAlias alias="TCompras2029" type="com.dina.genasoft.db.entity.TCompras2029" />
+        		<typeAlias alias="TCompras2030" type="com.dina.genasoft.db.entity.TCompras2030" />
+        		<typeAlias alias="TComprasFict" type="com.dina.genasoft.db.entity.TComprasFict" />
+        		<typeAlias alias="TComprasFictHis" type="com.dina.genasoft.db.entity.TComprasFictHis" />
+        		<typeAlias alias="TComprasHis" type="com.dina.genasoft.db.entity.TComprasHis" />
+        		<typeAlias alias="TControlProductoTerminado" type="com.dina.genasoft.db.entity.TControlProductoTerminado" />
+        		<typeAlias alias="TLineaControlProductoTerminado" type="com.dina.genasoft.db.entity.TLineaControlProductoTerminado" />
+        		<typeAlias alias="TControlProductoTerminadoFotos" type="com.dina.genasoft.db.entity.TControlProductoTerminadoFotos" />
+        		<typeAlias alias="TControlProductoTerminadoFotosHis" type="com.dina.genasoft.db.entity.TControlProductoTerminadoFotosHis" />
+        		<typeAlias alias="TControlProductoTerminadoHis" type="com.dina.genasoft.db.entity.TControlProductoTerminadoHis" />
+        		<typeAlias alias="TLineaControlProductoTerminadoHis" type="com.dina.genasoft.db.entity.TLineaControlProductoTerminadoHis" />
+        		<typeAlias alias="TControlProductoTerminadoPesajesBrix" type="com.dina.genasoft.db.entity.TControlProductoTerminadoPesajesBrix" />
+        		<typeAlias alias="TControlProductoTerminadoPesajesBrixHis" type="com.dina.genasoft.db.entity.TControlProductoTerminadoPesajesBrixHis" />
+        		<typeAlias alias="TControlProductoTerminadoPesajesCaja" type="com.dina.genasoft.db.entity.TControlProductoTerminadoPesajesCaja" />
+        		<typeAlias alias="TControlProductoTerminadoPesajesCajaHis" type="com.dina.genasoft.db.entity.TControlProductoTerminadoPesajesCajaHis" />
+        		<typeAlias alias="TControlProductoTerminadoPesajesCalibre" type="com.dina.genasoft.db.entity.TControlProductoTerminadoPesajesCalibre" />
+        		<typeAlias alias="TControlProductoTerminadoPesajesCalibreHis" type="com.dina.genasoft.db.entity.TControlProductoTerminadoPesajesCalibreHis" />
+        		<typeAlias alias="TControlProductoTerminadoPesajesConfeccion" type="com.dina.genasoft.db.entity.TControlProductoTerminadoPesajesConfeccion" />
+        		<typeAlias alias="TControlProductoTerminadoPesajesConfeccionHis" type="com.dina.genasoft.db.entity.TControlProductoTerminadoPesajesConfeccionHis" />
+        		<typeAlias alias="TControlProductoTerminadoPesajesPenetromia" type="com.dina.genasoft.db.entity.TControlProductoTerminadoPesajesPenetromia" />
+        		<typeAlias alias="TControlProductoTerminadoPesajesPenetromiaHis" type="com.dina.genasoft.db.entity.TControlProductoTerminadoPesajesPenetromiaHis" />        		
+        		<typeAlias alias="TDevoluciones" type="com.dina.genasoft.db.entity.TDevoluciones" />
+        		<typeAlias alias="TDiametrosProducto" type="com.dina.genasoft.db.entity.TDiametrosProducto" />
+        		<typeAlias alias="TEmpleados" type="com.dina.genasoft.db.entity.TEmpleados" />
+        		<typeAlias alias="TErrores" type="com.dina.genasoft.db.entity.TErrores" />
+        		<typeAlias alias="TFamilias" type="com.dina.genasoft.db.entity.TFamilias" />
+        		<typeAlias alias="TLineasDevoluciones" type="com.dina.genasoft.db.entity.TLineasDevoluciones" />
+        		<typeAlias alias="TLineasDevolucionesHis" type="com.dina.genasoft.db.entity.TLineasDevolucionesHis" />
+        		<typeAlias alias="TLineasVentas2022" type="com.dina.genasoft.db.entity.TLineasVentas2022" />
+        		<typeAlias alias="TLineasVentas2023" type="com.dina.genasoft.db.entity.TLineasVentas2023" />
+        		<typeAlias alias="TLineasVentas2024" type="com.dina.genasoft.db.entity.TLineasVentas2024" />
+        		<typeAlias alias="TLineasVentas2025" type="com.dina.genasoft.db.entity.TLineasVentas2025" />
+        		<typeAlias alias="TLineasVentas2026" type="com.dina.genasoft.db.entity.TLineasVentas2026" />
+        		<typeAlias alias="TLineasVentas2027" type="com.dina.genasoft.db.entity.TLineasVentas2027" />
+        		<typeAlias alias="TLineasVentas2028" type="com.dina.genasoft.db.entity.TLineasVentas2028" />
+        		<typeAlias alias="TLineasVentas2029" type="com.dina.genasoft.db.entity.TLineasVentas2029" />
+        		<typeAlias alias="TLineasVentas2030" type="com.dina.genasoft.db.entity.TLineasVentas2030" />
+        		<typeAlias alias="TLineasVentasHis" type="com.dina.genasoft.db.entity.TLineasVentasHis" />
+        		<typeAlias alias="TLineasVentasFict" type="com.dina.genasoft.db.entity.TLineasVentasFict" />
+        		<typeAlias alias="TLineasVentasFictHis" type="com.dina.genasoft.db.entity.TLineasVentasFictHis" />
+        		<typeAlias alias="TMovimientosAlmacen" type="com.dina.genasoft.db.entity.TMovimientosAlmacen" />
+        		<typeAlias alias="TMovimientosAlmacenHis" type="com.dina.genasoft.db.entity.TMovimientosAlmacenHis" />        		
+        		<typeAlias alias="TPais" type="com.dina.genasoft.db.entity.TPais" />
+        		<typeAlias alias="TPermisos" type="com.dina.genasoft.db.entity.TPermisos" />        		
+        		<typeAlias alias="TProductos" type="com.dina.genasoft.db.entity.TProductos" />
+        		<typeAlias alias="TProductoCalibre" type="com.dina.genasoft.db.entity.TProductoCalibre" />
+        		<typeAlias alias="TProductot_producetro" type="com.dina.genasoft.db.entity.TProductoDiametro" />
+        		<typeAlias alias="TProductoVariedad" type="com.dina.genasoft.db.entity.TProductoVariedad" />
+        		<typeAlias alias="TProveedores" type="com.dina.genasoft.db.entity.TProveedores" />
+        		<typeAlias alias="TRegistrosCambiosControlProductoTerminado" type="com.dina.genasoft.db.entity.TRegistrosCambiosControlProductoTerminado" />
+        		<typeAlias alias="TRegistrosCambiosControlProductoTerminadoPesCaja" type="com.dina.genasoft.db.entity.TRegistrosCambiosControlProductoTerminadoPesCaja" />
+        		<typeAlias alias="TRegistrosCambiosControlProductoTerminadoPesCalibre" type="com.dina.genasoft.db.entity.TRegistrosCambiosControlProductoTerminadoPesCalibre" />
+        		<typeAlias alias="TRegistrosCambiosControlProductoTerminadoPesConf" type="com.dina.genasoft.db.entity.TRegistrosCambiosControlProductoTerminadoPesConf" />
+        		<typeAlias alias="TRegistrosCambiosEmpleados" type="com.dina.genasoft.db.entity.TRegistrosCambiosEmpleados" />
+        		<typeAlias alias="TRoles" type="com.dina.genasoft.db.entity.TRoles" />
+        		<typeAlias alias="TTrace" type="com.dina.genasoft.db.entity.TTrace" />
+        		<typeAlias alias="TTrace2" type="com.dina.genasoft.db.entity.TTrace2" />
+        		<typeAlias alias="TVariedad" type="com.dina.genasoft.db.entity.TVariedad" />
+        		<typeAlias alias="TVariedades" type="com.dina.genasoft.db.entity.TVariedades" />
+        		<typeAlias alias="TVentas2022" type="com.dina.genasoft.db.entity.TVentas2022" />
+        		<typeAlias alias="TVentas2023" type="com.dina.genasoft.db.entity.TVentas2023" />
+        		<typeAlias alias="TVentas2024" type="com.dina.genasoft.db.entity.TVentas2024" />
+        		<typeAlias alias="TVentas2025" type="com.dina.genasoft.db.entity.TVentas2025" />
+        		<typeAlias alias="TVentas2026" type="com.dina.genasoft.db.entity.TVentas2026" />
+        		<typeAlias alias="TVentas2027" type="com.dina.genasoft.db.entity.TVentas2027" />
+        		<typeAlias alias="TVentas2028" type="com.dina.genasoft.db.entity.TVentas2028" />
+        		<typeAlias alias="TVentas2029" type="com.dina.genasoft.db.entity.TVentas2029" />
+        		<typeAlias alias="TVentas2030" type="com.dina.genasoft.db.entity.TVentas2030" />        		
+        		<typeAlias alias="TVentasFict" type="com.dina.genasoft.db.entity.TVentasFict" />
+        		<typeAlias alias="TVentasFictHis" type="com.dina.genasoft.db.entity.TVentasFictHis" />        		
+        		<typeAlias alias="TVentasHis" type="com.dina.genasoft.db.entity.TVentasHis" />        		
+        </typeAliases>
+         <!-- Especificamos los mappers para cada archivo .xml dentro de resources/SqlMaps -->
+        <mappers>
+        		<mapper resource="SqlMaps/TAbonosMapper.xml"></mapper>
+        		<mapper resource="SqlMaps/TAccesoMapper.xml"></mapper>
+        		<mapper resource="SqlMaps/TAccesoHisMapper.xml"></mapper>
+        		<mapper resource="SqlMaps/TBalanceMasasMapper.xml"></mapper>
+        		<mapper resource="SqlMaps/TBalanceMasasHisMapper.xml"></mapper>
+        		<mapper resource="SqlMaps/TCalibresProductosMapper.xml"></mapper>
+        		<mapper resource="SqlMaps/TCentrosMapper.xml"></mapper>
+        		<mapper resource="SqlMaps/TClientesMapper.xml"></mapper>
+        		<mapper resource="SqlMaps/TColumnasTablasEmpleadoMapper.xml"></mapper>
+        		<mapper resource="SqlMaps/TComprasMapper.xml"></mapper>
+        		<mapper resource="SqlMaps/TCompras2022Mapper.xml"></mapper>
+        		<mapper resource="SqlMaps/TCompras2023Mapper.xml"></mapper>
+        		<mapper resource="SqlMaps/TCompras2024Mapper.xml"></mapper>
+        		<mapper resource="SqlMaps/TCompras2025Mapper.xml"></mapper>
+        		<mapper resource="SqlMaps/TCompras2026Mapper.xml"></mapper>
+        		<mapper resource="SqlMaps/TCompras2027Mapper.xml"></mapper>
+        		<mapper resource="SqlMaps/TCompras2028Mapper.xml"></mapper>
+        		<mapper resource="SqlMaps/TCompras2029Mapper.xml"></mapper>
+        		<mapper resource="SqlMaps/TCompras2030Mapper.xml"></mapper>
+        		<mapper resource="SqlMaps/TComprasFictMapper.xml"></mapper>
+        		<mapper resource="SqlMaps/TComprasFictHisMapper.xml"></mapper>
+        		<mapper resource="SqlMaps/TComprasHisMapper.xml"></mapper>
+        		<mapper resource="SqlMaps/TControlProductoTerminadoMapper.xml"></mapper>
+        		<mapper resource="SqlMaps/TLineaControlProductoTerminadoMapper.xml"></mapper>
+        		<mapper resource="SqlMaps/TControlProductoTerminadoFotosMapper.xml"></mapper>
+        		<mapper resource="SqlMaps/TControlProductoTerminadoFotosHisMapper.xml"></mapper>
+        		<mapper resource="SqlMaps/TControlProductoTerminadoHisMapper.xml"></mapper>
+        		<mapper resource="SqlMaps/TLineaControlProductoTerminadoHisMapper.xml"></mapper>
+        		<mapper resource="SqlMaps/TControlProductoTerminadoPesajesBrixMapper.xml"></mapper>
+        		<mapper resource="SqlMaps/TControlProductoTerminadoPesajesBrixHisMapper.xml"></mapper>
+        		<mapper resource="SqlMaps/TControlProductoTerminadoPesajesCajaMapper.xml"></mapper>
+        		<mapper resource="SqlMaps/TControlProductoTerminadoPesajesCajaHisMapper.xml"></mapper>
+        		<mapper resource="SqlMaps/TControlProductoTerminadoPesajesCalibreMapper.xml"></mapper>
+        		<mapper resource="SqlMaps/TControlProductoTerminadoPesajesCalibreHisMapper.xml"></mapper>
+        		<mapper resource="SqlMaps/TControlProductoTerminadoPesajesConfeccionMapper.xml"></mapper>
+        		<mapper resource="SqlMaps/TControlProductoTerminadoPesajesConfeccionHisMapper.xml"></mapper>
+        		<mapper resource="SqlMaps/TControlProductoTerminadoPesajesPenetromiaMapper.xml"></mapper>
+        		<mapper resource="SqlMaps/TControlProductoTerminadoPesajesPenetromiaHisMapper.xml"></mapper>
+        		<mapper resource="SqlMaps/TDevolucionesMapper.xml"></mapper>
+        		<mapper resource="SqlMaps/TDiametrosProductoMapper.xml"></mapper>
+        		<mapper resource="SqlMaps/TEmpleadosMapper.xml"></mapper>
+        		<mapper resource="SqlMaps/TErroresMapper.xml"></mapper>
+        		<mapper resource="SqlMaps/TFamiliasMapper.xml"></mapper>
+        		<mapper resource="SqlMaps/TLineasDevolucionesMapper.xml"></mapper>
+        		<mapper resource="SqlMaps/TLineasDevolucionesHisMapper.xml"></mapper>
+        		<mapper resource="SqlMaps/TLineasVentasMapper.xml"></mapper>
+        		<mapper resource="SqlMaps/TLineasVentas2022Mapper.xml"></mapper>
+        		<mapper resource="SqlMaps/TLineasVentas2023Mapper.xml"></mapper>
+        		<mapper resource="SqlMaps/TLineasVentas2024Mapper.xml"></mapper>
+        		<mapper resource="SqlMaps/TLineasVentas2025Mapper.xml"></mapper>
+        		<mapper resource="SqlMaps/TLineasVentas2026Mapper.xml"></mapper>
+        		<mapper resource="SqlMaps/TLineasVentas2027Mapper.xml"></mapper>
+        		<mapper resource="SqlMaps/TLineasVentas2028Mapper.xml"></mapper>
+        		<mapper resource="SqlMaps/TLineasVentas2029Mapper.xml"></mapper>
+        		<mapper resource="SqlMaps/TLineasVentas2030Mapper.xml"></mapper>
+        		<mapper resource="SqlMaps/TLineasVentasHisMapper.xml"></mapper>
+        		<mapper resource="SqlMaps/TLineasVentasFictMapper.xml"></mapper>
+        		<mapper resource="SqlMaps/TLineasVentasFictHisMapper.xml"></mapper>
+        		<mapper resource="SqlMaps/TMovimientosAlmacenMapper.xml"></mapper>
+        		<mapper resource="SqlMaps/TMovimientosAlmacenHisMapper.xml"></mapper>
+        		<mapper resource="SqlMaps/TPaisMapper.xml"></mapper>
+        		<mapper resource="SqlMaps/TPermisosMapper.xml"></mapper>
+        		<mapper resource="SqlMaps/TProductosMapper.xml"></mapper>
+        		<mapper resource="SqlMaps/TProductoCalibreMapper.xml"></mapper>
+        		<mapper resource="SqlMaps/TProductoDiametroMapper.xml"></mapper>
+        		<mapper resource="SqlMaps/TProductoVariedadMapper.xml"></mapper>
+        		<mapper resource="SqlMaps/TProveedoresMapper.xml"></mapper>
+        		<mapper resource="SqlMaps/TRegistrosCambiosControlProductoTerminadoMapper.xml"></mapper>
+        		<mapper resource="SqlMaps/TRegistrosCambiosControlProductoTerminadoPesCajaMapper.xml"></mapper>
+        		<mapper resource="SqlMaps/TRegistrosCambiosControlProductoTerminadoPesCalibreMapper.xml"></mapper>
+        		<mapper resource="SqlMaps/TRegistrosCambiosControlProductoTerminadoPesConfMapper.xml"></mapper>
+        		<mapper resource="SqlMaps/TRegistrosCambiosEmpleadosMapper.xml"></mapper>
+        		<mapper resource="SqlMaps/TRolesMapper.xml"></mapper>
+        		<mapper resource="SqlMaps/TTraceMapper.xml"></mapper>
+        		<mapper resource="SqlMaps/TTrace2Mapper.xml"></mapper>
+        		<mapper resource="SqlMaps/TVariedadMapper.xml"></mapper>
+        		<mapper resource="SqlMaps/TVariedadesMapper.xml"></mapper>
+        		<mapper resource="SqlMaps/TVentasMapper.xml"></mapper>
+        		<mapper resource="SqlMaps/TVentas2022Mapper.xml"></mapper>
+        		<mapper resource="SqlMaps/TVentas2023Mapper.xml"></mapper>
+        		<mapper resource="SqlMaps/TVentas2024Mapper.xml"></mapper>
+        		<mapper resource="SqlMaps/TVentas2025Mapper.xml"></mapper>
+        		<mapper resource="SqlMaps/TVentas2026Mapper.xml"></mapper>
+        		<mapper resource="SqlMaps/TVentas2027Mapper.xml"></mapper>
+        		<mapper resource="SqlMaps/TVentas2028Mapper.xml"></mapper>
+        		<mapper resource="SqlMaps/TVentas2029Mapper.xml"></mapper>
+        		<mapper resource="SqlMaps/TVentas2030Mapper.xml"></mapper>
+        		<mapper resource="SqlMaps/TVentasFictMapper.xml"></mapper>        		
+        		<mapper resource="SqlMaps/TVentasFictHisMapper.xml"></mapper>        		
+        		<mapper resource="SqlMaps/TVentasHisMapper.xml"></mapper>        		
+        </mappers>
+</configuration>
