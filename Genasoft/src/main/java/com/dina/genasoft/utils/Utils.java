@@ -551,4 +551,15 @@ public final class Utils {
         return lNumeros;
     }
 
+    public static String formatearValorString(String value) {
+        String result = null;
+        if (value == null) {
+            result = "";
+        } else {
+            result = value.trim().toUpperCase();
+        }
+
+        return result;
+    }
+
 }

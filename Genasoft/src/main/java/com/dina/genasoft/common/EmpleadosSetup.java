@@ -25,7 +25,6 @@ import com.dina.genasoft.db.entity.TEmpleados;
 import com.dina.genasoft.db.entity.TEmpleadosVista;
 import com.dina.genasoft.db.entity.TRegistrosCambiosEmpleados;
 import com.dina.genasoft.db.entity.TRoles;
-import com.dina.genasoft.db.mapper.TColumnasTablasEmpleadoMapper;
 import com.dina.genasoft.db.mapper.TEmpleadosMapper;
 import com.dina.genasoft.db.mapper.TRegistrosCambiosEmpleadosMapper;
 import com.dina.genasoft.exception.GenasoftException;
@@ -63,10 +62,7 @@ public class EmpleadosSetup implements Serializable {
     private TEmpleadosMapper                 tEmpleadosMapper;
     /** Inyección por Spring del mapper TRegistrosCambiosEmpleadosMapper.*/
     @Autowired
-    private TRegistrosCambiosEmpleadosMapper tRegistrosCambioMapper;
-    /** Inyección por Spring del mapper TColumnasTablasEmpleadoMapper.*/
-    @Autowired
-    private TColumnasTablasEmpleadoMapper    tColumnasTablasEmpleadoMapper;
+    private TRegistrosCambiosEmpleadosMapper tRegistrosCambiosEmpleadosMapper;
     @Value("${app.max.time.idle}")
     /** El tiempo máximo de inactividad.*/
     private String                           maxIdel;
@@ -290,11 +286,12 @@ public class EmpleadosSetup implements Serializable {
                 if (aux != null && !aux.getId().equals(record.getId())) {
                     return Constants.EMPL_EXISTE_DNI;
                 }
+                */
                 aux = tEmpleadosMapper.obtenerEmpleadoPorIdExterno(record.getIdExterno());
                 if (aux != null && !aux.getId().equals(record.getId())) {
                     return Constants.EMPL_EXISTE_COD_EXTERNO;
                 }
-                */
+
                 aux = tEmpleadosMapper.obtenerEmpleadoPorNombre(record.getNombre());
                 if (aux != null && !aux.getId().equals(record.getId())) {
                     return Constants.EMPL_EXISTE_NOMBRE;
@@ -420,9 +417,8 @@ public class EmpleadosSetup implements Serializable {
                 continue;
             }
 
-            aux = new TEmpleadosVista();
+            aux = new TEmpleadosVista(empleado);
             // Realizamos la copia de los campos
-            aux.copiaDesdeEmpleado(empleado);
             rol = mRoles.get(empleado.getIdRol());
             aux.setIdRol(rol != null ? rol : "Rol no encontrado: " + empleado.getIdRol());
             //pais = mPaises.get(empleado.getPais());

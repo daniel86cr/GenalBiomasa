@@ -1,0 +1,111 @@
+// Global variable overrides. Must be declared before importing Valo.
+
+// Defines the plaintext font size, weight and family. Font size affects general component sizing.
+//$v-font-size: 16px;
+//$v-font-weight: 300;
+//$v-font-family: "Open Sans", sans-serif;
+
+// Defines the border used by all components.
+//$v-border: 1px solid (v-shade 0.7);
+//$v-border-radius: 4px;
+
+// Affects the color of some component elements, e.g Button, Panel title, etc
+//$v-background-color: hsl(210, 0%, 98%);
+// Affects the color of content areas, e.g  Panel and Window content, TextField input etc
+//$v-app-background-color: $v-background-color;
+
+// Affects the visual appearance of all components
+//$v-gradient: v-linear 8%;
+//$v-bevel-depth: 30%;
+//$v-shadow-opacity: 5%;
+
+// Defines colors for indicating status (focus, success, failure)
+//$v-focus-color: valo-focus-color(); // Calculates a suitable color automatically
+//$v-friendly-color: #2c9720;
+//$v-error-indicator-color: #ed473b;
+
+// For more information, see: https://vaadin.com/book/-/page/themes.valo.html
+// Example variants can be copy/pasted from https://vaadin.com/wiki/-/wiki/Main/Valo+Examples
+
+@import "../valo/valo.scss";
+
+@mixin ej01 {
+  @include valo;
+
+  // Insert your own theme rules here
+}
+
+.tituloTamano18{
+	font-size: 1.8em;
+    text-align:center;
+    vertical-align:text-middle;
+    border:2px solid white;
+}
+
+.tituloTamano12{
+	font-size: 1.2em;
+	font-weight: bold;
+    text-align:left;
+    vertical-align:text-middle;
+}
+
+.labelFecha{
+	color:orange;
+	font-size: 1.8em;
+    text-align:center;
+    vertical-align:text-middle;
+    border:2px solid white;
+}
+
+.u-tileable-container .v-verticallayout-margin 
+{
+    padding: 1px;
+}
+.v-horizontallayout-spacingexample .v-horizontallayout-spacing-on {
+    padding-left: 30px;
+}
+
+.v-vertical > .v-spacing {
+    height: 500px;
+}
+
+/* Set the amount of vertical cell spacing in a
+ * specific element with the "-spacingexample" style. */
+.v-verticallayout-spacingexample .v-verticallayout-spacing-on {
+    padding-top: 30px;
+}
+
+/* Set the amount of both vertical and horizontal cell spacing
+ * in a specific element with the "-spacingexample" style. */
+.v-gridlayout-spacingexample .v-gridlayout-spacing-on {
+    padding-top: 30px;
+    padding-left: 50px;
+}
+
+
+.v-table-cell-content-orange {
+    background: #FCB724;
+    color:#000000;
+}
+
+.v-table-cell-content-yellow {
+    background: #FFFF00;
+    color:#000000;
+}
+
+.v-table-cell-content-red {
+    background: #FF3333;
+    color:#000000;
+}
+
+.v-table-cell-content-white {
+    background: #FFFFFF;
+    color:#000000;
+}
+
+.v-table-cell-content-green {
+    background: #66FF66;
+    color:#000000;
+}
+
+
