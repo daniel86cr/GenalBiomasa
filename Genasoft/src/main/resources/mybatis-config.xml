@@ -41,7 +41,8 @@
         		<typeAlias alias="TRegistrosCambiosPesajes" type="com.dina.genasoft.db.entity.TRegistrosCambiosPesajes" />
         		<typeAlias alias="TRegistrosCambiosTransportistas" type="com.dina.genasoft.db.entity.TRegistrosCambiosTransportistas" />
         		<typeAlias alias="TRoles" type="com.dina.genasoft.db.entity.TRoles" />
-        		<typeAlias alias="TTransportistas" type="com.dina.genasoft.db.entity.TTransportistas" />
+        		<typeAlias alias="TTrace2" type="com.dina.genasoft.db.entity.TTrace2" />
+        		<typeAlias alias="TTransportistas" type="com.dina.genasoft.db.entity.TTransportistas" />        		
         </typeAliases>
          <!-- Especificamos los mappers para cada archivo .xml dentro de resources/SqlMaps -->
         <mappers>
@@ -74,6 +75,7 @@
         		<mapper resource="SqlMaps/TRegistrosCambiosPesajesMapper.xml"></mapper>
         		<mapper resource="SqlMaps/TRegistrosCambiosTransportistasMapper.xml"></mapper>
         		<mapper resource="SqlMaps/TRolesMapper.xml"></mapper>
+        		<mapper resource="SqlMaps/TTrace2Mapper.xml"></mapper>
         		<mapper resource="SqlMaps/TTransportistasMapper.xml"></mapper>
         </mappers>
 </configuration>

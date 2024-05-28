@@ -20,7 +20,6 @@ import org.springframework.stereotype.Component;
 import com.dina.genasoft.configuration.Constants;
 import com.dina.genasoft.db.entity.TAcceso;
 import com.dina.genasoft.db.entity.TAccesoHis;
-import com.dina.genasoft.db.entity.TColumnasTablasEmpleado;
 import com.dina.genasoft.db.entity.TEmpleados;
 import com.dina.genasoft.db.entity.TEmpleadosVista;
 import com.dina.genasoft.db.entity.TRegistrosCambiosEmpleados;
@@ -401,7 +400,6 @@ public class EmpleadosSetup implements Serializable {
         String empl = null;
         String pais = null;
 
-        //List<TPais> lPaises = paisesSetup.obtenerTodosPaises();
         List<TEmpleados> lEmpl = obtenerTodosEmpleados();
         List<TRoles> lRoles = rolesSetup.obtenerTodosRoles();
 
@@ -439,36 +437,6 @@ public class EmpleadosSetup implements Serializable {
     }
 
     /**
-     * Método que nos guarda los campos que visualiza por pantalla el empleado.
-     * @param lRecord Los campos y orden de la tabla
-     * @return El resultado de la operación
-     */
-    public String guardarCamposTablaEmpleado(List<TColumnasTablasEmpleado> lRecord, Integer idEmpleado, String nombrePantalla, Integer idTabla) {
-        String result = Constants.OPERACION_OK;
-
-        // Eliminamos todos los campos existentes.
-        tColumnasTablasEmpleadoMapper.eliminarCamposPantallaTablaEmpleado(idEmpleado, nombrePantalla, idTabla);
-
-        for (TColumnasTablasEmpleado record : lRecord) {
-            tColumnasTablasEmpleadoMapper.insert(record);
-        }
-
-        return result;
-    }
-
-    /**
-     * Método que nos retorna los campos que se visualizan en la tabla pasada por parámetro
-     * @param idEmpleado  El ID del empleaod
-     * @param nombrePantalla El nombre de la pantalla que se visualizará la tabla
-     * @param idTabla La tabla.
-     * @return
-     */
-    public List<TColumnasTablasEmpleado> obtenerCamposPantallaTablaEmpleado(Integer idEmpleado, String nombrePantalla, Integer idTabla) {
-        return tColumnasTablasEmpleadoMapper.obtenerColumnasTablaEmpleadoPantalla(idEmpleado, nombrePantalla, idTabla);
-
-    }
-
-    /**
      * Método que se encarga de crear un nuevo registro de cambio de empleado en el sistema.
      * @param record El registro de cambio de empleado a crear.     
      * @return El código del resultado de la operación.
@@ -478,7 +446,7 @@ public class EmpleadosSetup implements Serializable {
         String result = Constants.OPERACION_OK;
 
         try {
-            result = tRegistrosCambioMapper.insert(record) == 1 ? Constants.OPERACION_OK : Constants.BD_KO_CREA_EMPL;
+            result = tRegistrosCambiosEmpleadosMapper.insert(record) == 1 ? Constants.OPERACION_OK : Constants.BD_KO_CREA_EMPL;
         } catch (Exception e) {
             result = Constants.BD_KO_CREA_EMPL;
             log.error(Constants.BD_KO_CREA_EMPL + ", Error al crear el registro de modificación del empleado: " + record.toString() + ", ", e);

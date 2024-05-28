@@ -22,8 +22,6 @@ import com.dina.genasoft.db.entity.TPermisos;
 import com.dina.genasoft.exception.GenasoftException;
 import com.dina.genasoft.utils.Utils;
 import com.dina.genasoft.utils.enums.EmpleadoEnum;
-import com.dina.genasoft.vistas.controlpt.VistaNuevoControlPt;
-import com.dina.genasoft.vistas.librotrazabilidad.VistaLibroTrazabilidadOld;
 import com.vaadin.annotations.Theme;
 import com.vaadin.event.ShortcutAction;
 import com.vaadin.event.ShortcutListener;
@@ -298,22 +296,9 @@ public class VistaInicioSesion extends CustomComponent implements View ,Button.C
                                 // Refresh this view, should redirect to login view
                                 getUI().getNavigator().navigateTo(VistaMenuPrincipalAdministrador.NAME + "/" + user);
                                 break;
-                            // LIBRO.
                             case 3:
                                 // Refresh this view, should redirect to login view
-                                getUI().getNavigator().navigateTo(VistaLibroTrazabilidadOld.NAME + "/" + user);
-                                break;
-                            case 4:
-                                // Refresh this view, should redirect to login view
-                                getUI().getNavigator().navigateTo(VistaMenuPrincipalControlProductoTerminado.NAME + "/" + user);
-                                break;
-                            case 5:
-                                // Refresh this view, should redirect to login view
-                                getUI().getNavigator().navigateTo(VistaMenuPrincipalTrazabilidades.NAME + "/" + user);
-                                break;
-                            case 6:
-                                // Refresh this view, should redirect to login view
-                                getUI().getNavigator().navigateTo(VistaNuevoControlPt.NAME + "/" + user);
+                                getUI().getNavigator().navigateTo(VistaMenuPrincipalAdministrador.NAME + "/" + user);
                                 break;
                             default:
                                 Notification aviso = new Notification("No se ha especificado la pantalla inicial para el rol actual, contacta con el administrador.", Notification.Type.ERROR_MESSAGE);
@@ -344,10 +329,10 @@ public class VistaInicioSesion extends CustomComponent implements View ,Button.C
                 aviso.show(Page.getCurrent());
                 log.error("Error al realizar login: ", e);
             } catch (Exception sqle) {
-                Notification aviso = new Notification("Error de inconsistencia de datos, consulte con el administrador. Código error: DNE-004.", Notification.Type.ERROR_MESSAGE);
+                Notification aviso = new Notification(contrVista.obtenerDescripcionCodigo(Constants.ERROR_GENERAL), Notification.Type.ERROR_MESSAGE);
                 aviso.setPosition(Position.MIDDLE_CENTER);
                 aviso.show(Page.getCurrent());
-                log.error("Error DNE-004: ", sqle);
+                log.error(Constants.ERROR_GENERAL, sqle);
 
             }
         } else {

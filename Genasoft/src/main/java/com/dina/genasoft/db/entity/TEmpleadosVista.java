@@ -3,6 +3,7 @@ package com.dina.genasoft.db.entity;
 import java.io.Serializable;
 import java.text.SimpleDateFormat;
 
+import com.dina.genasoft.configuration.Constants;
 import com.dina.genasoft.utils.Utils;
 import com.dina.genasoft.utils.enums.EmpleadoEnum;
 
@@ -382,13 +383,17 @@ public class TEmpleadosVista implements Serializable {
         this.estado = estado;
     }
 
+    /**
+     * Constructor a partir de TEmpleados
+     * @param co El objeto con los datos a nutrir.
+     */
     public TEmpleadosVista(TEmpleados e) {
         this.codigoAcceso = Utils.formatearValorNumericoString(e.getCodigoAcceso());
         this.dni = Utils.formatearValorNumericoString(e.getDni());
         this.email = Utils.formatearValorNumericoString(e.getEmail());
-        this.estado = e.getEstado().equals(EmpleadoEnum.ACTIVO.getValue()) ? "Activo" : "Desactivado";
-        this.fechaCrea = new SimpleDateFormat("dd/MM/yyyy").format(e.getFechaCrea());
-        this.fechaModifica = e.getFechaModifica() != null ? new SimpleDateFormat("dd/MM/yyyy").format(e.getFechaModifica()) : "-";
+        this.estado = e.getEstado().equals(EmpleadoEnum.ACTIVO.getValue()) ? Constants.ACTIVO : Constants.DESACTIVADO;
+        this.fechaCrea = new SimpleDateFormat("dd/MM/yyyy hh:mm").format(e.getFechaCrea());
+        this.fechaModifica = e.getFechaModifica() != null ? new SimpleDateFormat("dd/MM/yyyy hh:mm").format(e.getFechaModifica()) : "-";
         this.id = "" + e.getId();
         this.idExterno = Utils.formatearValorString(e.getIdExterno());
         this.idRol = "" + e.getIdRol();

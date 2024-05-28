@@ -246,5 +246,12 @@
 			modelType="flat">
 		</table>
 		
+		<table tableName="t_trace_2" enableCountByExample="false"
+			enableDeleteByExample="false" enableUpdateByExample="false"
+			selectByPrimaryKeyQueryId="false" enableInsert="true"
+			selectByExampleQueryId="false" enableSelectByExample="false"
+			modelType="flat">
+		</table>
+		
 	</context>
 </generatorConfiguration>

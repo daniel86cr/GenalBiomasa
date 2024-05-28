@@ -68,12 +68,14 @@ public class VistaMenuPrincipalAdministrador extends CustomComponent implements 
     private Long                          time = null;
 
     /// Creamos los botones necesarios para cada entorno.
-    /** Botón para mostrar el entorno de trazabilidades.*/
-    private Button                        bTrazabilidades;
-    /** Botón para mostrar el entorno de control de producto terminado.*/
-    private Button                        bControlPt;
-    /** Botón para mostrar el entorno de control de producto terminado.*/
-    private Button                        bCopiaSeguridad;
+    /** Botón para mostrar el entorno de maestros.*/
+    private Button                        bMaestros;
+    /** Botón para mostrar la pantalla para el registro de pesajes.*/
+    private Button                        bRegistroPesajes;
+    /** Botón para mostrar el entorno de control de pesajes.*/
+    private Button                        bPesajes;
+    /** Botón para mostrar el entorno de facturación.*/
+    private Button                        bFacturacion;
 
     @PostConstruct
     void init() {
@@ -115,7 +117,7 @@ public class VistaMenuPrincipalAdministrador extends CustomComponent implements 
                     return;
                 }
 
-                if (!Utils.booleanFromInteger(permisos.getPantallaAdministrador())) {
+                if (!Utils.booleanFromInteger(permisos.getMenuPrincipal())) {
                     Notification aviso = new Notification("No se tienen permisos para acceder a la pantalla indicada", Notification.Type.ERROR_MESSAGE);
                     aviso.setPosition(Position.MIDDLE_CENTER);
                     aviso.show(Page.getCurrent());
@@ -125,20 +127,8 @@ public class VistaMenuPrincipalAdministrador extends CustomComponent implements 
                     return;
                 }
 
-                // if (permisos != null) {
-
                 setCompositionRoot(crearInterfaz());
 
-                /**  } else {
-                    // Si no se encuentran permisos con el rol especificado, informamos al empleado y cerramos sesión.
-                    Notification aviso = new Notification("No se han podido obtener los permisos, póngase en contacto con el administrador", Notification.Type.WARNING_MESSAGE);
-                    aviso.setPosition(Position.MIDDLE_CENTER);
-                    aviso.show(Page.getCurrent());
-                    getSession().setAttribute("user", null);
-                    // Redirigimos a la página de inicio.
-                    getUI().getNavigator().navigateTo(VistaInicioSesion.NAME);
-                }
-                */
             } catch (GenasoftException tbe) {
                 log.error("La sesión es inválida, se ha iniciado sesión en otro dispositivo.");
                 // Si no se encuentran permisos con el rol especificado, informamos al empleado y cerramos sesión.
@@ -174,7 +164,7 @@ public class VistaMenuPrincipalAdministrador extends CustomComponent implements 
     private void eventosBotones() {
 
         // Evento para acceder a la vista principal de pedidos.
-        bTrazabilidades.addClickListener(new ClickListener() {
+        bMaestros.addClickListener(new ClickListener() {
 
             public void buttonClick(ClickEvent event) {
 
@@ -184,7 +174,7 @@ public class VistaMenuPrincipalAdministrador extends CustomComponent implements 
         });
 
         // Evento para crear un nuevo empleado.
-        bControlPt.addClickListener(new ClickListener() {
+        bRegistroPesajes.addClickListener(new ClickListener() {
 
             public void buttonClick(ClickEvent event) {
 
@@ -194,7 +184,7 @@ public class VistaMenuPrincipalAdministrador extends CustomComponent implements 
         });
 
         // Evento para crear un nuevo empleado.
-        bCopiaSeguridad.addClickListener(new ClickListener() {
+        bPesajes.addClickListener(new ClickListener() {
 
             public void buttonClick(ClickEvent event) {
 
@@ -220,19 +210,19 @@ public class VistaMenuPrincipalAdministrador extends CustomComponent implements 
      * Método que nos crea los botones
      */
     private void crearBotones() {
-        if (bTrazabilidades == null) {
-            bTrazabilidades = new Button("Entorno trazabilidades", this);
-            bTrazabilidades.addStyleName("wide tall big");
-            bTrazabilidades.setWidth(15, Sizeable.Unit.EM);
-            bTrazabilidades.setHeight(4, Sizeable.Unit.EM);
-            bControlPt = new Button("Entorno control de PT", this);
-            bControlPt.addStyleName("wide tall big");
-            bControlPt.setWidth(15, Sizeable.Unit.EM);
-            bControlPt.setHeight(4, Sizeable.Unit.EM);
-            bCopiaSeguridad = new Button("Copia de seguridad", this);
-            bCopiaSeguridad.addStyleName("wide tall big");
-            bCopiaSeguridad.setWidth(15, Sizeable.Unit.EM);
-            bCopiaSeguridad.setHeight(4, Sizeable.Unit.EM);
+        if (bMaestros == null) {
+            bMaestros = new Button("Entorno trazabilidades", this);
+            bMaestros.addStyleName("wide tall big");
+            bMaestros.setWidth(15, Sizeable.Unit.EM);
+            bMaestros.setHeight(4, Sizeable.Unit.EM);
+            bRegistroPesajes = new Button("Entorno control de PT", this);
+            bRegistroPesajes.addStyleName("wide tall big");
+            bRegistroPesajes.setWidth(15, Sizeable.Unit.EM);
+            bRegistroPesajes.setHeight(4, Sizeable.Unit.EM);
+            bPesajes = new Button("Copia de seguridad", this);
+            bPesajes.addStyleName("wide tall big");
+            bPesajes.setWidth(15, Sizeable.Unit.EM);
+            bPesajes.setHeight(4, Sizeable.Unit.EM);
 
         }
     }
@@ -309,20 +299,20 @@ public class VistaMenuPrincipalAdministrador extends CustomComponent implements 
         botones.addComponent(l1);
 
         if (Utils.booleanFromInteger(permisos.getAppTrazabilidades())) {
-            botones.addComponent(bTrazabilidades);
-            botones.setComponentAlignment(bTrazabilidades, Alignment.MIDDLE_RIGHT);
+            botones.addComponent(bMaestros);
+            botones.setComponentAlignment(bMaestros, Alignment.MIDDLE_RIGHT);
             botones.addComponent(l5);
         }
 
         if (Utils.booleanFromInteger(permisos.getAppControlPt())) {
-            botones.addComponent(bControlPt);
-            botones.setComponentAlignment(bControlPt, Alignment.MIDDLE_RIGHT);
+            botones.addComponent(bRegistroPesajes);
+            botones.setComponentAlignment(bRegistroPesajes, Alignment.MIDDLE_RIGHT);
             botones.addComponent(l2);
         }
 
         if (Utils.booleanFromInteger(permisos.getCopiaSeguridad())) {
-            botones.addComponent(bCopiaSeguridad);
-            botones.setComponentAlignment(bCopiaSeguridad, Alignment.MIDDLE_RIGHT);
+            botones.addComponent(bPesajes);
+            botones.setComponentAlignment(bPesajes, Alignment.MIDDLE_RIGHT);
             botones.addComponent(l4);
         }
 

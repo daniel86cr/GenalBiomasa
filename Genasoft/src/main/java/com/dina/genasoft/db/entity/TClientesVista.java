@@ -3,6 +3,7 @@ package com.dina.genasoft.db.entity;
 import java.io.Serializable;
 import java.text.SimpleDateFormat;
 
+import com.dina.genasoft.configuration.Constants;
 import com.dina.genasoft.utils.Utils;
 import com.dina.genasoft.utils.enums.ClienteEnum;
 
@@ -222,18 +223,19 @@ public class TClientesVista implements Serializable {
     }
 
     /**
-     * Constructor a partir de parametro.
-     * @param c El cliente con los datos a copiar
+     * Constructor a partir de TClientes
+     * @param co El objeto con los datos a nutrir.
      */
-    public TClientesVista(TClientes c) {
-        this.cif = c.getCif();
-        this.estado = c.getEstado().equals(ClienteEnum.ACTIVO.getValue()) ? "Activo" : "Desactivado";
-        this.fechaCrea = new SimpleDateFormat("dd/MM/yyyy").format(c.getFechaCrea());
-        this.fechaModifica = c.getFechaModifica() != null ? new SimpleDateFormat("dd/MM/yyyy").format(c.getFechaModifica()) : "-";
-        this.id = "" + c.getId();
-        this.nombre = c.getNombre();
-        this.razonSocial = Utils.formatearValorString(c.getRazonSocial());
-        this.usuCrea = "" + c.getUsuCrea();
-        this.usuModifica = "" + c.getUsuModifica();
+    public TClientesVista(TClientes cl) {
+        this.cif = Utils.formatearValorString(cl.getCif());
+        this.estado = cl.getEstado().equals(ClienteEnum.ACTIVO.getValue()) ? Constants.ACTIVO : Constants.DESACTIVADO;
+        this.fechaCrea = new SimpleDateFormat("dd/MM/yyyy hh:mm").format(cl.getFechaCrea());
+        this.fechaModifica = cl.getFechaModifica() != null ? new SimpleDateFormat("dd/MM/yyyy hh:mm").format(cl.getFechaModifica()) : "-";
+        this.id = "" + cl.getId();
+        this.nombre = Utils.formatearValorString(cl.getNombre());
+        this.razonSocial = Utils.formatearValorString(cl.getRazonSocial());
+        this.usuCrea = "" + cl.getUsuCrea();
+        this.usuModifica = "" + cl.getUsuModifica();
     }
+
 }

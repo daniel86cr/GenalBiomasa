@@ -9,14 +9,26 @@ import java.io.Serializable;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import com.dina.genasoft.configuration.Constants;
 import com.dina.genasoft.db.entity.TClientes;
+import com.dina.genasoft.db.entity.TClientesOperadores;
+import com.dina.genasoft.db.entity.TClientesOperadoresVista;
+import com.dina.genasoft.db.entity.TClientesTransportistas;
+import com.dina.genasoft.db.entity.TClientesTransportistasVista;
 import com.dina.genasoft.db.entity.TClientesVista;
+import com.dina.genasoft.db.entity.TEmpleados;
+import com.dina.genasoft.db.entity.TOperadores;
+import com.dina.genasoft.db.entity.TRegistrosCambiosClientes;
+import com.dina.genasoft.db.entity.TTransportistas;
 import com.dina.genasoft.db.mapper.TClientesMapper;
+import com.dina.genasoft.db.mapper.TClientesOperadoresMapper;
+import com.dina.genasoft.db.mapper.TClientesTransportistasMapper;
+import com.dina.genasoft.db.mapper.TRegistrosCambiosClientesMapper;
 import com.dina.genasoft.utils.Utils;
 
 import lombok.Data;
@@ -31,15 +43,30 @@ import lombok.extern.slf4j.Slf4j;
 @Data
 public class ClientesSetup implements Serializable {
     /** El log de la aplicación.*/
-    private static final org.slf4j.Logger log              = org.slf4j.LoggerFactory.getLogger(ClientesSetup.class);
+    private static final org.slf4j.Logger   log              = org.slf4j.LoggerFactory.getLogger(ClientesSetup.class);
     /** Inyección por Spring del mapper TClientesMapper.*/
     @Autowired
-    private TClientesMapper               tClientesMapper;
-    /** Inyección de Spring para poder acceder a la capa de datos de empleados.*/
+    private TClientesMapper                 tClientesMapper;
+    /** Inyección por Spring del mapper TClientesOperadores.*/
     @Autowired
-    private EmpleadosSetup                empleadosSetup;
+    private TClientesOperadoresMapper       tClientesOperadoresMapper;
+    /** Inyección por Spring del mapper TClientesTransportistasMapper.*/
+    @Autowired
+    private TClientesTransportistasMapper   tClientesTransportistasMapper;
+    /** Inyección por Spring del mapper TRegistrosCambiosClientesMapper. */
+    @Autowired
+    private TRegistrosCambiosClientesMapper tRegistrosCambiosClientesMapper;
+    /** Inyección de Spring para poder acceder a la capa de datos de empleados. */
+    @Autowired
+    private EmpleadosSetup                  empleadosSetup;
+    /** Inyección de Spring para poder acceder a la capa de datos de operadores. */
+    @Autowired
+    private OperadoresSetup                 operadoresSetup;
+    /** Inyección de Spring para poder acceder a la capa de datos de transportistas. */
+    @Autowired
+    private TransportistasSetup             transportistasSetup;
     /** Serial ID de la aplicación Spring. */
-    private static final long             serialVersionUID = 5701299788812594642L;
+    private static final long               serialVersionUID = 5701299788812594642L;
 
     /**
      * Método que nos retorna el cliente a partir del ID.
@@ -59,6 +86,15 @@ public class ClientesSetup implements Serializable {
      */
     public TClientes obtenerClientePorNombre(String nombre) {
         return tClientesMapper.obtenerClientePorNombre(nombre.trim().toUpperCase());
+    }
+
+    /**
+     * Método que nos retorna el cliente a partir del nombre.
+     * @param nombre El nombre del cliente
+     * @return El cliente encontrado.
+     */
+    public TClientes obtenerClientePorCif(String cif) {
+        return tClientesMapper.obtenerClientePorCif(cif.trim().toUpperCase());
     }
 
     /**
@@ -95,15 +131,18 @@ public class ClientesSetup implements Serializable {
         Integer id = -1;
 
         try {
-            // Rellenamos los datos necesarios para crear la familia.
+            // Rellenamos los datos necesarios para crear el cliente.
             Map<String, Object> map = new HashMap<String, Object>();
             map.put("id", 0);
-            map.put("descripcion", record.getDescripcion());
-            map.put("estado", record.getEstado());
+            map.put("nombre", record.getNombre());
+            map.put("razonSocial", record.getRazonSocial());
+            map.put("cif", record.getCif());
             map.put("usuCrea", record.getUsuCrea());
             map.put("fechaCrea", record.getFechaCrea());
             map.put("usuModifica", record.getUsuModifica());
             map.put("fechaModifica", record.getFechaModifica());
+            map.put("estado", record.getEstado());
+
             tClientesMapper.insertRecord(map);
 
             id = (Integer) map.get("id");
@@ -123,7 +162,7 @@ public class ClientesSetup implements Serializable {
      */
     public String crearCliente(TClientes cliente) {
         String result = Constants.OPERACION_OK;
-        cliente.setDescripcion(cliente.getDescripcion().trim().toUpperCase());
+        cliente.setNombre(cliente.getNombre().trim().toUpperCase());
 
         String res = existeCliente(cliente);
 
@@ -149,7 +188,7 @@ public class ClientesSetup implements Serializable {
      */
     public String modificarCliente(TClientes record) {
         String result = Constants.OPERACION_OK;
-        record.setDescripcion(record.getDescripcion().trim().toUpperCase());
+        record.setNombre(record.getNombre().trim().toUpperCase());
 
         String res = existeCliente(record);
 
@@ -169,6 +208,84 @@ public class ClientesSetup implements Serializable {
     }
 
     /**
+     * Método que nos comprueba si existe el cliente en el sistema
+     * @param cl El cliente a comprobar
+     * @return El código del resultado de la operación.
+     */
+    private String existeCliente(TClientes cl) {
+        String result = null;
+        TClientes aux = obtenerClientePorNombre(cl.getNombre());
+        if (aux == null || (cl.getId() != null && cl.getId().equals(aux.getId()))) {
+            aux = obtenerClientePorCif(cl.getCif());
+            if (aux != null && (cl.getId() != null && cl.getId().equals(aux.getId()))) {
+                result = Constants.CLIENTE_EXISTE_CIF;
+            }
+        } else {
+            result = Constants.CLIENTE_EXISTE_NOMBRE;
+        }
+
+        return result;
+    }
+
+    /**
+     * Método que se encarga de crear un nuevo registro de cambio de empleado en el sistema.
+     * @param record El registro de cambio de empleado a crear.     
+     * @return El código del resultado de la operación.
+     */
+    public String crearRegistroCambioCliente(TRegistrosCambiosClientes record) {
+
+        String result = Constants.OPERACION_OK;
+
+        try {
+            result = tRegistrosCambiosClientesMapper.insert(record) == 1 ? Constants.OPERACION_OK : Constants.BD_KO_CREA_CLIENTE;
+        } catch (Exception e) {
+            result = Constants.BD_KO_CREA_CLIENTE;
+            log.error(Constants.BD_KO_CREA_CLIENTE + ", Error al crear el registro de modificación del cliente: " + record.toString() + ", ", e);
+        }
+
+        // Retnornamos el resultado de la operación.
+        return result;
+    }
+
+    /**
+     * Método que nos retorna las asociaciones de cliente - operadores asociados al cliente.
+     * @param idCliente El Id del cliente para realizar la consulta.
+     * @return Los registros encontrados.
+     */
+    public List<TClientesOperadores> obtenerOperadoresAsociadosCliente(Integer idCliente) {
+        return tClientesOperadoresMapper.obtenerOperadoresAsociadosCliente(idCliente);
+    }
+
+    /**
+     * Método que nos retorna la asociación cliente-operador
+     * @param idCliente El ID del cliente 
+     * @param idOperador El ID del operador
+     * @return El resultado de la consulta.
+     */
+    public TClientesOperadores obtenerClienteOperador(Integer idCliente, Integer idOperador) {
+        return tClientesOperadoresMapper.selectByPrimaryKey(idCliente, idOperador);
+    }
+
+    /**
+     * Método que nos retorna las asociaciones de cliente - transportista asociados al cliente.
+     * @param idCliente El Id del cliente para realizar la consulta.
+     * @return Los registros encontrados.
+     */
+    public List<TClientesTransportistas> obtenerTransportistasAsociadosCliente(Integer idCliente) {
+        return tClientesTransportistasMapper.obtenerTransportistasAsociadosCliente(idCliente);
+    }
+
+    /**
+     * Método que nos retorna la asociación cliente-transportista
+     * @param idCliente El ID del cliente 
+     * @param idTransportista El ID del transportista
+     * @return El resultado de la consulta.
+     */
+    public TClientesTransportistas obtenerClienteTransportista(Integer idCliente, Integer idTransportista) {
+        return tClientesTransportistasMapper.selectByPrimaryKey(idCliente, idTransportista);
+    }
+
+    /**
      * Método que se encarga de realizar la conversión de  {@linkplain TClientes} a  {@linkplain TClientesVista}
      * @param lClientes Lista de clientes a convertir
      * @return Lista de clientes en formato  {@linkplain TClientesVista}
@@ -176,11 +293,24 @@ public class ClientesSetup implements Serializable {
     private List<TClientesVista> convertirClientesVista(List<TClientes> lClientes) {
         List<TClientesVista> lResult = Utils.generarListaGenerica();
 
+        List<TEmpleados> lEmpl = empleadosSetup.obtenerTodosEmpleados();
+
+        // Nutrimos el diccionario con los empleados
+        Map<Integer, String> mEmpleados = lEmpl.stream().collect(Collectors.toMap(TEmpleados::getId, TEmpleados::getNombre));
+
         TClientesVista aux = null;
+        String campo = "";
 
         for (TClientes cl : lClientes) {
-            aux = new TClientesVista();
-            aux.copiaDesdeCliente(cl);
+            aux = new TClientesVista(cl);
+
+            campo = mEmpleados.get(cl.getUsuCrea());
+            aux.setUsuCrea(campo != null ? campo : "N/D; id: " + cl.getUsuCrea());
+
+            if (cl.getUsuModifica() != null) {
+                campo = mEmpleados.get(cl.getUsuModifica());
+                aux.setUsuModifica(campo != null ? campo : "N/D; id: " + cl.getUsuModifica());
+            }
 
             lResult.add(aux);
         }
@@ -189,20 +319,103 @@ public class ClientesSetup implements Serializable {
     }
 
     /**
-     * Método que nos comprueba si existe el cliente en el sistema
-     * @param cl El cliente a comprobar
-     * @return El código del resultado de la operación.
+     * Método que se encarga de convertir los clientes-operador en objeto vista
+     * @param lList Lista con los objetos a convertir.
+     * @return Lista resultado
      */
-    private String existeCliente(TClientes cl) {
-        String result = null;
-        TClientes aux = obtenerClientePorNombre(cl.getDescripcion());
-        if (aux == null || (cl.getId() != null && cl.getId().equals(aux.getId()))) {
+    public List<TClientesOperadoresVista> convertirClientesOperadoresVista(List<TClientesOperadores> lList) {
+        List<TClientesOperadoresVista> lResult = Utils.generarListaGenerica();
 
-        } else {
-            result = Constants.CLIENTE_EXISTE_NOMBRE;
+        TClientesOperadoresVista aux = null;
+
+        List<TEmpleados> lEmpl = empleadosSetup.obtenerTodosEmpleados();
+        List<TClientes> lClient = obtenerTodosClientes();
+        List<TOperadores> lOper = operadoresSetup.obtenerTodosOperadores();
+
+        // Nutrimos el diccionario con los empleados
+        Map<Integer, String> mEmpleados = lEmpl.stream().collect(Collectors.toMap(TEmpleados::getId, TEmpleados::getNombre));
+        // Nutrimos el diccionario con los clientes
+        Map<Integer, String> mClientes = lClient.stream().collect(Collectors.toMap(TClientes::getId, TClientes::getNombre));
+        // Nutrimos el diccionario con los operadores
+        Map<Integer, String> mOperadores = lOper.stream().collect(Collectors.toMap(TOperadores::getId, TOperadores::getNombre));
+
+        String campo = "";
+
+        for (TClientesOperadores cl : lList) {
+            aux = new TClientesOperadoresVista(cl);
+
+            // Empleados
+            campo = mEmpleados.get(cl.getUsuCrea());
+            aux.setUsuCrea(campo != null ? campo : "N/D; id: " + cl.getUsuCrea());
+
+            if (cl.getUsuModifica() != null) {
+                campo = mEmpleados.get(cl.getUsuModifica());
+                aux.setUsuModifica(campo != null ? campo : "N/D; id: " + cl.getUsuModifica());
+            }
+
+            // Cliente
+            campo = mClientes.get(cl.getIdCliente());
+            aux.setNombreCliente(campo != null ? campo : "N/D; ID: " + cl.getIdCliente());
+
+            // Operador
+            campo = mOperadores.get(cl.getIdOperador());
+            aux.setNombreOperador(campo != null ? campo : "N/D; ID: " + cl.getIdOperador());
+
+            lResult.add(aux);
+
         }
 
-        return result;
+        return lResult;
+    }
+
+    /**
+     * Método que se encarga de convertir los clientes-operador en objeto vista
+     * @param lList Lista con los objetos a convertir.
+     * @return Lista resultado
+     */
+    public List<TClientesTransportistasVista> convertirClientesTransportistasVista(List<TClientesTransportistas> lList) {
+        List<TClientesTransportistasVista> lResult = Utils.generarListaGenerica();
+
+        TClientesTransportistasVista aux = null;
+
+        List<TEmpleados> lEmpl = empleadosSetup.obtenerTodosEmpleados();
+        List<TClientes> lClient = obtenerTodosClientes();
+        List<TTransportistas> lOper = transportistasSetup.obtenerTodosTransportistas();
+
+        // Nutrimos el diccionario con los empleados
+        Map<Integer, String> mEmpleados = lEmpl.stream().collect(Collectors.toMap(TEmpleados::getId, TEmpleados::getNombre));
+        // Nutrimos el diccionario con los clientes
+        Map<Integer, String> mClientes = lClient.stream().collect(Collectors.toMap(TClientes::getId, TClientes::getNombre));
+        // Nutrimos el diccionario con los transportistas
+        Map<Integer, String> mTransportistas = lOper.stream().collect(Collectors.toMap(TTransportistas::getId, TTransportistas::getNombre));
+
+        String campo = "";
+
+        for (TClientesTransportistas cl : lList) {
+            aux = new TClientesTransportistasVista(cl);
+
+            // Empleados
+            campo = mEmpleados.get(cl.getUsuCrea());
+            aux.setUsuCrea(campo != null ? campo : "N/D; id: " + cl.getUsuCrea());
+
+            if (cl.getUsuModifica() != null) {
+                campo = mEmpleados.get(cl.getUsuModifica());
+                aux.setUsuModifica(campo != null ? campo : "N/D; id: " + cl.getUsuModifica());
+            }
+
+            // Cliente
+            campo = mClientes.get(cl.getIdCliente());
+            aux.setNombreCliente(campo != null ? campo : "N/D; ID: " + cl.getIdCliente());
+
+            // Transportista
+            campo = mTransportistas.get(cl.getIdTransportista());
+            aux.setNombreTransportista(campo != null ? campo : "N/D; ID: " + cl.getIdTransportista());
+
+            lResult.add(aux);
+
+        }
+
+        return lResult;
     }
 
 }

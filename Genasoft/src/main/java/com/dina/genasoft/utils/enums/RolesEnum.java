@@ -16,14 +16,8 @@ public enum RolesEnum
     MASTER(1),
     /** ROL ADMINISTRADOR. */
     ADMINISTRADOR(2),
-    /** ROL LIBRO DE TRAZABILIDAD. */
-    LIBRO_TRAZABILIDAD(3),
-    /** ROL CONTROL PT. */
-    CONTROL_PT(4),
-    /** ROL TRAZABILIDADES. */
-    TRAZABILIDADES(5),
-    /** ROL OPERARIO CONTROL PT. */
-    OPERARIO_CONTROL_PT(6);
+    /** ROL ADMINISTRATIVO. */
+    ADMINISTRATIVO(3);
 
     /**String data type. */
     private int valor;

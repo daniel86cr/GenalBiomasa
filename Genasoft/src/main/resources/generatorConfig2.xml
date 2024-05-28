@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE generatorConfiguration PUBLIC "-//mybatis.org//DTD MyBatis Generator Configuration 1.0//EN" "src/main/resources/dtd/mybatis-generator-config_1_0.dtd" >
+<generatorConfiguration>
+	<!-- URI donde se encuentra la libreria de oracle para generar los mapeos -->
+	<!-- URI donde se encuentra la libreria de oracle para generar los mapeos -->
+	<!-- <classPathEntry location="/Users/daniel/.m2/repository/mysql/mysql-connector-java/5.1.37/mysql-connector-java-5.1.37.jar"/> -->
+		<classPathEntry location="/Users/danielcarmona/.m2/repository/mysql/mysql-connector-java/5.1.37/mysql-connector-java-5.1.37.jar"/>
+	<!--  <classPathEntry location="C:/Users/Casa/.m2/repository/mysql/mysql-connector-java/5.1.37/mysql-connector-java-5.1.37.jar"/> -->
+	<context id="oracleContext">
+		<plugin type="org.mybatis.generator.plugins.SerializablePlugin" />
+		<!--  -->
+		<!--  
+		<jdbcConnection driverClass="com.mysql.jdbc.Driver"
+			connectionURL="jdbc:mysql://212.227.137.44:3306/transportes_desa"
+			userId="lineaverde" password="l1n14v3rd3" />
+			-->
+		 
+		<jdbcConnection driverClass="com.mysql.jdbc.Driver"
+			connectionURL="jdbc:mysql://81.45.93.193:3306/db_brostel?useSSL=false"
+			userId="dataStorage" password="D4t4S0r4ge21_?" />
+ 		 	
+		<!--  
+		<javaModelGenerator targetPackage="com.dina.genasoft.db.entity" targetProject="LineaVerde/src/main/java" />
+		<sqlMapGenerator targetPackage="SqlMaps" targetProject="LineaVerde/src/main/resources" />
+		<javaClientGenerator targetPackage="com.dina.genasoft.db.mapper" targetProject="LineaVerde/src/main/java" type="XMLMAPPER" />																																																																																																															
+		-->	
+			
+		<javaModelGenerator targetPackage="com.dina.genasoft.db.entity" targetProject="Genasoft/src/main/java" />
+		<sqlMapGenerator targetPackage="SqlMaps" targetProject="Genasoft/src/main/resources" />
+		<javaClientGenerator targetPackage="com.dina.genasoft.db.mapper" targetProject="Genasoft/src/main/java" type="XMLMAPPER" />
+		
+		<table tableName="t_trace" enableCountByExample="false"
+			enableDeleteByExample="false" enableUpdateByExample="false"
+			selectByPrimaryKeyQueryId="false" enableInsert="true"
+			selectByExampleQueryId="false" enableSelectByExample="false"
+			modelType="flat">
+		</table>
+				
+		
+	</context>
+</generatorConfiguration>

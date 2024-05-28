@@ -1,7 +1,7 @@
 /**
- * Aplicacion Control transporte Brostel.
- * http://www.brostel.net/
- * Copyright (C) 2020
+ * Genasoft - Daniel Carmona 47637680B.
+ *  
+ *  Copyright (C) 2024
  */
 package com.dina.genasoft.utils.exportar;
 
@@ -9,16 +9,11 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
-import java.util.List;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
-import com.dina.genasoft.common.ImportadorSetup;
-import com.dina.genasoft.common.ProveedoresSetup;
-import com.dina.genasoft.db.entity.TProveedores;
-import com.dina.genasoft.db.entity.TVentasVista;
+import com.dina.genasoft.db.entity.TClientes;
 import com.dina.genasoft.exception.GenasoftException;
 import com.itextpdf.text.BaseColor;
 import com.itextpdf.text.Document;
@@ -51,12 +46,6 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 @Data
 public class AlbaranPDF extends PdfPageEventHelper {
-    /** Inyección de Spring para poder acceder a la capa de datos de proveedores.*/
-    @Autowired
-    private ProveedoresSetup              proveedoresSetup;
-    /** Inyección de Spring para poder acceder a la capa de datos de importación.*/
-    @Autowired
-    private ImportadorSetup               importadorSetup;
     /** El log de la aplicación*/
     private static final org.slf4j.Logger log         = org.slf4j.LoggerFactory.getLogger(AlbaranPDF.class);
     /** Contendrá el nombre de la aplicación.*/
@@ -103,11 +92,9 @@ public class AlbaranPDF extends PdfPageEventHelper {
     private Document                      document    = null;
     /** El logo de la emprea.*/
     private Image                         img         = null;
-    /** Listado de líneas que componen la venta. */
-    private List<TVentasVista>            lLineas;
     /** Nos indica si en alguna línea hay GGN. */
     private Boolean                       indBio;
-    private TProveedores                  empresa;
+    private TClientes                     empresa;
 
     interface LineDash {
         public void applyLineDash(PdfContentByte canvas);
