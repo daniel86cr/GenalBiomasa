@@ -1,5 +1,7 @@
 package com.dina.genasoft.db.mapper;
 
+import java.util.Map;
+
 import com.dina.genasoft.db.entity.TFacturas;
 
 public interface TFacturasMapper {
@@ -39,4 +41,10 @@ public interface TFacturasMapper {
      * @mbg.generated  Tue May 28 16:07:02 CEST 2024
      */
     int updateByPrimaryKey(TFacturas record);
+
+    /**
+     * Método para crear la factura y obtener el ID del registro creado.
+     * @param map Los datos de la factura a crear.
+     */
+    public void insertRecord(Map<String, Object> map);
 }

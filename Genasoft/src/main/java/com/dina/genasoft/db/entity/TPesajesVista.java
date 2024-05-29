@@ -501,7 +501,7 @@ public class TPesajesVista implements Serializable {
 
     /**
      * Constructor a partir de TPesajes
-     * @param co El objeto con los datos a nutrir.
+     * @param p El objeto con los datos a nutrir.
      */
     public TPesajesVista(TPesajes p) {
         DecimalFormat df = new DecimalFormat("#,##0.000");

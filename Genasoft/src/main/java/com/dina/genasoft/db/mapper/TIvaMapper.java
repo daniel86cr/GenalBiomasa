@@ -1,5 +1,9 @@
 package com.dina.genasoft.db.mapper;
 
+import java.util.List;
+
+import org.apache.ibatis.annotations.Param;
+
 import com.dina.genasoft.db.entity.TIva;
 
 public interface TIvaMapper {
@@ -39,4 +43,25 @@ public interface TIvaMapper {
      * @mbg.generated  Tue May 28 16:07:02 CEST 2024
      */
     int updateByPrimaryKey(TIva record);
+
+    /**
+     * Método que nos busca el IVA a partir de la descripción.
+     * @param descripcion La descripción por la cual realizar la búsqueda.
+     * @return El IVA encontrado.
+     */
+    TIva obtenerIvaPorDescripcion(@Param("descripcion") String descripcion);
+
+    /**
+     * Método que nos retorna los diferentes IVA activos en el sistema.
+     * @return Los IVA encontrados.
+     */
+    List<TIva> obtenerIvaActivos();
+
+    String obtenerValorIva(@Param("id") Integer id);
+
+    /**
+     * Método que nos retorna los diferentes IVA existentes en el sistema.
+     * @return Los IVA encontrados.
+     */
+    List<TIva> obtenerTodosIva();
 }

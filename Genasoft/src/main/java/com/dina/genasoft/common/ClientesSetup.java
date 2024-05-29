@@ -16,18 +16,24 @@ import org.springframework.stereotype.Component;
 
 import com.dina.genasoft.configuration.Constants;
 import com.dina.genasoft.db.entity.TClientes;
+import com.dina.genasoft.db.entity.TClientesMateriales;
+import com.dina.genasoft.db.entity.TClientesMaterialesVista;
 import com.dina.genasoft.db.entity.TClientesOperadores;
 import com.dina.genasoft.db.entity.TClientesOperadoresVista;
 import com.dina.genasoft.db.entity.TClientesTransportistas;
 import com.dina.genasoft.db.entity.TClientesTransportistasVista;
 import com.dina.genasoft.db.entity.TClientesVista;
 import com.dina.genasoft.db.entity.TEmpleados;
+import com.dina.genasoft.db.entity.TIva;
+import com.dina.genasoft.db.entity.TMateriales;
 import com.dina.genasoft.db.entity.TOperadores;
 import com.dina.genasoft.db.entity.TRegistrosCambiosClientes;
 import com.dina.genasoft.db.entity.TTransportistas;
 import com.dina.genasoft.db.mapper.TClientesMapper;
+import com.dina.genasoft.db.mapper.TClientesMaterialesMapper;
 import com.dina.genasoft.db.mapper.TClientesOperadoresMapper;
 import com.dina.genasoft.db.mapper.TClientesTransportistasMapper;
+import com.dina.genasoft.db.mapper.TDireccionClienteMapper;
 import com.dina.genasoft.db.mapper.TRegistrosCambiosClientesMapper;
 import com.dina.genasoft.utils.Utils;
 
@@ -43,30 +49,42 @@ import lombok.extern.slf4j.Slf4j;
 @Data
 public class ClientesSetup implements Serializable {
     /** El log de la aplicación.*/
-    private static final org.slf4j.Logger   log              = org.slf4j.LoggerFactory.getLogger(ClientesSetup.class);
+    private static final org.slf4j.Logger      log              = org.slf4j.LoggerFactory.getLogger(ClientesSetup.class);
     /** Inyección por Spring del mapper TClientesMapper.*/
     @Autowired
-    private TClientesMapper                 tClientesMapper;
+    private TClientesMapper                    tClientesMapper;
     /** Inyección por Spring del mapper TClientesOperadores.*/
     @Autowired
-    private TClientesOperadoresMapper       tClientesOperadoresMapper;
+    private TClientesOperadoresMapper          tClientesOperadoresMapper;
     /** Inyección por Spring del mapper TClientesTransportistasMapper.*/
     @Autowired
-    private TClientesTransportistasMapper   tClientesTransportistasMapper;
+    private TClientesTransportistasMapper      tClientesTransportistasMapper;
+    /** Inyección por Spring del mapper TClientesMaterialesMapper.*/
+    @Autowired
+    private TClientesMaterialesMapper          tClientesMaterialesMapper;
+    /** Inyección por Spring del mapper TDireccionClienteMapper.*/
+    @Autowired
+    private TDireccionClienteMapper         tDireccionClienteMapper;aa
     /** Inyección por Spring del mapper TRegistrosCambiosClientesMapper. */
     @Autowired
-    private TRegistrosCambiosClientesMapper tRegistrosCambiosClientesMapper;
+    private TRegistrosCambiosClientesMapper    tRegistrosCambiosClientesMapper;
     /** Inyección de Spring para poder acceder a la capa de datos de empleados. */
     @Autowired
-    private EmpleadosSetup                  empleadosSetup;
+    private EmpleadosSetup                     empleadosSetup;
     /** Inyección de Spring para poder acceder a la capa de datos de operadores. */
     @Autowired
-    private OperadoresSetup                 operadoresSetup;
+    private OperadoresSetup                    operadoresSetup;
+    /** Inyección de Spring para poder acceder a la capa de datos de materiales. */
+    @Autowired
+    private MaterialesSetup                    materialesSetup;
+    /** Inyección de Spring para poder acceder a la capa de datos de monedas. */
+    @Autowired
+    private MonedasSetup                       monedasSetup;
     /** Inyección de Spring para poder acceder a la capa de datos de transportistas. */
     @Autowired
-    private TransportistasSetup             transportistasSetup;
+    private TransportistasSetup                transportistasSetup;
     /** Serial ID de la aplicación Spring. */
-    private static final long               serialVersionUID = 5701299788812594642L;
+    private static final long                  serialVersionUID = 5701299788812594642L;
 
     /**
      * Método que nos retorna el cliente a partir del ID.
@@ -276,6 +294,15 @@ public class ClientesSetup implements Serializable {
     }
 
     /**
+     * Método que nos retorna las asociaciones de cliente - transportista asociados al cliente.
+     * @param idCliente El Id del cliente para realizar la consulta.
+     * @return Los registros encontrados.
+     */
+    public List<TClientesTransportistasVista> obtenerTransportistasAsociadosClienteVista(Integer idCliente) {
+        return convertirClientesTransportistasVista(obtenerTransportistasAsociadosCliente(idCliente));
+    }
+
+    /**
      * Método que nos retorna la asociación cliente-transportista
      * @param idCliente El ID del cliente 
      * @param idTransportista El ID del transportista
@@ -283,6 +310,34 @@ public class ClientesSetup implements Serializable {
      */
     public TClientesTransportistas obtenerClienteTransportista(Integer idCliente, Integer idTransportista) {
         return tClientesTransportistasMapper.selectByPrimaryKey(idCliente, idTransportista);
+    }
+
+    /**
+     * Método que nos retorna las asociaciones de cliente - transportista asociados al cliente.
+     * @param idCliente El Id del cliente para realizar la consulta.
+     * @return Los registros encontrados.
+     */
+    public List<TClientesMateriales> obtenerMaterialesAsociadosCliente(Integer idCliente) {
+        return tClientesMaterialesMapper.obtenerMaterialesAsociadosCliente(idCliente);
+    }
+
+    /**
+     * Método que nos retorna las asociaciones de cliente - transportista asociados al cliente.
+     * @param idCliente El Id del cliente para realizar la consulta.
+     * @return Los registros encontrados.
+     */
+    public List<TClientesMaterialesVista> obtenerMaterialesAsociadosClienteVista(Integer idCliente) {
+        return convertirClientesMaterialesVista(obtenerMaterialesAsociadosCliente(idCliente));
+    }
+
+    /**
+     * Método que nos retorna la asociación cliente-transportista
+     * @param idCliente El ID del cliente 
+     * @param idTransportista El ID del transportista
+     * @return El resultado de la consulta.
+     */
+    public TClientesMateriales obtenerClienteMaterial(Integer idCliente, Integer idMaterial) {
+        return tClientesMaterialesMapper.selectByPrimaryKey(idCliente, idMaterial);
     }
 
     /**
@@ -410,6 +465,63 @@ public class ClientesSetup implements Serializable {
             // Transportista
             campo = mTransportistas.get(cl.getIdTransportista());
             aux.setNombreTransportista(campo != null ? campo : "N/D; ID: " + cl.getIdTransportista());
+
+            lResult.add(aux);
+
+        }
+
+        return lResult;
+    }
+
+    /**
+     * Método que se encarga de convertir los clientes-operador en objeto vista
+     * @param lList Lista con los objetos a convertir.
+     * @return Lista resultado
+     */
+    public List<TClientesMaterialesVista> convertirClientesMaterialesVista(List<TClientesMateriales> lList) {
+        List<TClientesMaterialesVista> lResult = Utils.generarListaGenerica();
+
+        TClientesMaterialesVista aux = null;
+
+        List<TEmpleados> lEmpl = empleadosSetup.obtenerTodosEmpleados();
+        List<TClientes> lClient = obtenerTodosClientes();
+        List<TMateriales> lMats = materialesSetup.obtenerTodosMateriales();
+        List<TIva> lIvas = monedasSetup.obtenerTodosIva();
+
+        // Nutrimos el diccionario con los empleados
+        Map<Integer, String> mEmpleados = lEmpl.stream().collect(Collectors.toMap(TEmpleados::getId, TEmpleados::getNombre));
+        // Nutrimos el diccionario con los clientes
+        Map<Integer, String> mClientes = lClient.stream().collect(Collectors.toMap(TClientes::getId, TClientes::getNombre));
+        // Nutrimos el diccionario con los materiales
+        Map<Integer, String> mMateriales = lMats.stream().collect(Collectors.toMap(TMateriales::getId, TMateriales::getDescripcion));
+        // Nutrimos el diccionario con los diferentes tipos de IVA
+        Map<Integer, String> mIvas = lIvas.stream().collect(Collectors.toMap(TIva::getId, TIva::getDescripcion));
+
+        String campo = "";
+
+        for (TClientesMateriales cl : lList) {
+            aux = new TClientesMaterialesVista(cl);
+
+            // Empleados
+            campo = mEmpleados.get(cl.getUsuCrea());
+            aux.setUsuCrea(campo != null ? campo : "N/D; id: " + cl.getUsuCrea());
+
+            if (cl.getUsuModifica() != null) {
+                campo = mEmpleados.get(cl.getUsuModifica());
+                aux.setUsuModifica(campo != null ? campo : "N/D; id: " + cl.getUsuModifica());
+            }
+
+            // Cliente
+            campo = mClientes.get(cl.getIdCliente());
+            aux.setNombreCliente(campo != null ? campo : "N/D; ID: " + cl.getIdCliente());
+
+            // Material
+            campo = mMateriales.get(cl.getIdMaterial());
+            aux.setNombreMaterial(campo != null ? campo : "N/D; ID: " + cl.getIdMaterial());
+
+            // IVA
+            campo = mIvas.get(cl.getIva());
+            aux.setDescripcionIva(campo != null ? campo : "N/D; ID: " + cl.getIva());
 
             lResult.add(aux);
 

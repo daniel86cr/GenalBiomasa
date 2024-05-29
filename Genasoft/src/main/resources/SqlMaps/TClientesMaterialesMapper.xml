@@ -179,4 +179,15 @@
     where id_cliente = #{idCliente,jdbcType=INTEGER}
       and id_material = #{idMaterial,jdbcType=INTEGER}
   </update>
+  
+  
+  <select id="obtenerMaterialesAsociadosCliente" parameterType="map" resultMap="BaseResultMap">
+    <!--
+      
+    -->
+    select 'false' as QUERYID,
+    <include refid="Base_Column_List" />
+    from t_clientes_materiales
+    where id_cliente = #{idCliente,jdbcType=INTEGER}      
+  </select>
 </mapper>

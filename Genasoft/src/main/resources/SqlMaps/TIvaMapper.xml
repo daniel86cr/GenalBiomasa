@@ -130,4 +130,52 @@
       estado = #{estado,jdbcType=INTEGER}
     where id = #{id,jdbcType=INTEGER}
   </update>
+  
+  <select id="obtenerIvaPorDescripcion" parameterType="java.lang.String" resultMap="BaseResultMap">
+    <!--
+      Elemento que nos busca el IVA a partir de la descripción.
+    -->
+    select 'false' as QUERYID,
+    <include refid="Base_Column_List" />
+    from t_iva
+    where 
+		descripcion = #{descripcion,jdbcType=VARCHAR}
+  </select>
+  <select id="obtenerIvaActivos" resultMap="BaseResultMap">
+    <!--
+      Elemento que nos retorna los diferentes IVA activos en el sistema.
+    -->
+    select 'false' as QUERYID,
+    <include refid="Base_Column_List" />
+    from t_iva
+    where 
+		estado = 1
+	order by importe asc
+  </select>
+  <select id="obtenerTodosIva" resultMap="BaseResultMap">
+    <!--
+      Elemento que nos retorna los diferentes IVA existentes en el sistema.
+    -->
+    select 'false' as QUERYID,
+    <include refid="Base_Column_List" />
+    from t_iva
+    order by importe asc
+  </select>
+  
+  <insert id="migrarTiposIva">
+    <!--
+     
+    -->
+    insert into reports_glamour.t_iva (select * from t_iva)
+  </insert>
+  <select id="obtenerValorIva" resultType="java.lang.String">
+    <!--
+      Elemento que nos retorna los diferentes IVA activos en el sistema.
+    -->
+   select CONCAT(importe, '%') 
+    from t_iva
+    where 
+		id = #{id,jdbcType=INTEGER}
+  </select> 
+  
 </mapper>

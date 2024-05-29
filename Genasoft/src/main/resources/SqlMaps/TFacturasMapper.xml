@@ -214,4 +214,20 @@
       total = #{total,jdbcType=DOUBLE}
     where id = #{id,jdbcType=INTEGER}
   </update>
+  
+  <insert id="insertRecord" keyColumn="id" keyProperty="id" parameterType="map" useGeneratedKeys="true">
+   <!-- 
+   		Elemento que nos crea el cliente y nos retorna el ID generado
+    -->
+    insert into t_facturas (numero_factura, fecha_factura, 
+      empresa, obra, id_cliente, 
+      id_direccion, base, descuento, 
+      subtotal, total_neto, total
+      )
+    values (#{numeroFactura,jdbcType=VARCHAR}, #{fechaFactura,jdbcType=DATE}, 
+      #{empresa,jdbcType=INTEGER}, #{obra,jdbcType=VARCHAR}, #{idCliente,jdbcType=INTEGER}, 
+      #{idDireccion,jdbcType=INTEGER}, #{base,jdbcType=DOUBLE}, #{descuento,jdbcType=DOUBLE}, 
+      #{subtotal,jdbcType=DOUBLE}, #{totalNeto,jdbcType=DOUBLE}, #{total,jdbcType=DOUBLE}
+      )
+   </insert>
 </mapper>

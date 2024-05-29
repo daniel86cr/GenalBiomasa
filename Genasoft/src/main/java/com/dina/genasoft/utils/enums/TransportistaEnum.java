@@ -11,9 +11,9 @@ package com.dina.genasoft.utils.enums;
  */
 public enum TransportistaEnum
 {
-    /** Empleado activo.*/
+    /** Transportista activo.*/
     ACTIVO(1),
-    /** Empleado no activo. */
+    /** Transportista no activo. */
     DESACTIVADO(0);
 
     /**String data type. */

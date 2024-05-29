@@ -212,12 +212,24 @@ public class PesajesSetup implements Serializable {
         Map<Integer, String> mClientes = lClient.stream().collect(Collectors.toMap(TClientes::getId, TClientes::getNombre));
 
         TPesajesVista aux = null;
+        String campo = "";
 
         for (TPesajes p : lPesajes) {
             aux = new TPesajesVista(p);
-            
-            aux.set
-            
+
+            // Empleados
+            campo = mEmpleados.get(p.getUsuCrea());
+            aux.setUsuCrea(campo != null ? campo : "N/D; id: " + p.getUsuCrea());
+
+            if (p.getUsuModifica() != null) {
+                campo = mEmpleados.get(p.getUsuModifica());
+                aux.setUsuModifica(campo != null ? campo : "N/D; id: " + p.getUsuModifica());
+            }
+
+            // Cliente
+            campo = mClientes.get(p.getIdCliente());
+            aux.setIdCliente(campo != null ? campo : "N/D; ID: " + p.getIdCliente());
+
             lResult.add(aux);
         }
 

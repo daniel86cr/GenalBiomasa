@@ -6,14 +6,14 @@
 package com.dina.genasoft.utils.enums;
 
 /**
- * Enumerado para determinar los diferentes campos del pesaje <br>
+ * Enumerado para determinar los diferentes campos del IVA <br>
  * para ser consultados.
  */
-public enum PesajesEnum
+public enum IvaEnum
 {
-    /** Pesaje activo.*/
+    /** IVA activo.*/
     ACTIVO(1),
-    /** Pesaje no activo. */
+    /** IVA no activo. */
     DESACTIVADO(0);
 
     /**String data type. */
@@ -22,7 +22,7 @@ public enum PesajesEnum
     /** Type value.
      * @param pValue value.
      */
-    PesajesEnum(final int pValue) {
+    IvaEnum(final int pValue) {
         valor = pValue;
     }
 

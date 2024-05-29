@@ -214,4 +214,52 @@
       estado = #{estado,jdbcType=INTEGER}
     where id = #{id,jdbcType=INTEGER}
   </update>
+  
+  <insert id="insertRecord" keyColumn="id" keyProperty="id" parameterType="map" useGeneratedKeys="true">
+   <!-- 
+   		Elemento que nos crea el cliente y nos retorna el ID generado
+    -->
+    insert into t_materiales (referencia, descripcion, 
+      ler, id_familia, precio, 
+      iva, usu_crea, fecha_crea, 
+      usu_modifica, fecha_modifica, estado
+      )
+    values (#{referencia,jdbcType=VARCHAR}, #{descripcion,jdbcType=VARCHAR}, 
+      #{ler,jdbcType=VARCHAR}, #{idFamilia,jdbcType=INTEGER}, #{precio,jdbcType=DOUBLE}, 
+      #{iva,jdbcType=INTEGER}, #{usuCrea,jdbcType=INTEGER}, #{fechaCrea,jdbcType=TIMESTAMP}, 
+      #{usuModifica,jdbcType=INTEGER}, #{fechaModifica,jdbcType=TIMESTAMP}, #{estado,jdbcType=INTEGER}
+      )
+   </insert>
+  
+  <select id="obtenerMaterialPorNombre" parameterType="java.lang.String" resultMap="BaseResultMap">
+    <!--
+      
+    -->
+    select 'false' as QUERYID,
+    <include refid="Base_Column_List" />
+    from t_materiales
+    where 
+		descripcion = #{nombre,jdbcType=VARCHAR}
+  </select>
+  
+  <select id="obtenerTodosMateriales" resultMap="BaseResultMap">
+    <!--
+      
+    -->
+    select 'false' as QUERYID,
+    <include refid="Base_Column_List" />
+    from t_materiales
+    
+  </select>
+  
+  <select id="obtenerMaterialesActivos" resultMap="BaseResultMap">
+    <!--
+      
+    -->
+    select 'false' as QUERYID,
+    <include refid="Base_Column_List" />
+    from t_materiales
+    where 
+		estado = 1
+  </select>
 </mapper>

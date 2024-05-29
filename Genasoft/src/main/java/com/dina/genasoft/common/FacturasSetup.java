@@ -7,6 +7,7 @@ package com.dina.genasoft.common;
 
 import java.io.Serializable;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,8 +15,7 @@ import org.springframework.stereotype.Component;
 
 import com.dina.genasoft.configuration.Constants;
 import com.dina.genasoft.db.entity.TFacturas;
-import com.dina.genasoft.db.entity.TPesajes;
-import com.dina.genasoft.db.entity.TRegistrosCambiosPesajes;
+import com.dina.genasoft.db.entity.TRegistrosCambiosFacturas;
 import com.dina.genasoft.db.mapper.TFacturasMapper;
 import com.dina.genasoft.db.mapper.TRegistrosCambiosFacturasMapper;
 
@@ -87,11 +87,11 @@ public class FacturasSetup implements Serializable {
     }
 
     /**
-     * Método que nos registra en el sistema el pesaje pasado por parámetro.
-     * @param p El pesaje a registrar
+     * Método que nos registra en el sistema la factura pasada por parámetro.
+     * @param p La factura a registrar
      * @return El resultado de la operación.
      */
-    public String crearPesaje(TPesajes record) {
+    public String crearFactura(TFacturas record) {
         String result = Constants.OPERACION_OK;
 
         if (record.getId() != null && record.getId().equals(-1)) {
@@ -109,16 +109,16 @@ public class FacturasSetup implements Serializable {
     }
 
     /**
-     * Método que nos registra en el sistema el pesaje pasado por parámetro.
-     * @param p El pesaje a registrar
+     * Método que nos registra en el sistema la factura pasada por parámetro.
+     * @param p La factura a registrar
      * @return El resultado de la operación.
      */
-    public String modificarPesaje(TPesajes record) {
+    public String modificarFactura(TFacturas record) {
         String result = Constants.OPERACION_OK;
 
         if (record.getId() == null || record.getId().equals(-1)) {
             // Es una creación.
-            crearPesaje(record);
+            crearFactura(record);
         } else {
             try {
                 result = tFacturasMapper.updateByPrimaryKey(record) == 1 ? Constants.OPERACION_OK : Constants.BD_KO_MODIF_FACTURA;
@@ -136,7 +136,7 @@ public class FacturasSetup implements Serializable {
      * @param record El registro de cambio de pesaje a crear.     
      * @return El código del resultado de la operación.
      */
-    public String crearRegistroCambioPesaje(TRegistrosCambiosPesajes record) {
+    public String crearRegistroCambioFactura(TRegistrosCambiosFacturas record) {
 
         String result = Constants.OPERACION_OK;
 
@@ -149,6 +149,10 @@ public class FacturasSetup implements Serializable {
 
         // Retnornamos el resultado de la operación.
         return result;
+    }
+
+    public List<TFacturasVista> convertirFacturasVista(List<TFacturas> lFacturas) {
+
     }
 
 }

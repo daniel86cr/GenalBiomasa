@@ -11,9 +11,9 @@ package com.dina.genasoft.utils.enums;
  */
 public enum ClienteEnum
 {
-    /** Empleado activo.*/
+    /** Cliente activo.*/
     ACTIVO(1),
-    /** Empleado no activo. */
+    /** Cliente no activo. */
     DESACTIVADO(0);
 
     /**String data type. */

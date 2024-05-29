@@ -1,7 +1,10 @@
 package com.dina.genasoft.db.mapper;
 
-import com.dina.genasoft.db.entity.TClientesMateriales;
+import java.util.List;
+
 import org.apache.ibatis.annotations.Param;
+
+import com.dina.genasoft.db.entity.TClientesMateriales;
 
 public interface TClientesMaterialesMapper {
 
@@ -40,4 +43,6 @@ public interface TClientesMaterialesMapper {
      * @mbg.generated  Tue May 28 16:07:02 CEST 2024
      */
     int updateByPrimaryKey(TClientesMateriales record);
+
+    List<TClientesMateriales> obtenerMaterialesAsociadosCliente(@Param("idCliente") Integer idCliente);
 }

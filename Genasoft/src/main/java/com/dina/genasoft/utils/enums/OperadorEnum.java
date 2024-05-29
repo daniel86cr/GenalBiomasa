@@ -11,9 +11,9 @@ package com.dina.genasoft.utils.enums;
  */
 public enum OperadorEnum
 {
-    /** Empleado activo.*/
+    /** Operador activo.*/
     ACTIVO(1),
-    /** Empleado no activo. */
+    /** Operador no activo. */
     DESACTIVADO(0);
 
     /**String data type. */

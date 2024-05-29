@@ -91,5 +91,13 @@ public final class Constants {
     public static String BD_KO_CREA_FACTURA                     = "GBE-035";
     /** Constante de error que indica que se ha producido un error al modificar la factura. */
     public static String BD_KO_MODIF_FACTURA                    = "GBE-036";
+    /** Constante de error que indica que se ha producido un error al crear el material. */
+    public static String BD_KO_CREA_MATERIAL                    = "GBE-037";
+    /** Constante de error que indica que se ha producido un error al modificar el material. */
+    public static String BD_KO_MODIF_MATERIAL                   = "GBE-038";
+    /** Constante de error que nos indica que el material ya existe con el nombre indicado. */
+    public static String MATERIAL_EXISTE_NOMBRE                 = "GBE-039";
+    /** Constante de error que nos indica que el material no existe.*/
+    public static String BD_KO_MATERIAL_NO_EXISTE               = "GBE-040";
 
 }
