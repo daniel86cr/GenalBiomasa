@@ -86,6 +86,14 @@ public class OperadoresSetup implements Serializable {
     }
 
     /**
+     * Método que nos retorna los operadores existentes en el sistema.
+     * @return Los operadores encontrados
+     */
+    public List<TOperadoresVista> obtenerTodosOperadoresVista() {
+        return convertirOperadoresVista(tOperadoresMapper.obtenerTodosOperadores());
+    }
+
+    /**
      * Método que nos retorna los operadores activos en el sistema.
      * @return Los operadores activos encontrados
      */

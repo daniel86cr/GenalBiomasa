@@ -53,7 +53,7 @@ public class TransportistasSetup implements Serializable {
      * @param id El ID del transportista
      * @return El operador transportista.
      */
-    public TTransportistas obtenerOperadorPorId(Integer id) {
+    public TTransportistas obtenerTransportistaPorId(Integer id) {
         TTransportistas transportista = tTransportistasMapper.selectByPrimaryKey(id);
         // Retnornamos el transportista encontrado.
         return transportista;
@@ -83,6 +83,14 @@ public class TransportistasSetup implements Serializable {
      */
     public List<TTransportistas> obtenerTodosTransportistas() {
         return tTransportistasMapper.obtenerTodosTransportistas();
+    }
+
+    /**
+     * Método que nos retorna los transportistas existentes en el sistema.
+     * @return Los transportistas encontrados
+     */
+    public List<TTransportistasVista> obtenerTodosTransportistasVista() {
+        return convertirTransportistasVista(tTransportistasMapper.obtenerTodosTransportistas());
     }
 
     /**

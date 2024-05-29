@@ -55,4 +55,6 @@ public interface TPesajesMapper {
     List<TPesajes> obtenerPesajesFactura(@Param("idFactura") Integer idFactura);
 
     List<TPesajes> obtenerPesajesFechas(@Param("fec1") Date fec1, @Param("fec2") Date fec2);
+
+    TPesajes obtenerPesajePorAlbaran(@Param("numeroAlbaran") String numeroAlbaran);
 }

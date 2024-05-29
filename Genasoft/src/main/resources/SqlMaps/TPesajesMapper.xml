@@ -356,7 +356,7 @@
   </select>
   
   
-  <select id="obtenerPesajesFechas" parameterType="java.lang.Integer" resultMap="BaseResultMap">
+  <select id="obtenerPesajesFechas" resultMap="BaseResultMap">
     <!--
       
     -->
@@ -371,6 +371,17 @@
     	<![CDATA[
     		fecha_pesaje <= #{fec2,jdbcType=TIMESTAMP}
     	]]>
+  </select>
+
+  <select id="obtenerPesajePorAlbaran" parameterType="java.lang.Integer" resultMap="BaseResultMap">
+    <!--
+      
+    -->
+    select 'false' as QUERYID,
+    <include refid="Base_Column_List" />
+    from t_pesajes
+    where 
+    	numero_albaran = #{numeroAlbaran,jdbcType=VARCHAR}
   </select>
      
 </mapper>

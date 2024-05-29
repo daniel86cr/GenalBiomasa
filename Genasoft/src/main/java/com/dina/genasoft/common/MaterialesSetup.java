@@ -77,6 +77,14 @@ public class MaterialesSetup implements Serializable {
     }
 
     /**
+     * Método que nos retorna los materiales existentes en el sistema.
+     * @return Los materiales encontrados
+     */
+    public List<TMaterialesVista> obtenerTodosMaterialesVista() {
+        return convertirMaterialesVista(tMaterialesMapper.obtenerTodosMateriales());
+    }
+
+    /**
      * Método que nos retorna los materiales activos en el sistema.
      * @return Los materiales activos encontrados
      */

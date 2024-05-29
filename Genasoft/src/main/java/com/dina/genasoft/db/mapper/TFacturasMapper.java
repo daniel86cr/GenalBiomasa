@@ -1,6 +1,10 @@
 package com.dina.genasoft.db.mapper;
 
+import java.util.Date;
+import java.util.List;
 import java.util.Map;
+
+import org.apache.ibatis.annotations.Param;
 
 import com.dina.genasoft.db.entity.TFacturas;
 
@@ -47,4 +51,8 @@ public interface TFacturasMapper {
      * @param map Los datos de la factura a crear.
      */
     public void insertRecord(Map<String, Object> map);
+
+    TFacturas obtenerFacturaPorNumeroFactura(@Param("numeroFactura") String num);
+
+    List<TFacturas> obtenerFacturasFechas(@Param("fecha1") Date fecha1, @Param("fecha1") Date fecha2);
 }

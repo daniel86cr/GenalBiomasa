@@ -276,4 +276,34 @@
       #{subtotal,jdbcType=DOUBLE}, #{totalNeto,jdbcType=DOUBLE}, #{total,jdbcType=DOUBLE}
       )
    </insert>
+   
+
+   <select id="obtenerFacturaPorNumeroFactura" parameterType="java.lang.String" resultMap="BaseResultMap">
+    <!--
+      
+    -->
+    select 'false' as QUERYID,
+    <include refid="Base_Column_List" />
+    from t_facturas
+    where 
+		numero_factura = #{numeroFactura,jdbcType=VARCHAR}
+  </select>
+  
+  
+  <select id="obtenerFacturasFechas" parameterType="java.lang.Integer" resultMap="BaseResultMap">
+    <!--
+      
+    -->
+    select 'false' as QUERYID,
+    <include refid="Base_Column_List" />
+    from t_facturas
+    where 
+    	 <![CDATA[
+    		fecha_factura >= #{fecha1,jdbcType=TIMESTAMP}
+    	]]>
+    	AND
+    	<![CDATA[
+    		fecha_factura <= #{fecha2,jdbcType=TIMESTAMP}
+    	]]>
+  </select>
 </mapper>

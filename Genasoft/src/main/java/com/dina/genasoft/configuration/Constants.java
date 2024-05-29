@@ -109,5 +109,20 @@ public final class Constants {
     public static String BD_KO_MODIF_EMPRESA                    = "GBE-044";
     /** Constante de error que nos indica que la empresa ya existe con el nombre indicado. */
     public static String EMPRESA_EXISTE_NOMBRE                  = "GBE-045";
-
+    /** Constante de error que nos indica que la fecha introducida (fecha y hora) no es correcto. */
+    public static String FORMATO_DATETIME_INCORRECTO            = "GBE-046";
+    /** Constante de error que nos indica que la fecha introducida no es correcto. */
+    public static String FORMATO_FECHA_INCORRECTO               = "GBE-047";
+    /** Constante de error que nos indica que la empresa ya está desactivada. */
+    public static String EMPRESA_DESACTIVADA                    = "GBE-048";
+    /** Constante de error que nos indica que la empresa indicada no existe. */
+    public static String EMPRESA_NO_EXISTE                      = "GBE-049";
+    /** Constante de error que nos indica que el material ya está desactivado. */
+    public static String MATERIAL_DESACTIVADO                   = "GBE-050";
+    /** Constante de error que nos indica que el material indicado no existe. */
+    public static String MATERIAL_NO_EXISTE                     = "GBE-051";
+    /** Constante de error que nos indica que el pesaje ya está desactivado. */
+    public static String PESAJE_DESACTIVADO                     = "GBE-052";
+    /** Constante de error que nos indica que el pesaje indicado no existe. */
+    public static String PESAJE_NO_EXISTE                       = "GBE-053";
 }

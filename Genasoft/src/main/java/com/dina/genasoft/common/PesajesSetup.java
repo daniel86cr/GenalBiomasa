@@ -62,6 +62,15 @@ public class PesajesSetup implements Serializable {
     }
 
     /**
+     * Método que nos retorna el pesaje a partir del nº de albarán.
+     * @param albaran El albaran del pesaje.
+     * @return El Pesaje encontrado.
+     */
+    public TPesajes obtenerPesajePorAlbaran(String albaran) {
+        return tPesajesMapper.obtenerPesajePorAlbaran(albaran);
+    }
+
+    /**
      * Método que nos retorna los pesajes que están dentro de la factura con ID pasado por parámetro.
      * @param idFactura El ID de la factura a consultar
      * @return Los pesajes existentes en la factura.

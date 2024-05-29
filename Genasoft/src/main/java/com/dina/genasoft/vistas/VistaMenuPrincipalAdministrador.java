@@ -298,21 +298,27 @@ public class VistaMenuPrincipalAdministrador extends CustomComponent implements 
 
         botones.addComponent(l1);
 
-        if (Utils.booleanFromInteger(permisos.getAppTrazabilidades())) {
+        if (Utils.booleanFromInteger(permisos.getEntornoMaestros())) {
             botones.addComponent(bMaestros);
             botones.setComponentAlignment(bMaestros, Alignment.MIDDLE_RIGHT);
             botones.addComponent(l5);
         }
 
-        if (Utils.booleanFromInteger(permisos.getAppControlPt())) {
+        if (Utils.booleanFromInteger(permisos.getCrearPesaje())) {
             botones.addComponent(bRegistroPesajes);
             botones.setComponentAlignment(bRegistroPesajes, Alignment.MIDDLE_RIGHT);
             botones.addComponent(l2);
         }
 
-        if (Utils.booleanFromInteger(permisos.getCopiaSeguridad())) {
+        if (Utils.booleanFromInteger(permisos.getEntornoPesajes())) {
             botones.addComponent(bPesajes);
             botones.setComponentAlignment(bPesajes, Alignment.MIDDLE_RIGHT);
+            botones.addComponent(l4);
+        }
+
+        if (Utils.booleanFromInteger(permisos.getEntornoFacturacion())) {
+            botones.addComponent(bFacturacion);
+            botones.setComponentAlignment(bFacturacion, Alignment.MIDDLE_RIGHT);
             botones.addComponent(l4);
         }
 

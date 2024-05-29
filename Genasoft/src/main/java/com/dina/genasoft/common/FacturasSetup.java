@@ -6,6 +6,7 @@
 package com.dina.genasoft.common;
 
 import java.io.Serializable;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -58,10 +59,39 @@ public class FacturasSetup implements Serializable {
     /**
      * Método que nos retorna la factura a partir del ID.
      * @param id El Id de la factura.
-     * @return La factura encontrado.
+     * @return La factura encontrada.
      */
     public TFacturas obtenerFacturaPorId(Integer id) {
         return tFacturasMapper.selectByPrimaryKey(id);
+    }
+
+    /**
+     * Método que nos retorna la factura a partir del número de factura.
+     * @param numeroFactura El nº de la factura.
+     * @return La factura encontrada.
+     */
+    public TFacturas obtenerFacturaPorNumeroFactura(String numeroFactura) {
+        return tFacturasMapper.obtenerFacturaPorNumeroFactura(numeroFactura);
+    }
+
+    /**
+     * Método que nos retorna las facturas con el campo fecha_factura entre las fechas pasasas por parámetro
+     * @param fec1 Fecha desde
+     * @param fec2 Fecha hasta
+     * @return Las facturas encontradas.
+     */
+    public List<TFacturas> obtenerFacturasFechas(Date fec1, Date fec2) {
+        return tFacturasMapper.obtenerFacturasFechas(fec1, fec2);
+    }
+
+    /**
+     * Método que nos retorna las facturas en formato vista con el campo fecha_factura entre las fechas pasasas por parámetro
+     * @param fec1 Fecha desde
+     * @param fec2 Fecha hasta
+     * @return Las facturas encontradas.
+     */
+    public List<TFacturasVista> obtenerFacturasFechasVista(Date fec1, Date fec2) {
+        return convertirFacturasVista(tFacturasMapper.obtenerFacturasFechas(fec1, fec2));
     }
 
     /**
