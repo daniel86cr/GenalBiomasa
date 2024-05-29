@@ -9,15 +9,21 @@ import java.io.Serializable;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import com.dina.genasoft.configuration.Constants;
+import com.dina.genasoft.db.entity.TClientes;
+import com.dina.genasoft.db.entity.TEmpleados;
+import com.dina.genasoft.db.entity.TEmpresas;
 import com.dina.genasoft.db.entity.TFacturas;
+import com.dina.genasoft.db.entity.TFacturasVista;
 import com.dina.genasoft.db.entity.TRegistrosCambiosFacturas;
 import com.dina.genasoft.db.mapper.TFacturasMapper;
 import com.dina.genasoft.db.mapper.TRegistrosCambiosFacturasMapper;
+import com.dina.genasoft.utils.Utils;
 
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
@@ -38,6 +44,15 @@ public class FacturasSetup implements Serializable {
     /** Inyección por Spring del mapper TRegistrosCambiosFacturasMapper.*/
     @Autowired
     private TRegistrosCambiosFacturasMapper tRegistrosCambiosFacturasMapper;
+    /** Inyección de Spring para poder acceder a la capa de datos de empleados. */
+    @Autowired
+    private EmpleadosSetup                  empleadosSetup;
+    /** Inyección de Spring para poder acceder a la capa de datos de empresas. */
+    @Autowired
+    private EmpresasSetup                   empresasSetup;
+    /** Inyección de Spring para poder acceder a la capa de datos de clientes. */
+    @Autowired
+    private ClientesSetup                   clientesSetup;
     private static final long               serialVersionUID = 5701299788812594642L;
 
     /**
@@ -152,6 +167,47 @@ public class FacturasSetup implements Serializable {
     }
 
     public List<TFacturasVista> convertirFacturasVista(List<TFacturas> lFacturas) {
+        List<TFacturasVista> lResult = Utils.generarListaGenerica();
+
+        List<TEmpleados> lEmpl = empleadosSetup.obtenerTodosEmpleados();
+        List<TClientes> lClient = clientesSetup.obtenerTodosClientes();
+        List<TEmpresas> lEmpr = empresasSetup.obtenerTodasEmpresas();
+
+        // Nutrimos el diccionario con los empleados
+        Map<Integer, String> mEmpleados = lEmpl.stream().collect(Collectors.toMap(TEmpleados::getId, TEmpleados::getNombre));
+        // Nutrimos el diccionario con los clientes
+        Map<Integer, String> mClientes = lClient.stream().collect(Collectors.toMap(TClientes::getId, TClientes::getNombre));
+        // Nutrimos el diccionario con las empresas
+        Map<Integer, String> mEmpresas = lEmpr.stream().collect(Collectors.toMap(TEmpresas::getId, TEmpresas::getNombre));
+
+        String campo = "";
+
+        TFacturasVista aux = null;
+
+        for (TFacturas f : lFacturas) {
+            aux = new TFacturasVista(f);
+
+            // Empleados
+            campo = mEmpleados.get(f.getUsuCrea());
+            aux.setUsuCrea(campo != null ? campo : "N/D; id: " + f.getUsuCrea());
+
+            if (f.getUsuModifica() != null) {
+                campo = mEmpleados.get(f.getUsuModifica());
+                aux.setUsuModifica(campo != null ? campo : "N/D; id: " + f.getUsuModifica());
+            }
+
+            // Cliente
+            campo = mClientes.get(f.getIdCliente());
+            aux.setIdCliente(campo != null ? campo : "N/D; ID: " + f.getIdCliente());
+
+            // Empresa
+            campo = mEmpresas.get(f.getEmpresa());
+            aux.setEmpresa(campo != null ? campo : "N/D; ID: " + f.getEmpresa());
+
+            lResult.add(aux);
+        }
+
+        return lResult;
 
     }
 

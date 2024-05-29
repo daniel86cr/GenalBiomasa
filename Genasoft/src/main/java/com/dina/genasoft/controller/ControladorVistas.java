@@ -17,11 +17,22 @@ import org.springframework.stereotype.Component;
 import com.dina.genasoft.common.ClientesSetup;
 import com.dina.genasoft.common.CommonSetup;
 import com.dina.genasoft.common.EmpleadosSetup;
+import com.dina.genasoft.common.EmpresasSetup;
+import com.dina.genasoft.common.FacturasSetup;
+import com.dina.genasoft.common.MaterialesSetup;
+import com.dina.genasoft.common.MonedasSetup;
+import com.dina.genasoft.common.OperadoresSetup;
+import com.dina.genasoft.common.PesajesSetup;
 import com.dina.genasoft.common.RolesSetup;
+import com.dina.genasoft.common.TransportistasSetup;
 import com.dina.genasoft.configuration.Constants;
 import com.dina.genasoft.db.entity.TClientes;
 import com.dina.genasoft.db.entity.TEmpleados;
 import com.dina.genasoft.db.entity.TEmpleadosVista;
+import com.dina.genasoft.db.entity.TEmpresas;
+import com.dina.genasoft.db.entity.TFacturas;
+import com.dina.genasoft.db.entity.TMateriales;
+import com.dina.genasoft.db.entity.TOperadores;
 import com.dina.genasoft.db.entity.TPermisos;
 import com.dina.genasoft.db.entity.TRegistrosCambiosClientes;
 import com.dina.genasoft.db.entity.TRegistrosCambiosEmpleados;
@@ -53,32 +64,53 @@ import lombok.extern.slf4j.Slf4j;
 @Data
 public class ControladorVistas implements Serializable {
 
-    private static final long serialVersionUID = 5264118420322183128L;
+    private static final long   serialVersionUID = 5264118420322183128L;
     /** Inyección de Spring para poder acceder a la capa de datos.*/
     @Autowired
-    private Controller        controller;
+    private Controller          controller;
     /** Inyección de Spring para poder acceder a la capa de clientes.*/
     @Autowired
-    private ClientesSetup     clientesSetup;
+    private ClientesSetup       clientesSetup;
     /** Inyección de Spring para poder acceder a la capa de datos.*/
     @Autowired
-    private CommonSetup       commonSetup;
+    private CommonSetup         commonSetup;
+    /** Inyección de Spring para poder acceder a la capa de datos de empresas.*/
+    @Autowired
+    private EmpresasSetup       empresasSetup;
+    /** Inyección de Spring para poder acceder a la capa de datos de materiales.*/
+    @Autowired
+    private MaterialesSetup     materialesSetup;
+    /** Inyección de Spring para poder acceder a la capa de datos de monedas.*/
+    @Autowired
+    private MonedasSetup        monedasSetup;
+    /** Inyección de Spring para poder acceder a la capa de datos de operadores.*/
+    @Autowired
+    private OperadoresSetup     operadoresSetup;
+    /** Inyección de Spring para poder acceder a la capa de datos de facturas.*/
+    @Autowired
+    private FacturasSetup       facturasSetup;
+    /** Inyección de Spring para poder acceder a la capa de datos de pesajes.*/
+    @Autowired
+    private PesajesSetup        pesajesSetup;
+    /** Inyección de Spring para poder acceder a la capa de datos de pesajes.*/
+    @Autowired
+    private TransportistasSetup transportistasSetup;
     /** Inyección de Spring para poder acceder a la capa de datos de empleados.*/
     @Autowired
-    private EmpleadosSetup    empleadosSetup;
+    private EmpleadosSetup      empleadosSetup;
     /** Inyección de Spring para poder acceder a la capa de roles.*/
     @Autowired
-    private RolesSetup        rolesSetup;
+    private RolesSetup          rolesSetup;
     /** Para enviar correos.*/
     @Autowired
-    private EnvioCorreo       envioCorreo;
+    private EnvioCorreo         envioCorreo;
     /** Contendrá el ID del usuario del administrador para recibir notificaciones.*/
     @Value("${user.notificacions}")
-    private String            userNotifications;
-    public Integer            estadoAplicacion;
+    private String              userNotifications;
+    public Integer              estadoAplicacion;
     /** Contendrá el nombre de la aplicación.*/
     @Value("${app.name}")
-    private String            appName;
+    private String              appName;
 
     /**
      * Método que nos elimina el acceso existente del empleado.
@@ -311,6 +343,294 @@ public class ControladorVistas implements Serializable {
         Timestamp t = new Timestamp(time);
         if (commonSetup.conexionValida(userId, t, estadoAplicacion)) {
             result = clientesSetup.modificarCliente(record);
+        } else {
+            if (estadoAplicacion == null || estadoAplicacion.equals(-1)) {
+                throw new GenasoftException(Constants.LICENCIA_NO_VALIDA);
+            } else {
+                throw new GenasoftException(Constants.SESION_INVALIDA);
+            }
+        }
+
+        // Retornamos el resultado de la modificación del cliente.
+        return result;
+    }
+
+    /**
+     * Método que se encarga de crear un nuevo cliente en el sistema.
+     * @param record El cliente a crear.     
+     * @param userId El usuario que está activo.
+     * @param time El tiempo en milisegundos.
+     * @return El código del resultado de la operación.
+     */
+    public Integer crearEmpresaRetornaId(TEmpresas record, Integer userId, long time) throws GenasoftException {
+        Integer result;
+        Timestamp t = new Timestamp(time);
+        if (commonSetup.conexionValida(userId, t, estadoAplicacion)) {
+            result = empresasSetup.crearEmpresaRetornaId(record);
+        } else {
+            if (estadoAplicacion == null || estadoAplicacion.equals(-1)) {
+                throw new GenasoftException(Constants.LICENCIA_NO_VALIDA);
+            } else {
+                throw new GenasoftException(Constants.SESION_INVALIDA);
+            }
+        }
+
+        // Retornamos el resultado de la inserción del cliente.
+        return result;
+    }
+
+    /**
+     * Método que se encarga de crear un nuevo cliente en el sistema.
+     * @param record El cliente a crear.     
+     * @param userId El usuario que está activo.
+     * @param time El tiempo en milisegundos.
+     * @return El código del resultado de la operación.
+     */
+    public String crearEmpresa(TEmpresas record, Integer userId, long time) throws GenasoftException {
+        String result = "";
+        Timestamp t = new Timestamp(time);
+        if (commonSetup.conexionValida(userId, t, estadoAplicacion)) {
+            result = empresasSetup.crearEmpresa(record);
+        } else {
+            if (estadoAplicacion == null || estadoAplicacion.equals(-1)) {
+                throw new GenasoftException(Constants.LICENCIA_NO_VALIDA);
+            } else {
+                throw new GenasoftException(Constants.SESION_INVALIDA);
+            }
+        }
+
+        // Retornamos el resultado de la inserción del cliente.
+        return result;
+    }
+
+    /**
+     * Método que se encarga de modificar un cliente en el sistema.
+     * @param record El cliente a modificar.
+     * @param userId El usuario que está activo.
+     * @param time El tiempo en milisegundos.
+     * @return El código del resultado de la operación.
+     */
+    public String modificarEmpresa(TEmpresas record, Integer userId, long time) throws GenasoftException {
+        String result = "";
+        Timestamp t = new Timestamp(time);
+        if (commonSetup.conexionValida(userId, t, estadoAplicacion)) {
+            result = empresasSetup.modificarEmpresa(record);
+        } else {
+            if (estadoAplicacion == null || estadoAplicacion.equals(-1)) {
+                throw new GenasoftException(Constants.LICENCIA_NO_VALIDA);
+            } else {
+                throw new GenasoftException(Constants.SESION_INVALIDA);
+            }
+        }
+
+        // Retornamos el resultado de la modificación del cliente.
+        return result;
+    }
+
+    /**
+     * Método que se encarga de crear un nuevo cliente en el sistema.
+     * @param record El cliente a crear.     
+     * @param userId El usuario que está activo.
+     * @param time El tiempo en milisegundos.
+     * @return El código del resultado de la operación.
+     */
+    public Integer crearFacturaRetornaId(TFacturas record, Integer userId, long time) throws GenasoftException {
+        Integer result;
+        Timestamp t = new Timestamp(time);
+        if (commonSetup.conexionValida(userId, t, estadoAplicacion)) {
+            result = facturasSetup.crearFacturaRetornaId(record);
+        } else {
+            if (estadoAplicacion == null || estadoAplicacion.equals(-1)) {
+                throw new GenasoftException(Constants.LICENCIA_NO_VALIDA);
+            } else {
+                throw new GenasoftException(Constants.SESION_INVALIDA);
+            }
+        }
+
+        // Retornamos el resultado de la inserción del cliente.
+        return result;
+    }
+
+    /**
+     * Método que se encarga de crear un nuevo cliente en el sistema.
+     * @param record El cliente a crear.     
+     * @param userId El usuario que está activo.
+     * @param time El tiempo en milisegundos.
+     * @return El código del resultado de la operación.
+     */
+    public String crearFactura(TFacturas record, Integer userId, long time) throws GenasoftException {
+        String result = "";
+        Timestamp t = new Timestamp(time);
+        if (commonSetup.conexionValida(userId, t, estadoAplicacion)) {
+            result = facturasSetup.crearFactura(record);
+        } else {
+            if (estadoAplicacion == null || estadoAplicacion.equals(-1)) {
+                throw new GenasoftException(Constants.LICENCIA_NO_VALIDA);
+            } else {
+                throw new GenasoftException(Constants.SESION_INVALIDA);
+            }
+        }
+
+        // Retornamos el resultado de la inserción del cliente.
+        return result;
+    }
+
+    /**
+     * Método que se encarga de modificar un cliente en el sistema.
+     * @param record El cliente a modificar.
+     * @param userId El usuario que está activo.
+     * @param time El tiempo en milisegundos.
+     * @return El código del resultado de la operación.
+     */
+    public String modificarFactura(TFacturas record, Integer userId, long time) throws GenasoftException {
+        String result = "";
+        Timestamp t = new Timestamp(time);
+        if (commonSetup.conexionValida(userId, t, estadoAplicacion)) {
+            result = facturasSetup.modificarFactura(record);
+        } else {
+            if (estadoAplicacion == null || estadoAplicacion.equals(-1)) {
+                throw new GenasoftException(Constants.LICENCIA_NO_VALIDA);
+            } else {
+                throw new GenasoftException(Constants.SESION_INVALIDA);
+            }
+        }
+
+        // Retornamos el resultado de la modificación del cliente.
+        return result;
+    }
+
+    /**
+     * Método que se encarga de crear un nuevo cliente en el sistema.
+     * @param record El cliente a crear.     
+     * @param userId El usuario que está activo.
+     * @param time El tiempo en milisegundos.
+     * @return El código del resultado de la operación.
+     */
+    public Integer crearMaterialRetornaId(TMateriales record, Integer userId, long time) throws GenasoftException {
+        Integer result;
+        Timestamp t = new Timestamp(time);
+        if (commonSetup.conexionValida(userId, t, estadoAplicacion)) {
+            result = materialesSetup.crearMaterialRetornaId(record);
+        } else {
+            if (estadoAplicacion == null || estadoAplicacion.equals(-1)) {
+                throw new GenasoftException(Constants.LICENCIA_NO_VALIDA);
+            } else {
+                throw new GenasoftException(Constants.SESION_INVALIDA);
+            }
+        }
+
+        // Retornamos el resultado de la inserción del cliente.
+        return result;
+    }
+
+    /**
+     * Método que se encarga de crear un nuevo cliente en el sistema.
+     * @param record El cliente a crear.     
+     * @param userId El usuario que está activo.
+     * @param time El tiempo en milisegundos.
+     * @return El código del resultado de la operación.
+     */
+    public String crearMaterial(TMateriales record, Integer userId, long time) throws GenasoftException {
+        String result = "";
+        Timestamp t = new Timestamp(time);
+        if (commonSetup.conexionValida(userId, t, estadoAplicacion)) {
+            result = materialesSetup.crearMaterial(record);
+        } else {
+            if (estadoAplicacion == null || estadoAplicacion.equals(-1)) {
+                throw new GenasoftException(Constants.LICENCIA_NO_VALIDA);
+            } else {
+                throw new GenasoftException(Constants.SESION_INVALIDA);
+            }
+        }
+
+        // Retornamos el resultado de la inserción del cliente.
+        return result;
+    }
+
+    /**
+     * Método que se encarga de modificar un cliente en el sistema.
+     * @param record El cliente a modificar.
+     * @param userId El usuario que está activo.
+     * @param time El tiempo en milisegundos.
+     * @return El código del resultado de la operación.
+     */
+    public String modificarMaterial(TMateriales record, Integer userId, long time) throws GenasoftException {
+        String result = "";
+        Timestamp t = new Timestamp(time);
+        if (commonSetup.conexionValida(userId, t, estadoAplicacion)) {
+            result = materialesSetup.modificarMaterial(record);
+        } else {
+            if (estadoAplicacion == null || estadoAplicacion.equals(-1)) {
+                throw new GenasoftException(Constants.LICENCIA_NO_VALIDA);
+            } else {
+                throw new GenasoftException(Constants.SESION_INVALIDA);
+            }
+        }
+
+        // Retornamos el resultado de la modificación del cliente.
+        return result;
+    }
+
+    /**
+     * Método que se encarga de crear un nuevo cliente en el sistema.
+     * @param record El cliente a crear.     
+     * @param userId El usuario que está activo.
+     * @param time El tiempo en milisegundos.
+     * @return El código del resultado de la operación.
+     */
+    public Integer crearOperadorRetornaId(TOperadores record, Integer userId, long time) throws GenasoftException {
+        Integer result;
+        Timestamp t = new Timestamp(time);
+        if (commonSetup.conexionValida(userId, t, estadoAplicacion)) {
+            result = operadoresSetup.crearOperadorRetornaId(record);
+        } else {
+            if (estadoAplicacion == null || estadoAplicacion.equals(-1)) {
+                throw new GenasoftException(Constants.LICENCIA_NO_VALIDA);
+            } else {
+                throw new GenasoftException(Constants.SESION_INVALIDA);
+            }
+        }
+
+        // Retornamos el resultado de la inserción del cliente.
+        return result;
+    }
+
+    /**
+     * Método que se encarga de crear un nuevo cliente en el sistema.
+     * @param record El cliente a crear.     
+     * @param userId El usuario que está activo.
+     * @param time El tiempo en milisegundos.
+     * @return El código del resultado de la operación.
+     */
+    public String crearOperador(TOperadores record, Integer userId, long time) throws GenasoftException {
+        String result = "";
+        Timestamp t = new Timestamp(time);
+        if (commonSetup.conexionValida(userId, t, estadoAplicacion)) {
+            result = operadoresSetup.crearOperador(record);
+        } else {
+            if (estadoAplicacion == null || estadoAplicacion.equals(-1)) {
+                throw new GenasoftException(Constants.LICENCIA_NO_VALIDA);
+            } else {
+                throw new GenasoftException(Constants.SESION_INVALIDA);
+            }
+        }
+
+        // Retornamos el resultado de la inserción del cliente.
+        return result;
+    }
+
+    /**
+     * Método que se encarga de modificar un cliente en el sistema.
+     * @param record El cliente a modificar.
+     * @param userId El usuario que está activo.
+     * @param time El tiempo en milisegundos.
+     * @return El código del resultado de la operación.
+     */
+    public String modificarOperador(TOperadores record, Integer userId, long time) throws GenasoftException {
+        String result = "";
+        Timestamp t = new Timestamp(time);
+        if (commonSetup.conexionValida(userId, t, estadoAplicacion)) {
+            result = operadoresSetup.modificarOperador(record);
         } else {
             if (estadoAplicacion == null || estadoAplicacion.equals(-1)) {
                 throw new GenasoftException(Constants.LICENCIA_NO_VALIDA);

@@ -99,5 +99,15 @@ public final class Constants {
     public static String MATERIAL_EXISTE_NOMBRE                 = "GBE-039";
     /** Constante de error que nos indica que el material no existe.*/
     public static String BD_KO_MATERIAL_NO_EXISTE               = "GBE-040";
+    /** Constante de error que indica que se ha producido un error al crear la dirección del cliente. */
+    public static String BD_KO_CREA_DIR_CLIENTE                 = "GBE-041";
+    /** Constante de error que indica que se ha producido un error al modificar la dirección del cliente. */
+    public static String BD_KO_MODIF_DIR_CLIENTE                = "GBE-042";
+    /** Constante de error que indica que se ha producido un error al registrar la empresa. */
+    public static String BD_KO_CREA_EMPRESA                     = "GBE-043";
+    /** Constante de error que indica que se ha producido un error al modificar la empresa. */
+    public static String BD_KO_MODIF_EMPRESA                    = "GBE-044";
+    /** Constante de error que nos indica que la empresa ya existe con el nombre indicado. */
+    public static String EMPRESA_EXISTE_NOMBRE                  = "GBE-045";
 
 }

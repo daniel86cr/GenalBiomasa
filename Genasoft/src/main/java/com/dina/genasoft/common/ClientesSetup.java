@@ -23,6 +23,8 @@ import com.dina.genasoft.db.entity.TClientesOperadoresVista;
 import com.dina.genasoft.db.entity.TClientesTransportistas;
 import com.dina.genasoft.db.entity.TClientesTransportistasVista;
 import com.dina.genasoft.db.entity.TClientesVista;
+import com.dina.genasoft.db.entity.TDireccionCliente;
+import com.dina.genasoft.db.entity.TDireccionClienteVista;
 import com.dina.genasoft.db.entity.TEmpleados;
 import com.dina.genasoft.db.entity.TIva;
 import com.dina.genasoft.db.entity.TMateriales;
@@ -49,42 +51,42 @@ import lombok.extern.slf4j.Slf4j;
 @Data
 public class ClientesSetup implements Serializable {
     /** El log de la aplicación.*/
-    private static final org.slf4j.Logger      log              = org.slf4j.LoggerFactory.getLogger(ClientesSetup.class);
+    private static final org.slf4j.Logger   log              = org.slf4j.LoggerFactory.getLogger(ClientesSetup.class);
     /** Inyección por Spring del mapper TClientesMapper.*/
     @Autowired
-    private TClientesMapper                    tClientesMapper;
+    private TClientesMapper                 tClientesMapper;
     /** Inyección por Spring del mapper TClientesOperadores.*/
     @Autowired
-    private TClientesOperadoresMapper          tClientesOperadoresMapper;
+    private TClientesOperadoresMapper       tClientesOperadoresMapper;
     /** Inyección por Spring del mapper TClientesTransportistasMapper.*/
     @Autowired
-    private TClientesTransportistasMapper      tClientesTransportistasMapper;
+    private TClientesTransportistasMapper   tClientesTransportistasMapper;
     /** Inyección por Spring del mapper TClientesMaterialesMapper.*/
     @Autowired
-    private TClientesMaterialesMapper          tClientesMaterialesMapper;
+    private TClientesMaterialesMapper       tClientesMaterialesMapper;
     /** Inyección por Spring del mapper TDireccionClienteMapper.*/
     @Autowired
-    private TDireccionClienteMapper         tDireccionClienteMapper;aa
+    private TDireccionClienteMapper         tDireccionClienteMapper;
     /** Inyección por Spring del mapper TRegistrosCambiosClientesMapper. */
     @Autowired
-    private TRegistrosCambiosClientesMapper    tRegistrosCambiosClientesMapper;
+    private TRegistrosCambiosClientesMapper tRegistrosCambiosClientesMapper;
     /** Inyección de Spring para poder acceder a la capa de datos de empleados. */
     @Autowired
-    private EmpleadosSetup                     empleadosSetup;
+    private EmpleadosSetup                  empleadosSetup;
     /** Inyección de Spring para poder acceder a la capa de datos de operadores. */
     @Autowired
-    private OperadoresSetup                    operadoresSetup;
+    private OperadoresSetup                 operadoresSetup;
     /** Inyección de Spring para poder acceder a la capa de datos de materiales. */
     @Autowired
-    private MaterialesSetup                    materialesSetup;
+    private MaterialesSetup                 materialesSetup;
     /** Inyección de Spring para poder acceder a la capa de datos de monedas. */
     @Autowired
-    private MonedasSetup                       monedasSetup;
+    private MonedasSetup                    monedasSetup;
     /** Inyección de Spring para poder acceder a la capa de datos de transportistas. */
     @Autowired
-    private TransportistasSetup                transportistasSetup;
+    private TransportistasSetup             transportistasSetup;
     /** Serial ID de la aplicación Spring. */
-    private static final long                  serialVersionUID = 5701299788812594642L;
+    private static final long               serialVersionUID = 5701299788812594642L;
 
     /**
      * Método que nos retorna el cliente a partir del ID.
@@ -95,6 +97,24 @@ public class ClientesSetup implements Serializable {
         TClientes cliente = tClientesMapper.selectByPrimaryKey(id);
         // Retnornamos el cliente encontrado.
         return cliente;
+    }
+
+    /**
+     * Método que nos retorna la dirección de cliente a partir del ID.
+     * @param id El ID de la dirección de cliente.
+     * @return La dirección de cliente encontrada.
+     */
+    public TDireccionCliente obtenerDireccionClientePorId(Integer id) {
+        return tDireccionClienteMapper.selectByPrimaryKey(id);
+    }
+
+    /**
+     * Método que nos retorna las direcciones de cliente a partir del ID.
+     * @param id El ID de la dirección de cliente.
+     * @return Las direcciones de cliente encontradas.
+     */
+    public List<TDireccionCliente> obtenerDireccionesClientePorIdCliente(Integer idCliente) {
+        return tDireccionClienteMapper.obtenerDireccionesClientePorIdCliente(idCliente);
     }
 
     /**
@@ -197,6 +217,25 @@ public class ClientesSetup implements Serializable {
         }
         // Retnornamos el resultado de la operación.
         return result;
+    }
+
+    /**
+     * Método que se encarga de crear el cliente en el sistema.
+     * @param dirCliente El cliente a crear.     
+     * @return El código del resultado de la operación.
+     */
+    public String crearDireccionCliente(TDireccionCliente dirCliente) {
+        String result = "";
+        try {
+            result = tDireccionClienteMapper.insert(dirCliente) == 1 ? Constants.OPERACION_OK : Constants.BD_KO_CREA_DIR_CLIENTE;
+        } catch (Exception e) {
+            result = Constants.BD_KO_CREA_DIR_CLIENTE;
+            log.error(Constants.BD_KO_CREA_DIR_CLIENTE + ", Error al crear la dirección del cliente: " + dirCliente.toString2() + ", ", e);
+        }
+
+        // Retnornamos el resultado de la operación.
+        return result;
+
     }
 
     /**
@@ -522,6 +561,49 @@ public class ClientesSetup implements Serializable {
             // IVA
             campo = mIvas.get(cl.getIva());
             aux.setDescripcionIva(campo != null ? campo : "N/D; ID: " + cl.getIva());
+
+            lResult.add(aux);
+
+        }
+
+        return lResult;
+    }
+
+    /**
+     * Método que se encarga de convertir los clientes-operador en objeto vista
+     * @param lList Lista con los objetos a convertir.
+     * @return Lista resultado
+     */
+    public List<TDireccionClienteVista> convertirDireccionClientesVista(List<TDireccionCliente> lList) {
+        List<TDireccionClienteVista> lResult = Utils.generarListaGenerica();
+
+        TDireccionClienteVista aux = null;
+
+        List<TEmpleados> lEmpl = empleadosSetup.obtenerTodosEmpleados();
+        List<TClientes> lClient = obtenerTodosClientes();
+
+        // Nutrimos el diccionario con los empleados
+        Map<Integer, String> mEmpleados = lEmpl.stream().collect(Collectors.toMap(TEmpleados::getId, TEmpleados::getNombre));
+        // Nutrimos el diccionario con los clientes
+        Map<Integer, String> mClientes = lClient.stream().collect(Collectors.toMap(TClientes::getId, TClientes::getNombre));
+
+        String campo = "";
+
+        for (TDireccionCliente cl : lList) {
+            aux = new TDireccionClienteVista(cl);
+
+            // Empleados
+            campo = mEmpleados.get(cl.getUsuCrea());
+            aux.setUsuCrea(campo != null ? campo : "N/D; id: " + cl.getUsuCrea());
+
+            if (cl.getUsuModifica() != null) {
+                campo = mEmpleados.get(cl.getUsuModifica());
+                aux.setUsuModifica(campo != null ? campo : "N/D; id: " + cl.getUsuModifica());
+            }
+
+            // Cliente
+            campo = mClientes.get(cl.getIdCliente());
+            aux.setIdCliente(campo != null ? campo : "N/D; ID: " + cl.getIdCliente());
 
             lResult.add(aux);
 
