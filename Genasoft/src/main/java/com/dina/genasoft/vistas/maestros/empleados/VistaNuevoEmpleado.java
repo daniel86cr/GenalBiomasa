@@ -3,7 +3,7 @@
  *  
  *  Copyright (C) 2024
  */
-package com.dina.genasoft.vistas.empleados;
+package com.dina.genasoft.vistas.maestros.empleados;
 
 import java.util.List;
 
@@ -20,12 +20,9 @@ import com.dina.genasoft.db.entity.TPermisos;
 import com.dina.genasoft.db.entity.TRoles;
 import com.dina.genasoft.exception.GenasoftException;
 import com.dina.genasoft.utils.Utils;
-import com.dina.genasoft.utils.enums.RolesEnum;
 import com.dina.genasoft.vistas.Menu;
 import com.dina.genasoft.vistas.VistaInicioSesion;
 import com.vaadin.annotations.Theme;
-import com.vaadin.data.Property.ValueChangeEvent;
-import com.vaadin.data.Property.ValueChangeListener;
 import com.vaadin.data.fieldgroup.BeanFieldGroup;
 import com.vaadin.navigator.View;
 import com.vaadin.navigator.ViewChangeListener.ViewChangeEvent;
@@ -102,10 +99,6 @@ public class VistaNuevoEmpleado extends CustomComponent implements View ,Button.
     private Long                          time     = null;
     /** La caja de texto para el código de acceso del empleado.*/
     private TextField                     txtCodAcceso;
-    /** La caja de texto para el 'campo' nave del empleado de rol Operario control de PT.*/
-    private ComboBox                      cbNaves;
-    /** La caja de texto para el 'linea' del empleado de rol Operario control de PT.*/
-    private ComboBox                      cbLinea;
     private TEmpleados                    empleado;
     private List<TRoles>                  roles;
 
@@ -139,86 +132,15 @@ public class VistaNuevoEmpleado extends CustomComponent implements View ,Button.
                     }
                 }
 
-                if (cbLinea.isVisible() && cbLinea.getValue() == null) {
-                    Notification aviso = new Notification("Se debe informar el campo '" + cbLinea.getCaption() + "'", Notification.Type.WARNING_MESSAGE);
-                    aviso.setPosition(Position.MIDDLE_CENTER);
-                    aviso.show(Page.getCurrent());
-                    return;
-                }
-
-                if (cbNaves.isVisible() && cbNaves.getValue() == null) {
-                    Notification aviso = new Notification("Se debe informar el campo '" + cbNaves.getCaption() + "'", Notification.Type.WARNING_MESSAGE);
-                    aviso.setPosition(Position.MIDDLE_CENTER);
-                    aviso.show(Page.getCurrent());
-                    return;
-                }
-
                 // Construimos el objeto empleado a partir de los datos introducidos en el formulario.
                 construirBean();
                 String result = contrVista.crearEmpleado(empNuevo, user, time);
                 if (result.equals(Constants.OPERACION_OK)) {
-
-                    if (empNuevo.getIdRol().equals(RolesEnum.OPERARIO_CONTROL_PT.getValue())) {
-                        // Creamos los permisos
-                        List<TEmpleados> lEmpleados = contrVista.obtenerEmpleadosPorRolActivos(RolesEnum.OPERARIO_CONTROL_PT.getValue(), user, time);
-                        if (!lEmpleados.isEmpty()) {
-
-                            TEmpleados aux = lEmpleados.get(0);
-                            TPermisos perm = contrVista.obtenerPermisosEmpleado(aux, user, time);
-
-                            empNuevo = contrVista.obtenerEmpleadoPorNombreUsuario(empNuevo.getNombreUsuario());
-
-                            // Copiamos los permisos del empleado con el mismo rol
-
-                            TPermisos prmNew = new TPermisos();
-                            prmNew.copiarPermisos(perm);
-                            prmNew.setIdEmpleado(empNuevo.getId());
-
-                            contrVista.crearPermiso(prmNew, user, time);
-
-                            result = contrVista.obtenerDescripcionCodigo(result);
-                            Notification aviso = new Notification(result, Notification.Type.ASSISTIVE_NOTIFICATION);
-                            aviso.setPosition(Position.MIDDLE_CENTER);
-                            aviso.show(Page.getCurrent());
-                            inicializarCampos();
-
-                        } else {
-                            result = contrVista.obtenerDescripcionCodigo("No se pueden determinar los permisos del nuevo empleado, contacta con el administrador.");
-                            Notification aviso = new Notification(result, Notification.Type.WARNING_MESSAGE);
-                            aviso.setPosition(Position.MIDDLE_CENTER);
-                            aviso.show(Page.getCurrent());
-                        }
-                    } else if (empNuevo.getIdRol().equals(RolesEnum.TRAZABILIDADES.getValue())) {
-                        // Creamos los permisos
-                        List<TEmpleados> lEmpleados = contrVista.obtenerEmpleadosPorRolActivos(RolesEnum.TRAZABILIDADES.getValue(), user, time);
-                        if (!lEmpleados.isEmpty()) {
-
-                            TEmpleados aux = lEmpleados.get(0);
-                            TPermisos perm = contrVista.obtenerPermisosEmpleado(aux, user, time);
-
-                            empNuevo = contrVista.obtenerEmpleadoPorNombreUsuario(empNuevo.getNombreUsuario());
-
-                            // Copiamos los permisos del empleado con el mismo rol
-
-                            TPermisos prmNew = new TPermisos();
-                            prmNew.copiarPermisos(perm);
-                            prmNew.setIdEmpleado(empNuevo.getId());
-
-                            contrVista.crearPermiso(prmNew, user, time);
-
-                            result = contrVista.obtenerDescripcionCodigo(result);
-                            Notification aviso = new Notification(result, Notification.Type.ASSISTIVE_NOTIFICATION);
-                            aviso.setPosition(Position.MIDDLE_CENTER);
-                            aviso.show(Page.getCurrent());
-                            inicializarCampos();
-
-                        } else {
-                            result = contrVista.obtenerDescripcionCodigo("No se pueden determinar los permisos del nuevo empleado, contacta con el administrador.");
-                            Notification aviso = new Notification(result, Notification.Type.WARNING_MESSAGE);
-                            aviso.setPosition(Position.MIDDLE_CENTER);
-                            aviso.show(Page.getCurrent());
-                        }
-                    }
+                    result = contrVista.obtenerDescripcionCodigo(result);
+                    Notification aviso = new Notification(result, Notification.Type.HUMANIZED_MESSAGE);
+                    aviso.setPosition(Position.MIDDLE_CENTER);
+                    aviso.show(Page.getCurrent());
+                    inicializarCampos();
                 } else {
                     result = contrVista.obtenerDescripcionCodigo(result);
                     Notification aviso = new Notification(result, Notification.Type.WARNING_MESSAGE);
@@ -295,7 +217,7 @@ public class VistaNuevoEmpleado extends CustomComponent implements View ,Button.
                     return;
                 }
 
-                if (!Utils.booleanFromInteger(permisos.getCrearEmpleado())) {
+                if (!Utils.booleanFromInteger(permisos.getEntornoMaestros())) {
                     Notification aviso = new Notification("No se tienen permisos para acceder a la pantalla indicada", Notification.Type.ERROR_MESSAGE);
                     aviso.setPosition(Position.MIDDLE_CENTER);
                     aviso.show(Page.getCurrent());
@@ -366,18 +288,14 @@ public class VistaNuevoEmpleado extends CustomComponent implements View ,Button.
                 formulario1.setComponentAlignment(txtNombre, Alignment.MIDDLE_CENTER);
                 formulario1.addComponent(txtPassword);
                 formulario1.setComponentAlignment(txtPassword, Alignment.MIDDLE_CENTER);
-                formulario1.addComponent(txtDni);
-                formulario1.setComponentAlignment(txtDni, Alignment.MIDDLE_CENTER);
+                formulario2.addComponent(txtDni);
+                formulario2.setComponentAlignment(txtDni, Alignment.MIDDLE_CENTER);
                 formulario2.addComponent(txtTelefono);
                 formulario2.setComponentAlignment(txtTelefono, Alignment.MIDDLE_CENTER);
                 formulario2.addComponent(txtCorreoE);
                 formulario2.setComponentAlignment(txtCorreoE, Alignment.MIDDLE_CENTER);
                 formulario2.addComponent(cbRoles);
                 formulario2.setComponentAlignment(cbRoles, Alignment.MIDDLE_CENTER);
-                formulario2.addComponent(cbNaves);
-                formulario2.setComponentAlignment(cbNaves, Alignment.MIDDLE_CENTER);
-                formulario2.addComponent(cbLinea);
-                formulario2.setComponentAlignment(cbLinea, Alignment.MIDDLE_CENTER);
                 formulario2.addComponent(cbEstado);
                 formulario2.setComponentAlignment(cbEstado, Alignment.MIDDLE_CENTER);
                 body.addComponent(formulario1);
@@ -504,61 +422,6 @@ public class VistaNuevoEmpleado extends CustomComponent implements View ,Button.
         txtCodAcceso.setWidth(appWidth, Sizeable.Unit.EM);
         txtCodAcceso.setMaxLength(245);
 
-        // El campo nave
-        cbNaves = new ComboBox("Nave: ");
-        cbNaves.setRequired(true);
-        cbNaves.addItem("Nave 1");
-        cbNaves.addItem("Nave 2");
-        cbNaves.addItem("Nave 3");
-        cbNaves.setNullSelectionAllowed(false);
-        cbNaves.setNewItemsAllowed(false);
-        cbNaves.setWidth(appWidth, Sizeable.Unit.EM);
-        cbNaves.setFilteringMode(FilteringMode.CONTAINS);
-        cbNaves.setVisible(false);
-
-        cbNaves.addValueChangeListener(new ValueChangeListener() {
-
-            @Override
-            public void valueChange(ValueChangeEvent event) {
-                String val = (String) cbNaves.getValue();
-                if (val != null) {
-                    if (val.equals("Nave 1")) {
-                        cbLinea.setVisible(true);
-                        cbLinea.removeAllItems();
-                        cbLinea.addItem("Línea 1");
-                        cbLinea.addItem("Línea 2");
-                    } else if (val.equals("Nave 2")) {
-                        cbLinea.setVisible(true);
-                        cbLinea.removeAllItems();
-                        cbLinea.addItem("Maduración");
-                        cbLinea.addItem("Mango");
-                        cbLinea.addItem("Repaso");
-                        cbLinea.addItem("Flowpack 1");
-                        cbLinea.addItem("Flowpack 2");
-                        cbLinea.addItem("Malla");
-                    } else if (val.equals("Nave 3")) {
-                        cbLinea.setVisible(true);
-                        cbLinea.removeAllItems();
-                        cbLinea.addItem("Malla manual");
-                        cbLinea.addItem("Calibrador");
-                        cbLinea.addItem("Mesa confección");
-                        cbLinea.addItem("Flowpack 3");
-                    }
-                }
-            }
-        });
-
-        // El campo línea
-        cbLinea = new ComboBox("Línea: ");
-        cbLinea.addItem("Línea 1");
-        cbLinea.addItem("Línea 2");
-        cbLinea.setRequired(true);
-        cbLinea.setNullSelectionAllowed(false);
-        cbLinea.setNewItemsAllowed(false);
-        cbLinea.setWidth(appWidth, Sizeable.Unit.EM);
-        cbLinea.setFilteringMode(FilteringMode.CONTAINS);
-        cbLinea.setVisible(false);
-
         // Los roles        
         cbRoles.addItems(roles);
         cbRoles.setCaption("Rol:");
@@ -566,35 +429,12 @@ public class VistaNuevoEmpleado extends CustomComponent implements View ,Button.
         cbRoles.setRequired(true);
         cbRoles.setNewItemsAllowed(false);
         cbRoles.setWidth(appWidth, Sizeable.Unit.EM);
-        cbRoles.addValueChangeListener(new ValueChangeListener() {
-
-            @Override
-            public void valueChange(ValueChangeEvent event) {
-                TRoles val = (TRoles) cbRoles.getValue();
-                if (val != null)
-                    if (val.getId().equals(RolesEnum.OPERARIO_CONTROL_PT.getValue())) {
-                        cbLinea.setVisible(true);
-                        cbNaves.setVisible(true);
-                    } else {
-                        cbLinea.setVisible(false);
-                        cbNaves.setVisible(false);
-                    }
-            }
-        });
-
-        if (empleado.getIdRol().equals(RolesEnum.CONTROL_PT.getValue())) {
-            for (TRoles rol : roles) {
-                if (rol.getId().equals(RolesEnum.OPERARIO_CONTROL_PT.getValue())) {
-                    cbRoles.setValue(rol);
-                }
-            }
-        }
 
         // Los estados.
         cbEstado.setCaption("Estado:");
-        cbEstado.addItem("Activado");
-        cbEstado.addItem("Desactivado");
-        cbEstado.setValue("Activado");
+        cbEstado.addItem(Constants.ACTIVO);
+        cbEstado.addItem(Constants.DESACTIVADO);
+        cbEstado.setValue(Constants.ACTIVO);
         cbEstado.setFilteringMode(FilteringMode.CONTAINS);
         cbEstado.setRequired(true);
         cbEstado.setNullSelectionAllowed(false);
@@ -607,7 +447,7 @@ public class VistaNuevoEmpleado extends CustomComponent implements View ,Button.
      */
     private void construirBean() throws GenasoftException {
         empNuevo = new TEmpleados();
-        empNuevo.setEstado(cbEstado.getValue().equals("Activado") ? 1 : 0);
+        empNuevo.setEstado(cbEstado.getValue().equals(Constants.ACTIVO) ? 1 : 0);
         empNuevo.setDni(txtDni.getValue() != null ? txtDni.getValue().trim().toUpperCase() : null);
         empNuevo.setEmail(txtCorreoE.getValue());
         empNuevo.setFechaCrea(Utils.generarFecha());
@@ -627,18 +467,6 @@ public class VistaNuevoEmpleado extends CustomComponent implements View ,Button.
         empNuevo.setCodigoAcceso(txtCodAcceso.getValue() != null && !txtCodAcceso.getValue().trim().isEmpty() ? txtCodAcceso.getValue().trim().toLowerCase() : null);
         empNuevo.setPais("1");
 
-        if (cbNaves.isVisible()) {
-            empNuevo.setNave(cbNaves.getValue().toString());
-        } else {
-            empNuevo.setNave(null);
-        }
-
-        if (cbLinea.isVisible()) {
-            empNuevo.setLinea(cbLinea.getValue().toString());
-        } else {
-            empNuevo.setLinea(null);
-        }
-
     }
 
     /**
@@ -652,19 +480,8 @@ public class VistaNuevoEmpleado extends CustomComponent implements View ,Button.
         txtCorreoE.setValue(null);
         txtTelefono.setValue(null);
         txtIdExterno.clear();
-        cbEstado.setValue("Activo");
+        cbEstado.setValue(Constants.ACTIVO);
         txtCodAcceso.setValue(null);
-        cbNaves.clear();
-        cbLinea.clear();
-        if (empleado.getIdRol().equals(RolesEnum.CONTROL_PT.getValue())) {
-            for (TRoles rol : roles) {
-                if (rol.getId().equals(RolesEnum.OPERARIO_CONTROL_PT.getValue())) {
-                    cbRoles.setValue(rol);
-                }
-            }
-        } else {
-            cbRoles.clear();
-        }
     }
 
     /**

@@ -3,7 +3,7 @@
  *  
  *  Copyright (C) 2024
  */
-package com.dina.genasoft.vistas.empleados;
+package com.dina.genasoft.vistas.maestros.empleados;
 
 import java.util.List;
 
@@ -21,12 +21,9 @@ import com.dina.genasoft.db.entity.TRoles;
 import com.dina.genasoft.exception.GenasoftException;
 import com.dina.genasoft.utils.Utils;
 import com.dina.genasoft.utils.enums.EmpleadoEnum;
-import com.dina.genasoft.utils.enums.RolesEnum;
 import com.dina.genasoft.vistas.Menu;
 import com.dina.genasoft.vistas.VistaInicioSesion;
 import com.vaadin.annotations.Theme;
-import com.vaadin.data.Property.ValueChangeEvent;
-import com.vaadin.data.Property.ValueChangeListener;
 import com.vaadin.data.fieldgroup.BeanFieldGroup;
 import com.vaadin.navigator.View;
 import com.vaadin.navigator.ViewChangeListener.ViewChangeEvent;
@@ -105,10 +102,6 @@ public class VistaEmpleado extends CustomComponent implements View ,Button.Click
     private Long                          time     = null;
     /** Contendrá los cambios que se aplican al empleado. */
     private String                        cambios;
-    /** La caja de texto para el 'campo' nave del empleado de rol Operario control de PT.*/
-    private ComboBox                      cbNaves;
-    /** La caja de texto para el 'linea' del empleado de rol Operario control de PT.*/
-    private ComboBox                      cbLinea;
     private TEmpleados                    empleado;
 
     @Override
@@ -226,7 +219,7 @@ public class VistaEmpleado extends CustomComponent implements View ,Button.Click
                     return;
                 }
 
-                if (!Utils.booleanFromInteger(permisos.getModificarEmpleado())) {
+                if (!Utils.booleanFromInteger(permisos.getEntornoMaestros())) {
                     Notification aviso = new Notification("No se tienen permisos para acceder a la pantalla indicada", Notification.Type.ERROR_MESSAGE);
                     aviso.setPosition(Position.MIDDLE_CENTER);
                     aviso.show(Page.getCurrent());
@@ -313,18 +306,14 @@ public class VistaEmpleado extends CustomComponent implements View ,Button.Click
                 formulario1.setComponentAlignment(txtNombre, Alignment.MIDDLE_CENTER);
                 formulario1.addComponent(txtPassword);
                 formulario1.setComponentAlignment(txtPassword, Alignment.MIDDLE_CENTER);
-                formulario1.addComponent(txtDni);
-                formulario1.setComponentAlignment(txtDni, Alignment.MIDDLE_CENTER);
+                formulario2.addComponent(txtDni);
+                formulario2.setComponentAlignment(txtDni, Alignment.MIDDLE_CENTER);
                 formulario2.addComponent(txtTelefono);
                 formulario2.setComponentAlignment(txtTelefono, Alignment.MIDDLE_CENTER);
                 formulario2.addComponent(txtCorreoE);
                 formulario2.setComponentAlignment(txtCorreoE, Alignment.MIDDLE_CENTER);
                 formulario2.addComponent(cbRoles);
                 formulario2.setComponentAlignment(cbRoles, Alignment.MIDDLE_CENTER);
-                formulario2.addComponent(cbNaves);
-                formulario2.setComponentAlignment(cbNaves, Alignment.MIDDLE_CENTER);
-                formulario2.addComponent(cbLinea);
-                formulario2.setComponentAlignment(cbLinea, Alignment.MIDDLE_CENTER);
                 formulario2.addComponent(cbEstado);
                 formulario2.setComponentAlignment(cbEstado, Alignment.MIDDLE_CENTER);
                 body.addComponent(formulario1);
@@ -459,66 +448,6 @@ public class VistaEmpleado extends CustomComponent implements View ,Button.Click
         txtTelefono.setWidth(appWidth, Sizeable.Unit.EM);
         txtTelefono.setMaxLength(45);
 
-        // El campo nave
-        cbNaves = new ComboBox("Nave: ");
-        cbNaves.setRequired(true);
-        cbNaves.addItem("Nave 1");
-        cbNaves.addItem("Nave 2");
-        cbNaves.addItem("Nave 3");
-        cbNaves.setNullSelectionAllowed(false);
-        cbNaves.setNewItemsAllowed(false);
-        cbNaves.setWidth(appWidth, Sizeable.Unit.EM);
-        cbNaves.setFilteringMode(FilteringMode.CONTAINS);
-        cbNaves.setVisible(false);
-
-        cbNaves.addValueChangeListener(new ValueChangeListener() {
-
-            @Override
-            public void valueChange(ValueChangeEvent event) {
-                String val = (String) cbNaves.getValue();
-                if (val.equals("Nave 1")) {
-                    cbLinea.setVisible(true);
-                    cbLinea.removeAllItems();
-                    cbLinea.addItem("Línea 1");
-                    cbLinea.addItem("Línea 2");
-                } else if (val.equals("Nave 2")) {
-                    cbLinea.setVisible(true);
-                    cbLinea.removeAllItems();
-                    cbLinea.addItem("Maduración");
-                    cbLinea.addItem("Mango");
-                    cbLinea.addItem("Repaso");
-                    cbLinea.addItem("Flowpack 1");
-                    cbLinea.addItem("Flowpack 2");
-                    cbLinea.addItem("Malla");
-                } else if (val.equals("Nave 3")) {
-                    cbLinea.setVisible(true);
-                    cbLinea.removeAllItems();
-                    cbLinea.addItem("Malla manual");
-                    cbLinea.addItem("Calibrador");
-                    cbLinea.addItem("Mesa confección");
-                    cbLinea.addItem("Flowpack 3");
-                }
-            }
-        });
-
-        // El campo línea
-        cbLinea = new ComboBox("Línea: ");
-        cbLinea.addItem("Línea 1");
-        cbLinea.addItem("Línea 2");
-        cbLinea.setRequired(true);
-        cbLinea.setNullSelectionAllowed(false);
-        cbLinea.setNewItemsAllowed(false);
-        cbLinea.setWidth(appWidth, Sizeable.Unit.EM);
-        cbLinea.setFilteringMode(FilteringMode.CONTAINS);
-        cbLinea.setVisible(false);
-
-        if (empNuevo.getNave() != null) {
-            cbNaves.setValue(empNuevo.getNave());
-        }
-        if (empNuevo.getLinea() != null) {
-            cbLinea.setValue(empNuevo.getLinea());
-        }
-
         // Los roles        
         cbRoles.addItems(roles);
         cbRoles.setCaption("Rol:");
@@ -527,21 +456,6 @@ public class VistaEmpleado extends CustomComponent implements View ,Button.Click
         cbRoles.setNullSelectionAllowed(false);
         cbRoles.setNewItemsAllowed(false);
         cbRoles.setWidth(appWidth, Sizeable.Unit.EM);
-
-        cbRoles.addValueChangeListener(new ValueChangeListener() {
-
-            @Override
-            public void valueChange(ValueChangeEvent event) {
-                TRoles val = (TRoles) cbRoles.getValue();
-                if (val.getId().equals(RolesEnum.OPERARIO_CONTROL_PT.getValue())) {
-                    cbLinea.setVisible(true);
-                    cbNaves.setVisible(true);
-                } else {
-                    cbLinea.setVisible(false);
-                    cbNaves.setVisible(false);
-                }
-            }
-        });
 
         if (empleado.getId().equals(empNuevo.getId())) {
             cbRoles.setEnabled(false);
@@ -555,9 +469,9 @@ public class VistaEmpleado extends CustomComponent implements View ,Button.Click
 
         // Los estados.
         cbEstado.setCaption("Estado:");
-        cbEstado.addItem("Activado");
-        cbEstado.addItem("Desactivado");
-        cbEstado.setValue(empNuevo.getEstado().equals(EmpleadoEnum.ACTIVO.getValue()) ? "Activado" : "Desactivado");
+        cbEstado.addItem(Constants.ACTIVO);
+        cbEstado.addItem(Constants.DESACTIVADO);
+        cbEstado.setValue(empNuevo.getEstado().equals(EmpleadoEnum.ACTIVO.getValue()) ? Constants.ACTIVO : Constants.DESACTIVADO);
         cbEstado.setFilteringMode(FilteringMode.CONTAINS);
         cbEstado.setRequired(true);
         cbEstado.setNullSelectionAllowed(false);
@@ -570,11 +484,11 @@ public class VistaEmpleado extends CustomComponent implements View ,Button.Click
      */
     private void construirBean() throws GenasoftException {
         cambios = "";
-        Integer estado = cbEstado.getValue().equals("Activado") ? 1 : 0;
+        Integer estado = cbEstado.getValue().equals(Constants.ACTIVO) ? 1 : 0;
         if (!empNuevo.getEstado().equals(estado)) {
-            cambios = "Se cambia el estado del empleado, de " + empNuevo.getEstado() + " a " + estado;
+            cambios = "Se cambia el estado del empleado, pasa de " + empNuevo.getEstado() + " a " + estado;
         }
-        empNuevo.setEstado(cbEstado.getValue().equals("Activado") ? 1 : 0);
+        empNuevo.setEstado(cbEstado.getValue().equals(Constants.ACTIVO) ? 1 : 0);
         String value = txtDni.getValue();
         if (value != null) {
             value = value.trim().toUpperCase();
@@ -583,6 +497,11 @@ public class VistaEmpleado extends CustomComponent implements View ,Button.Click
                     cambios = cambios + " Se le quita el DNI al empleado. Antes tenia: " + empNuevo.getDni();
                 } else {
                     cambios = cambios + " Se le asigna un nuevo DNI, antes no tenía: " + value;
+                }
+            } else {
+                if (!value.equals(empNuevo.getDni())) {
+                    cambios = cambios + " Se le asigna un nuevo DNI, pasa de : " + empNuevo.getDni() + "a " + value;
+
                 }
             }
         }

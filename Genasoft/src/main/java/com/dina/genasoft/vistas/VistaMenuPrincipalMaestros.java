@@ -16,9 +16,7 @@ import com.dina.genasoft.db.entity.TEmpleados;
 import com.dina.genasoft.db.entity.TPermisos;
 import com.dina.genasoft.exception.GenasoftException;
 import com.dina.genasoft.utils.Utils;
-import com.dina.genasoft.vistas.controlpt.VistaListadoControlPt;
-import com.dina.genasoft.vistas.productos.VistaListadoProductos;
-import com.dina.genasoft.vistas.proveedores.VistaListadoProveedores;
+import com.dina.genasoft.vistas.maestros.empleados.VistaListadoEmpleados;
 import com.vaadin.annotations.Theme;
 import com.vaadin.navigator.View;
 import com.vaadin.navigator.ViewChangeListener.ViewChangeEvent;
@@ -47,11 +45,11 @@ import com.vaadin.ui.VerticalLayout;
 @SuppressWarnings("serial")
 @Theme("Genal")
 @UIScope
-@SpringView(name = VistaMenuPrincipalControlProductoTerminado.NAME)
-public class VistaMenuPrincipalControlProductoTerminado extends CustomComponent implements View ,Button.ClickListener {
+@SpringView(name = VistaMenuPrincipalMaestros.NAME)
+public class VistaMenuPrincipalMaestros extends CustomComponent implements View ,Button.ClickListener {
 
     /** El nombre de la vista.*/
-    public static final String            NAME = "menuControlPt";
+    public static final String            NAME = "menuMaestros";
     /** El empleado que está logueado.*/
     private TEmpleados                    empleado;
     /** Los permisos del empleado logueado.*/
@@ -63,20 +61,23 @@ public class VistaMenuPrincipalControlProductoTerminado extends CustomComponent 
     @Value("${app.name}")
     private String                        appName;
     /** El log de la aplicación.*/
-    private static final org.slf4j.Logger log  = org.slf4j.LoggerFactory.getLogger(VistaMenuPrincipalControlProductoTerminado.class);
+    private static final org.slf4j.Logger log  = org.slf4j.LoggerFactory.getLogger(VistaMenuPrincipalMaestros.class);
     /** El usuario que está logado. */
     private Integer                       user = null;
     /** La fecha en que se inició sesión. */
     private Long                          time = null;
+
     /// Creamos los botones necesarios para cada entorno.
-    /** Botón para mostrar los clientes.*/
+    /** Botón para mostrar los empleados. */
+    private Button                        bEmpleados;
+    /** Botón para mostrar los clientes. */
     private Button                        bClientes;
-    /** Botón para mostrar los clientes.*/
-    private Button                        bProveedores;
-    /** Botón para mostrar los productos.*/
-    private Button                        bProductos;
-    /** Botón para mostrar el entorno de control de producto terminado.*/
-    private Button                        bControlPt;
+    /** Botón para mostrar los operadores. */
+    private Button                        bOperadores;
+    /** Botón para mostrar los materiales. */
+    private Button                        bMateriales;
+    /** Botón para mostrar los transportistas. */
+    private Button                        bTransportistas;
 
     @PostConstruct
     void init() {
@@ -118,7 +119,7 @@ public class VistaMenuPrincipalControlProductoTerminado extends CustomComponent 
                     return;
                 }
 
-                if (!Utils.booleanFromInteger(permisos.getPantallaControlPt())) {
+                if (!Utils.booleanFromInteger(permisos.getEntornoMaestros())) {
                     Notification aviso = new Notification("No se tienen permisos para acceder a la pantalla indicada", Notification.Type.ERROR_MESSAGE);
                     aviso.setPosition(Position.MIDDLE_CENTER);
                     aviso.show(Page.getCurrent());
@@ -128,20 +129,8 @@ public class VistaMenuPrincipalControlProductoTerminado extends CustomComponent 
                     return;
                 }
 
-                // if (permisos != null) {
-
                 setCompositionRoot(crearInterfaz());
 
-                /**  } else {
-                    // Si no se encuentran permisos con el rol especificado, informamos al empleado y cerramos sesión.
-                    Notification aviso = new Notification("No se han podido obtener los permisos, póngase en contacto con el administrador", Notification.Type.WARNING_MESSAGE);
-                    aviso.setPosition(Position.MIDDLE_CENTER);
-                    aviso.show(Page.getCurrent());
-                    getSession().setAttribute("user", null);
-                    // Redirigimos a la página de inicio.
-                    getUI().getNavigator().navigateTo(VistaInicioSesion.NAME);
-                }
-                */
             } catch (GenasoftException tbe) {
                 log.error("La sesión es inválida, se ha iniciado sesión en otro dispositivo.");
                 // Si no se encuentran permisos con el rol especificado, informamos al empleado y cerramos sesión.
@@ -177,41 +166,42 @@ public class VistaMenuPrincipalControlProductoTerminado extends CustomComponent 
     private void eventosBotones() {
 
         // Evento para acceder a la vista principal de pedidos.
-        bClientes.addClickListener(new ClickListener() {
+        bEmpleados.addClickListener(new ClickListener() {
 
             public void buttonClick(ClickEvent event) {
 
-                //getUI().getNavigator().navigateTo(VistaMenuPrincipalTrazabilidades.NAME + "/" + empleado.getId());
-
-            }
-        });
-
-        // Evento para acceder a la vista principal de pedidos.
-        bProductos.addClickListener(new ClickListener() {
-
-            public void buttonClick(ClickEvent event) {
-
-                getUI().getNavigator().navigateTo(VistaListadoProductos.NAME + "/" + empleado.getId());
+                getUI().getNavigator().navigateTo(VistaListadoEmpleados.NAME + "/" + empleado.getId());
 
             }
         });
 
         // Evento para crear un nuevo empleado.
-        bControlPt.addClickListener(new ClickListener() {
+        bClientes.addClickListener(new ClickListener() {
 
             public void buttonClick(ClickEvent event) {
 
-                getUI().getNavigator().navigateTo(VistaListadoControlPt.NAME + "/" + empleado.getId());
+                getUI().getNavigator().navigateTo(VistaListadoEmpleados.NAME + "/" + empleado.getId());
 
             }
         });
 
-        // Evento para acceder a la vista principal de pedidos.
-        bProveedores.addClickListener(new ClickListener() {
+        // Evento para crear un nuevo empleado.
+        bOperadores.addClickListener(new ClickListener() {
 
             public void buttonClick(ClickEvent event) {
 
-                getUI().getNavigator().navigateTo(VistaListadoProveedores.NAME + "/" + empleado.getId());
+                try {
+
+                    Thread.sleep(7 * 1000);
+
+                    new ProcessBuilder("C:\\Trazabilidades\\MySQLBackups\\mysqlbackup.bat").start();
+
+                    Notification aviso = new Notification("Copia realizada correctamente", Notification.Type.HUMANIZED_MESSAGE);
+                    aviso.setPosition(Position.MIDDLE_CENTER);
+                    aviso.show(Page.getCurrent());
+                } catch (Exception e) {
+
+                }
 
             }
         });
@@ -222,23 +212,27 @@ public class VistaMenuPrincipalControlProductoTerminado extends CustomComponent 
      * Método que nos crea los botones
      */
     private void crearBotones() {
-        if (bClientes == null) {
-            bClientes = new Button("Listado clientes", this);
+        if (bEmpleados == null) {
+            bEmpleados = new Button("Empleados", this);
+            bEmpleados.addStyleName("wide tall big");
+            bEmpleados.setWidth(15, Sizeable.Unit.EM);
+            bEmpleados.setHeight(4, Sizeable.Unit.EM);
+            bClientes = new Button("Clientes", this);
             bClientes.addStyleName("wide tall big");
             bClientes.setWidth(15, Sizeable.Unit.EM);
             bClientes.setHeight(4, Sizeable.Unit.EM);
-            bProductos = new Button("Listado productos", this);
-            bProductos.addStyleName("wide tall big");
-            bProductos.setWidth(15, Sizeable.Unit.EM);
-            bProductos.setHeight(4, Sizeable.Unit.EM);
-            bProveedores = new Button("Listado proveedores", this);
-            bProveedores.addStyleName("wide tall big");
-            bProveedores.setWidth(15, Sizeable.Unit.EM);
-            bProveedores.setHeight(4, Sizeable.Unit.EM);
-            bControlPt = new Button("Listado controles de PT", this);
-            bControlPt.addStyleName("wide tall big");
-            bControlPt.setWidth(15, Sizeable.Unit.EM);
-            bControlPt.setHeight(4, Sizeable.Unit.EM);
+            bOperadores = new Button("Operadores", this);
+            bOperadores.addStyleName("wide tall big");
+            bOperadores.setWidth(15, Sizeable.Unit.EM);
+            bOperadores.setHeight(4, Sizeable.Unit.EM);
+            bMateriales = new Button("Materiales", this);
+            bMateriales.addStyleName("wide tall big");
+            bMateriales.setWidth(15, Sizeable.Unit.EM);
+            bMateriales.setHeight(4, Sizeable.Unit.EM);
+            bTransportistas = new Button("Transportistas", this);
+            bTransportistas.addStyleName("wide tall big");
+            bTransportistas.setWidth(15, Sizeable.Unit.EM);
+            bTransportistas.setHeight(4, Sizeable.Unit.EM);
 
         }
     }
@@ -247,14 +241,14 @@ public class VistaMenuPrincipalControlProductoTerminado extends CustomComponent 
      * Método que se encarga de presentar los componentes en la pantalla.
      */
     private VerticalLayout crearInterfaz() {
-        Label texto = new Label("Menú principal");
+        Label texto = new Label("Menú maestros");
         texto.setStyleName("tituloTamano18");
         texto.setHeight(2, Sizeable.Unit.EM);
         // Incluimos en el layout los componentes
         VerticalLayout titulo = new VerticalLayout(texto);
 
         // The view root layout
-        VerticalLayout viewLayout = new VerticalLayout(new Menu(permisos, user));
+        VerticalLayout viewLayout = new VerticalLayout(new MenuAdministrador(permisos, user));
 
         // Layout para los componentes.
         HorizontalLayout body = new HorizontalLayout();
@@ -267,24 +261,24 @@ public class VistaMenuPrincipalControlProductoTerminado extends CustomComponent 
 
         // Las imágenes
         VerticalLayout imgs = imagenes();
-        botones.setWidth(50, Sizeable.Unit.PERCENTAGE);
+        botones.setWidth(70, Sizeable.Unit.PERCENTAGE);
 
         // Añadimos al container body la chicha y la limoná.
         body.addComponent(botones);
-        body.setComponentAlignment(botones, Alignment.MIDDLE_CENTER);
+        body.setComponentAlignment(botones, Alignment.MIDDLE_LEFT);
         body.addComponent(imgs);
-        body.setComponentAlignment(imgs, Alignment.MIDDLE_LEFT);
+        body.setComponentAlignment(imgs, Alignment.MIDDLE_RIGHT);
 
-        // Creamos y añadimos el logo de Genal Biomasa a la pantalla
-        HorizontalLayout imgGenalBiomasa = contrVista.logoGenaSoft();
+        // Creamos y añadimos el logo del cliente a la pantalla
+        HorizontalLayout imgBrostel = contrVista.logoGenaSoft();
 
-        viewLayout.addComponent(imgGenalBiomasa);
-        viewLayout.setComponentAlignment(imgGenalBiomasa, Alignment.TOP_RIGHT);
+        viewLayout.addComponent(imgBrostel);
+        viewLayout.setComponentAlignment(imgBrostel, Alignment.TOP_RIGHT);
         viewLayout.addComponent(titulo);
         viewLayout.setComponentAlignment(titulo, Alignment.MIDDLE_RIGHT);
         viewLayout.addComponent(body);
-        // Añadimos el logo del cliente
-        //viewLayout.addComponent(contrVista.logoCliente());
+        // Añadimos el logo de DATA FOOD
+        viewLayout.addComponent(contrVista.logoCliente());
         viewLayout.setExpandRatio(body, 0.1f);
 
         return viewLayout;
@@ -311,29 +305,25 @@ public class VistaMenuPrincipalControlProductoTerminado extends CustomComponent 
 
         botones.addComponent(l1);
 
-        if (Utils.booleanFromInteger(permisos.getListarClientes())) {
-            botones.addComponent(bClientes);
-            botones.setComponentAlignment(bClientes, Alignment.MIDDLE_RIGHT);
-            botones.addComponent(l5);
-        }
+        botones.addComponent(bEmpleados);
+        botones.setComponentAlignment(bEmpleados, Alignment.MIDDLE_RIGHT);
+        botones.addComponent(l5);
 
-        if (Utils.booleanFromInteger(permisos.getListarControlPt())) {
-            botones.addComponent(bControlPt);
-            botones.setComponentAlignment(bControlPt, Alignment.MIDDLE_RIGHT);
-            botones.addComponent(l2);
-        }
+        botones.addComponent(bClientes);
+        botones.setComponentAlignment(bClientes, Alignment.MIDDLE_RIGHT);
+        botones.addComponent(l2);
 
-        if (Utils.booleanFromInteger(permisos.getListarProductos())) {
-            botones.addComponent(bProductos);
-            botones.setComponentAlignment(bProductos, Alignment.MIDDLE_RIGHT);
-            botones.addComponent(l3);
-        }
+        botones.addComponent(bMateriales);
+        botones.setComponentAlignment(bMateriales, Alignment.MIDDLE_RIGHT);
+        botones.addComponent(l4);
 
-        if (Utils.booleanFromInteger(permisos.getListarProveedores())) {
-            botones.addComponent(bProveedores);
-            botones.setComponentAlignment(bProveedores, Alignment.MIDDLE_RIGHT);
-            botones.addComponent(l4);
-        }
+        botones.addComponent(bOperadores);
+        botones.setComponentAlignment(bOperadores, Alignment.MIDDLE_RIGHT);
+        botones.addComponent(l4);
+
+        botones.addComponent(bTransportistas);
+        botones.setComponentAlignment(bTransportistas, Alignment.MIDDLE_RIGHT);
+        botones.addComponent(l4);
 
         return botones;
     }
@@ -368,17 +358,9 @@ public class VistaMenuPrincipalControlProductoTerminado extends CustomComponent 
         hor2.setSpacing(true);
 
         hor1.addComponent(image1);
-        //hor1.addComponent(image2);
-        //hor1.addComponent(image5);
-        //hor2.addComponent(image3);
-        //hor2.addComponent(image4);
 
         imgs.addComponent(hor1);
         imgs.setComponentAlignment(hor1, Alignment.MIDDLE_CENTER);
-        //imgs.addComponent(hor2);
-        //imgs.setComponentAlignment(hor2, Alignment.MIDDLE_CENTER);
-        //imgs.addComponent(hor2);
-        //imgs.setComponentAlignment(hor2, Alignment.MIDDLE_RIGHT);
 
         return imgs;
     }

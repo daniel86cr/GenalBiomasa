@@ -3,4 +3,4 @@
  *  
  *  Copyright (C) 2024
  */
-package com.dina.genasoft.vistas.empleados;
+package com.dina.genasoft.vistas.maestros.empleados;

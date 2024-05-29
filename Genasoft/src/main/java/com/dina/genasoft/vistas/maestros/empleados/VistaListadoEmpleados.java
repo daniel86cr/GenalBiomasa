@@ -3,7 +3,7 @@
  *  
  *  Copyright (C) 2024
  */
-package com.dina.genasoft.vistas.empleados;
+package com.dina.genasoft.vistas.maestros.empleados;
 
 import java.util.List;
 import java.util.Set;
@@ -80,8 +80,6 @@ public class VistaListadoEmpleados extends CustomComponent implements View ,Butt
     // Elementos para realizar busquedas
     /** Para filtrar por el nombre del empleado.*/
     private TextField                              fNombre;
-    /** Para filtrar por el DNI del empleado.*/
-    private TextField                              fDNI;
     /** Para filtrar por rol. */
     private ComboBox                               fRoles;
     /** Para filtrar por estado. */
@@ -105,10 +103,9 @@ public class VistaListadoEmpleados extends CustomComponent implements View ,Butt
     private Table                                  tablaEmpleados = null;
     /** Para indicar que se está filtrando por el campo NOMBRE. */
     private final String                           NOMBRE         = "nombre";
-    /** Para indicar que se está filtrando por el campo DNI. */
-    private final String                           DNI            = "dni";
     private TEmpleados                             empleado;
     private TPermisos                              permisos;
+    private List<TRoles>                           lRoles;
 
     /**
      * Se inicializan botones, eventos, etc.
@@ -142,7 +139,7 @@ public class VistaListadoEmpleados extends CustomComponent implements View ,Butt
                 bcEmpleados.setBeanIdProperty("id");
 
                 // Obtenemos los roles activos.
-                List<TRoles> lRoles = contrVista.obtenerRolesActivosSinMaster(user, time);
+                lRoles = contrVista.obtenerRolesActivosSinMaster(user, time);
 
                 Label texto = new Label("Empleados");
                 texto.setStyleName("tituloTamano18");
@@ -162,7 +159,7 @@ public class VistaListadoEmpleados extends CustomComponent implements View ,Butt
                     return;
                 }
 
-                if (!Utils.booleanFromInteger(permisos.getListarEmpleados())) {
+                if (!Utils.booleanFromInteger(permisos.getEntornoMaestros())) {
                     Notification aviso = new Notification("No se tienen permisos para acceder a la pantalla indicada", Notification.Type.ERROR_MESSAGE);
                     aviso.setPosition(Position.MIDDLE_CENTER);
                     aviso.show(Page.getCurrent());
@@ -191,17 +188,11 @@ public class VistaListadoEmpleados extends CustomComponent implements View ,Butt
                 bcEmpleados.removeAllItems();
                 bcEmpleados.addAll(lEmpleados);
 
-                if (Utils.booleanFromInteger(permisos.getCrearEmpleado())) {
-                    crearButton.setVisible(true);
-                } else {
-                    crearButton.setVisible(false);
-                }
-
                 Label tituloFiltrar = new Label("Filtrar");
                 tituloFiltrar.setStyleName("tituloTamano12");
 
                 // Creamos el componente filtro.
-                VerticalLayout filtro = crearComponenteFiltro(lRoles);
+                VerticalLayout filtro = crearComponenteFiltro();
 
                 // Creamos la botonera.
                 HorizontalLayout botonera = crearBotonera(permisos);
@@ -209,7 +200,7 @@ public class VistaListadoEmpleados extends CustomComponent implements View ,Butt
                 viewLayout.addComponent(filtro);
                 viewLayout.addComponent(botonera);
                 viewLayout.addComponent(tablaEmpleados);
-                // Añadimos el logo de NATURAL TROPIC
+                // Añadimos el logo de GENAL BIOMASA
                 viewLayout.addComponent(contrVista.logoCliente());
                 setCompositionRoot(viewLayout);
                 // Establecemos el porcentaje de ratio para los layouts
@@ -282,7 +273,7 @@ public class VistaListadoEmpleados extends CustomComponent implements View ,Butt
                     getUI().getNavigator().navigateTo(VistaEmpleado.NAME + "/" + idSeleccionado);
 
                 } else {
-                    Notification aviso = new Notification("Se debe seleccionar un empleado del listado", Notification.Type.ASSISTIVE_NOTIFICATION);
+                    Notification aviso = new Notification("Se debe seleccionar un registro del listado", Notification.Type.ASSISTIVE_NOTIFICATION);
                     aviso.setPosition(Position.MIDDLE_CENTER);
                     aviso.show(Page.getCurrent());
                 }
@@ -297,10 +288,10 @@ public class VistaListadoEmpleados extends CustomComponent implements View ,Butt
 
                 if (idSeleccionado != null) {
 
-                    MessageBox.createQuestion().withCaption(appName).withMessage("¿Quieres desactivar el empleado seleccionado?").withNoButton().withYesButton(() -> desactivarEmpleado(idSeleccionado), ButtonOption.caption("Sí")).open();
+                    MessageBox.createQuestion().withCaption(appName).withMessage("¿Quieres desactivar el registro seleccionado?").withNoButton().withYesButton(() -> desactivarEmpleado(idSeleccionado), ButtonOption.caption("Sí")).open();
 
                 } else {
-                    Notification aviso = new Notification("Se debe seleccionar un empleado del listado", Notification.Type.ASSISTIVE_NOTIFICATION);
+                    Notification aviso = new Notification("Se debe seleccionar un registro del listado", Notification.Type.ASSISTIVE_NOTIFICATION);
                     aviso.setPosition(Position.MIDDLE_CENTER);
                     aviso.show(Page.getCurrent());
                 }
@@ -370,13 +361,12 @@ public class VistaListadoEmpleados extends CustomComponent implements View ,Butt
      * @return El Grid con las columnas.
      */
     private void crearTablaEmpleados(TPermisos permisos) {
-        tablaEmpleados = new TablaGenerica(new Object[] { "nombreUsuario", "nombre", "dni", "telefono", "email", "idRol", "fechaCrea", "estado" }, new String[] { "Nombre de usuario", "Nombre", "DNI", "Teléfono", "Email", "Rol", "Fecha alta", "Estado" }, bcEmpleados);
+        tablaEmpleados = new TablaGenerica(new Object[] { "nombreUsuario", "nombre", "telefono", "email", "idRol", "fechaCrea", "estado" }, new String[] { "Nombre de usuario", "Nombre", "Teléfono", "Email", "Rol", "Fecha alta", "Estado" }, bcEmpleados);
         tablaEmpleados.addStyleName("big striped");
         tablaEmpleados.setPageLength(25);
 
         // Establecemos tamaño fijo en columnas específicas.
         tablaEmpleados.setColumnWidth("nombreUsuario", 150);
-        tablaEmpleados.setColumnWidth("dni", 90);
         tablaEmpleados.setColumnWidth("pais", 90);
         tablaEmpleados.setColumnWidth("fechaCrea", 90);
         tablaEmpleados.setColumnWidth("estado", 70);
@@ -401,20 +391,16 @@ public class VistaListadoEmpleados extends CustomComponent implements View ,Butt
             }
         });
 
-        if (Utils.booleanFromInt(permisos.getModificarEmpleado())) {
-            tablaEmpleados.addItemClickListener(new ItemClickListener() {
+        tablaEmpleados.addItemClickListener(new ItemClickListener() {
 
-                @Override
-                public void itemClick(ItemClickEvent event) {
-                    idSeleccionado = (String) event.getItemId();
-                    if (event.isDoubleClick()) {
-                        getUI().getNavigator().navigateTo(VistaEmpleado.NAME + "/" + idSeleccionado);
-                    }
+            @Override
+            public void itemClick(ItemClickEvent event) {
+                idSeleccionado = (String) event.getItemId();
+                if (event.isDoubleClick()) {
+                    getUI().getNavigator().navigateTo(VistaEmpleado.NAME + "/" + idSeleccionado);
                 }
-
-            });
-        }
-
+            }
+        });
     }
 
     /**
@@ -472,7 +458,7 @@ public class VistaListadoEmpleados extends CustomComponent implements View ,Butt
      * Método que se encarga de construir el componente que conforma la parte del filtro
      * @return El componente que conforma la parte del filtro.
      */
-    private VerticalLayout crearComponenteFiltro(List<TRoles> lRoles) {
+    private VerticalLayout crearComponenteFiltro() {
 
         // Campo para filtrar por el nombre
         fNombre = new TextField("");
@@ -501,34 +487,6 @@ public class VistaListadoEmpleados extends CustomComponent implements View ,Butt
 
                 }
 
-            }
-        });
-
-        // Campo para filtrar por el nombre
-        fDNI = new TextField("");
-        fDNI.setNullRepresentation("");
-        fDNI.addTextChangeListener(new TextChangeListener() {
-
-            @Override
-            public void textChange(TextChangeEvent event) {
-
-                // Remove old filter
-                if (event.getText() != null && !event.getText().isEmpty()) {
-                    // Set new filter for the "Name" column
-                    bcEmpleados.removeAllContainerFilters();
-                    String[] params = event.getText().trim().split(" ");
-                    String filtro = "";
-                    for (int i = 0; i < params.length; i++) {
-                        filtro = filtro + ".*(" + params[i] + ").*";
-                    }
-                    filtro = filtro.toLowerCase();
-                    filter = new FiltroContainer("dni", filtro, status);
-                    bcEmpleados.addContainerFilter(filter);
-                    aplicarFiltro2(DNI);
-                } else {
-                    fDNI.setValue(null);
-                    aplicarFiltro();
-                }
             }
         });
 
@@ -574,13 +532,12 @@ public class VistaListadoEmpleados extends CustomComponent implements View ,Butt
         table.addStyleName("big striped");
         // La cabecera de la tabla del filtro.
         table.addContainerProperty("Nombre", TextField.class, null);
-        table.addContainerProperty("DNI", TextField.class, null);
         table.addContainerProperty("Rol", ComboBox.class, null);
         table.addContainerProperty("Estado", ComboBox.class, null);
         table.setPageLength(table.size());
 
         // Los componentes que componen al filtro
-        table.addItem(new Object[] { fNombre, fDNI, fRoles, fEstados }, 1);
+        table.addItem(new Object[] { fNombre, fRoles, fEstados }, 1);
 
         filtro.addComponent(table);
         filtro.setSpacing(true);
@@ -606,20 +563,7 @@ public class VistaListadoEmpleados extends CustomComponent implements View ,Butt
             bcEmpleados.addContainerFilter(filter);
             entra = true;
         }
-        if (fDNI.getValue() != null && !fDNI.getValue().isEmpty()) {
-            bcEmpleados.removeContainerFilter(filter);
 
-            // Set new filter for the "Name" column
-            String[] params = fDNI.getValue().split(" ");
-            String filtro = "";
-            for (int i = 0; i < params.length; i++) {
-                filtro = filtro + ".*(" + params[i] + ").*";
-            }
-            filtro = filtro.toLowerCase();
-            filter = new FiltroContainer("dni", filtro, status);
-            bcEmpleados.addContainerFilter(filter);
-            entra = true;
-        }
         if (!fEstados.getValue().equals("Todos")) {
             // Set new filter for the "Name" column
             filter = new FiltroContainer("estado", (String) ".*(" + fEstados.getValue().toString().toLowerCase() + ").*", status);
@@ -677,22 +621,7 @@ public class VistaListadoEmpleados extends CustomComponent implements View ,Butt
         if (fNombre.getValue() != null && !fNombre.getValue().isEmpty()) {
             entra = true;
         }
-        if (fDNI.getValue() != null && !fDNI.getValue().isEmpty() && !filtro.equals(DNI)) {
-            bcEmpleados.removeContainerFilter(filter);
-            // Set new filter for the "Name" column
-            String[] params = fDNI.getValue().split(" ");
-            String filtr = "";
-            for (int i = 0; i < params.length; i++) {
-                filtr = filtr + ".*(" + params[i] + ").*";
-            }
-            filtr = filtr.toLowerCase();
-            filter = new FiltroContainer("dni", filtr, status);
-            bcEmpleados.addContainerFilter(filter);
-            entra = true;
-        }
-        if (fDNI.getValue() != null && !fDNI.getValue().isEmpty()) {
-            entra = true;
-        }
+
         if (!fEstados.getValue().equals("Todos")) {
             // Set new filter for the "Name" column
             filter = new FiltroContainer("estado", (String) ".*(" + fEstados.getValue().toString().toLowerCase() + ").*", status);
@@ -738,15 +667,12 @@ public class VistaListadoEmpleados extends CustomComponent implements View ,Butt
         //Botonera
         HorizontalLayout botonera = new HorizontalLayout();
         botonera.setSpacing(true);
-        if (Utils.booleanFromInteger(permisos.getCrearEmpleado())) {
-            botonera.addComponent(crearButton);
-        }
-        if (Utils.booleanFromInteger(permisos.getModificarEmpleado())) {
-            botonera.addComponent(modificarButton);
-        }
-        if (Utils.booleanFromInteger(permisos.getDesactivarEmpleado())) {
-            botonera.addComponent(eliminarButton);
-        }
+
+        botonera.addComponent(crearButton);
+
+        botonera.addComponent(modificarButton);
+
+        botonera.addComponent(eliminarButton);
 
         botonera.setMargin(true);
 

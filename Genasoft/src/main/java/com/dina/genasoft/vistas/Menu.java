@@ -9,7 +9,7 @@ import org.springframework.beans.factory.annotation.Value;
 
 import com.dina.genasoft.db.entity.TPermisos;
 import com.dina.genasoft.utils.Utils;
-import com.dina.genasoft.vistas.empleados.VistaEmpleado;
+import com.dina.genasoft.vistas.maestros.empleados.VistaEmpleado;
 import com.vaadin.server.Resource;
 import com.vaadin.server.ThemeResource;
 import com.vaadin.spring.annotation.SpringComponent;

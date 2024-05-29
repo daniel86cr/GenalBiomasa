@@ -168,7 +168,7 @@ public class VistaMenuPrincipalAdministrador extends CustomComponent implements 
 
             public void buttonClick(ClickEvent event) {
 
-                getUI().getNavigator().navigateTo(VistaMenuPrincipalTrazabilidades.NAME + "/" + empleado.getId());
+                getUI().getNavigator().navigateTo(VistaMenuPrincipalMaestros.NAME + "/" + empleado.getId());
 
             }
         });
@@ -178,7 +178,7 @@ public class VistaMenuPrincipalAdministrador extends CustomComponent implements 
 
             public void buttonClick(ClickEvent event) {
 
-                getUI().getNavigator().navigateTo(VistaMenuPrincipalControlProductoTerminado.NAME + "/" + empleado.getId());
+                getUI().getNavigator().navigateTo(VistaMenuPrincipalMaestros.NAME + "/" + empleado.getId());
 
             }
         });
@@ -355,17 +355,9 @@ public class VistaMenuPrincipalAdministrador extends CustomComponent implements 
         hor2.setSpacing(true);
 
         hor1.addComponent(image1);
-        //hor1.addComponent(image2);
-        //hor1.addComponent(image5);
-        //hor2.addComponent(image3);
-        //hor2.addComponent(image4);
 
         imgs.addComponent(hor1);
         imgs.setComponentAlignment(hor1, Alignment.MIDDLE_CENTER);
-        //imgs.addComponent(hor2);
-        //imgs.setComponentAlignment(hor2, Alignment.MIDDLE_CENTER);
-        //imgs.addComponent(hor2);
-        //imgs.setComponentAlignment(hor2, Alignment.MIDDLE_RIGHT);
 
         return imgs;
     }

@@ -1859,7 +1859,7 @@ public class ControladorVistas implements Serializable {
         Label l = new Label(" ");
         l.setHeight(2, Sizeable.Unit.EM);
 
-        // Logo de TRAZABILIDADES[Natural TROPIC]
+        // Logo de TRAZABILIDADES[GENAL BIOMASA]
         VerticalLayout imgCliente = new VerticalLayout();
         imgCliente.addComponent(l);
         imgCliente.addComponent(image);
@@ -1889,8 +1889,8 @@ public class ControladorVistas implements Serializable {
             }
         } catch (MailException | InterruptedException e) {
             result = "Error al enviar la notificación, compruebe que la dirección de correo es correcta. Si el problema persiste, contacte con el administrador";
-            //enviarTelegram(Integer.valueOf(userNotifications), "** ERROR TRAZABILIDADES [NATURAL TROPIC] *** \\n Error al enviar correo al destinatario. \\n ID empleado: " + idEmpleado + ", email:" + empl.getEmail(), userId, time);
-            //enviarWhatsApp(Integer.valueOf(userNotifications), "** ERROR TRAZABILIDADES [NATURAL TROPIC] *** \\n Error al enviar correo al destinatario. \\n ID empleado: " + idEmpleado + ", email:" + empl.getEmail(), userId, time);
+            //enviarTelegram(Integer.valueOf(userNotifications), "** ERROR TRAZABILIDADES [GENAL BIOMASA] *** \\n Error al enviar correo al destinatario. \\n ID empleado: " + idEmpleado + ", email:" + empl.getEmail(), userId, time);
+            //enviarWhatsApp(Integer.valueOf(userNotifications), "** ERROR TRAZABILIDADES [GENAL BIOMASA] *** \\n Error al enviar correo al destinatario. \\n ID empleado: " + idEmpleado + ", email:" + empl.getEmail(), userId, time);
         } catch (Exception e) {
 
         }
