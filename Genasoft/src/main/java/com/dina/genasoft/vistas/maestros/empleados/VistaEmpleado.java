@@ -410,7 +410,7 @@ public class VistaEmpleado extends CustomComponent implements View ,Button.Click
         txtCodAcceso = (TextField) binder.buildAndBind("Código de acceso:", "codigoAcceso");
         txtCodAcceso.setNullRepresentation("");
         txtCodAcceso.setWidth(appWidth, Sizeable.Unit.EM);
-        txtCodAcceso.setMaxLength(245);
+        txtCodAcceso.setMaxLength(45);
 
         // La contraseña
         txtPassword = (PasswordField) binder.buildAndBind("Contraseña:", "password", PasswordField.class);
@@ -490,99 +490,102 @@ public class VistaEmpleado extends CustomComponent implements View ,Button.Click
         }
         empNuevo.setEstado(cbEstado.getValue().equals(Constants.ACTIVO) ? 1 : 0);
         String value = txtDni.getValue();
+
+        value = txtDni.getValue();
         if (value != null) {
             value = value.trim().toUpperCase();
-            if (value != null && empNuevo.getDni() == null || value == null || value.isEmpty() && empNuevo.getDni() != null) {
-                if (value == null || value.isEmpty()) {
-                    cambios = cambios + " Se le quita el DNI al empleado. Antes tenia: " + empNuevo.getDni();
-                } else {
-                    cambios = cambios + " Se le asigna un nuevo DNI, antes no tenía: " + value;
-                }
-            } else {
-                if (!value.equals(empNuevo.getDni())) {
-                    cambios = cambios + " Se le asigna un nuevo DNI, pasa de : " + empNuevo.getDni() + "a " + value;
-
-                }
-            }
         }
-        if (value != null) {
-            if (!value.equals(empNuevo.getDni())) {
-                cambios = cambios + " Se cambia el DNI; Anterior: " + empNuevo.getDni() + "Nuevo: " + value.toUpperCase();
-            }
-
+        if (value == null && empNuevo.getDni() != null) {
+            cambios = cambios + "\n Se le quita el DNI, antes tenia: " + empNuevo.getDni();
+        } else if (value != null && empNuevo.getDni() == null) {
+            value = value.trim().toUpperCase();
+            cambios = cambios + "\n Se le asigna un nuevo DNI, antes no tenía tenia, ahora tiene:  " + value;
+        } else if (!value.equals(empNuevo.getDni())) {
+            value = value.trim().toUpperCase();
+            cambios = cambios + "\n Se le cambia el DNI, antes tenia: " + empNuevo.getDni() + " y ahora tiene: " + value;
         }
-        empNuevo.setDni(txtDni.getValue() != null ? txtDni.getValue().trim().toUpperCase() : null);
+
+        empNuevo.setDni(value);
 
         value = txtCodAcceso.getValue();
         if (value != null) {
             value = value.trim().toUpperCase();
-            if (value != null && empNuevo.getCodigoAcceso() == null || value == null || value.isEmpty() && empNuevo.getCodigoAcceso() != null) {
-                if (value == null || value.isEmpty()) {
-                    cambios = cambios + " Se le quita el código de acceso al empleado. Antes tenia: " + empNuevo.getCodigoAcceso();
-                } else {
-                    cambios = cambios + " Se le asigna un nuevo código de acceso, antes no tenía: " + value;
-                }
-            }
         }
-        if (value != null) {
-            if (!value.equals(empNuevo.getCodigoAcceso())) {
-                cambios = cambios + " Se cambia el código de acceso; Anterior: " + empNuevo.getCodigoAcceso() + "Nuevo: " + value.toUpperCase();
-            }
+        if (value == null && empNuevo.getCodigoAcceso() != null) {
+            cambios = cambios + "\n Se le quita el cod_acceso, antes tenia: " + empNuevo.getCodigoAcceso();
+        } else if (value != null && empNuevo.getCodigoAcceso() == null) {
+            cambios = cambios + "\n Se le asigna un nuevo cod_acceso, antes no tenía tenia, ahora tiene:  " + value;
+        } else if (!value.equals(empNuevo.getCodigoAcceso())) {
+            cambios = cambios + "\n Se le cambia el cod_acceso, antes tenia: " + empNuevo.getCodigoAcceso() + " y ahora tiene: " + value;
+        }
 
-        }
         empNuevo.setCodigoAcceso(value);
 
         value = txtCorreoE.getValue();
-        if (value != null && empNuevo.getEmail() == null || value == null || value.isEmpty() && empNuevo.getEmail() != null) {
-            if (value == null || value.isEmpty()) {
-                cambios = cambios + " Se le quita el correo electrónico al empleado. Antes tenia: " + empNuevo.getEmail();
-            } else {
-                cambios = cambios + " Se le asigna un nuevo correo electrónico, antes no tenía: " + value;
-            }
-        }
-        if (value != null) {
-            if (!value.equals(empNuevo.getEmail())) {
-                cambios = cambios + " Se cambia el correo electrónico; Anterior: " + empNuevo.getEmail() + "Nuevo: " + value;
-            }
 
+        if (value != null) {
+            value = value.trim().toUpperCase();
         }
-        empNuevo.setEmail(txtCorreoE.getValue());
-        empNuevo.setFechaModifica(Utils.generarFecha());
+
+        if (value == null && empNuevo.getEmail() != null) {
+            cambios = cambios + "\n Se le quita el email, antes tenia: " + empNuevo.getEmail();
+        } else if (value != null && empNuevo.getEmail() == null) {
+            cambios = cambios + "\n Se le asigna un nuevo email, antes no tenía tenia, ahora tiene:  " + value;
+        } else if (!value.equals(empNuevo.getEmail())) {
+            cambios = cambios + "\n Se le cambia el email, antes tenia: " + empNuevo.getEmail() + " y ahora tiene: " + value;
+        }
+
+        empNuevo.setEmail(value);
+
         value = txtIdExterno.getValue();
         if (value != null) {
             value = value.trim().toUpperCase();
-            if (value != null && empNuevo.getIdExterno() == null || value == null || value.isEmpty() && empNuevo.getIdExterno() != null) {
-                if (value == null || value.isEmpty()) {
-                    cambios = cambios + " Se le quita el ID externo al empleado. Antes tenia: " + empNuevo.getIdExterno();
-                } else {
-                    cambios = cambios + " Se le asigna un nuevo ID Externo, antes no tenía: " + value;
-                }
-            }
-            if (value != null) {
-                if (!value.equals(empNuevo.getEmail())) {
-                    cambios = cambios + " Se cambia el correo electrónico; Anterior: " + empNuevo.getIdExterno() + "Nuevo: " + value;
-                }
-
-            }
-            value = txtIdExterno.getValue();
-            if (value != null && empNuevo.getIdExterno() == null || value == null || value.isEmpty() && empNuevo.getIdExterno() != null) {
-                if (value == null || value.isEmpty()) {
-                    cambios = cambios + " Se le quita el ID externo al empleado. Antes tenia: " + empNuevo.getIdExterno();
-                } else {
-                    cambios = cambios + " Se le asigna un nuevo ID externo, antes no tenía: " + value;
-                }
-            }
-            if (value != null) {
-                if (!value.equals(empNuevo.getEmail())) {
-                    cambios = cambios + " Se cambia el ID externo; Anterior: " + empNuevo.getIdExterno() + "Nuevo: " + value;
-                }
-
-            }
         }
-        empNuevo.setIdExterno(txtIdExterno.getValue() != null && !txtIdExterno.getValue().trim().isEmpty() ? txtIdExterno.getValue().toString().trim().toUpperCase() : null);
+        if (value == null && empNuevo.getIdExterno() != null) {
+            cambios = cambios + "\n Se le quita el cod_externo, antes tenia: " + empNuevo.getIdExterno();
+        } else if (value != null && empNuevo.getIdExterno() == null) {
+            cambios = cambios + "\n Se le asigna un nuevo cod_externo, antes no tenía tenia, ahora tiene:  " + value;
+        } else if (!value.equals(empNuevo.getIdExterno())) {
+            cambios = cambios + "\n Se le cambia el cod_externo, antes tenia: " + empNuevo.getIdExterno() + " y ahora tiene: " + value;
+        }
 
-        empNuevo.setNombre(txtNombre.getValue().toUpperCase());
-        empNuevo.setNombreUsuario(txtNombreUsuario.getValue().toLowerCase());
+        empNuevo.setIdExterno(value);
+
+        value = txtNombre.getValue().trim().toUpperCase();
+
+        if (value != null) {
+            value = value.trim().toUpperCase();
+        }
+
+        if (value == null && empNuevo.getNombre() != null) {
+            cambios = cambios + "\n Se le quita el nombre, antes tenia: " + empNuevo.getNombre();
+        } else if (value != null && empNuevo.getNombre() == null) {
+            cambios = cambios + "\n Se le asigna un nuevo nombre, antes no tenía tenia, ahora tiene:  " + value;
+        } else if (!value.equals(empNuevo.getNombre())) {
+            cambios = cambios + "\n Se le cambia el nombre, antes tenia: " + empNuevo.getNombre() + " y ahora tiene: " + value;
+        }
+
+        empNuevo.setNombre(value);
+
+        value = txtNombreUsuario.getValue().trim().toUpperCase();
+        if (value != null) {
+            value = value.trim().toUpperCase();
+        }
+        if (value == null && empNuevo.getNombreUsuario() != null) {
+            cambios = cambios + "\n Se le quita el nombre_usuario, antes tenia: " + empNuevo.getNombreUsuario();
+        } else if (value != null && empNuevo.getNombreUsuario() == null) {
+            value = value.trim().toUpperCase();
+            cambios = cambios + "\n Se le asigna un nuevo nombre_usuario, antes no tenía tenia, ahora tiene:  " + value;
+        } else if (!value.equals(empNuevo.getNombreUsuario())) {
+            value = value.trim().toUpperCase();
+            cambios = cambios + "\n Se le cambia el nombre_usuario, antes tenia: " + empNuevo.getNombreUsuario() + " y ahora tiene: " + value;
+        }
+
+        empNuevo.setNombreUsuario(value);
+
+        if (!((TRoles) cbRoles.getValue()).getId().equals(empNuevo.getIdRol())) {
+            cambios = cambios + " Se le cambia el rol, antes tenia: " + empNuevo.getIdRol() + " ahora tiene: " + ((TRoles) cbRoles.getValue()).getId();
+        }
 
         empNuevo.setIdRol(((TRoles) cbRoles.getValue()).getId());
 
@@ -590,51 +593,27 @@ public class VistaEmpleado extends CustomComponent implements View ,Button.Click
             cambios = cambios + " Se cambia la contraseña";
         }
         empNuevo.setPassword(txtPassword.getValue());
-        if (txtTelefono.getValue() != null) {
-            if (empNuevo.getTelefono() != null && !empNuevo.getTelefono().equals(txtTelefono.getValue())) {
-                cambios = cambios + " Se le asigna un nuevo teléfono: " + txtTelefono.getValue() + "antes tenía: " + empNuevo.getTelefono();
-            } else if (empNuevo.getTelefono() == null) {
-                cambios = cambios + " Se le asigna un nuevo teléfono: " + txtTelefono.getValue() + "antes no tenía.";
-            }
-            empNuevo.setTelefono((Utils.formatearValorNumericoString(((String) txtTelefono.getValue()))));
-        } else {
-            if (empNuevo.getTelefono() != null) {
-                cambios = cambios + " Se le quita el teléfono, antes tenía: " + empNuevo.getTelefono();
-            }
-            empNuevo.setTelefono(null);
-        }
-        empNuevo.setUsuModifica(user);
 
-        if (cbNaves.isVisible()) {
-            if (empNuevo.getNave() == null) {
-                cambios = cambios + " Se le añade el campo Nave, antes no tenia, ahora pasa a tener: " + cbNaves.getValue().toString();
-            } else {
-                if (!empNuevo.getNave().equals(cbNaves.getValue().toString())) {
-                    cambios = cambios + " Se le cambia el campo Nave, antes tenia: " + empNuevo.getNave() + ", ahora pasa a tener: " + cbNaves.getValue().toString();
-                }
-            }
-            empNuevo.setNave(cbNaves.getValue().toString());
-        } else {
-            if (empNuevo.getNave() != null) {
-                cambios = cambios + " Se le quita el campo Nave, antes tenía: " + empNuevo.getNave();
-            }
-            empNuevo.setNave(null);
+        value = txtTelefono.getValue().trim().toUpperCase();
+        if (value != null) {
+            value = value.trim().toUpperCase();
         }
 
-        if (cbLinea.isVisible()) {
-            if (empNuevo.getLinea() == null) {
-                cambios = cambios + " Se le añade el campo Línea, antes no tenia, ahora pasa a tener: " + cbLinea.getValue().toString();
-            } else {
-                if (!empNuevo.getLinea().equals(cbLinea.getValue().toString())) {
-                    cambios = cambios + " Se le cambia el campo Línea, antes tenia: " + empNuevo.getLinea() + ", ahora pasa a tener: " + cbLinea.getValue().toString();
-                }
-            }
-            empNuevo.setLinea(cbLinea.getValue().toString());
-        } else {
-            if (empNuevo.getLinea() != null) {
-                cambios = cambios + " Se le quita el campo Línea, antes tenía: " + empNuevo.getLinea();
-            }
-            empNuevo.setLinea(null);
+        if (value == null && empNuevo.getTelefono() != null) {
+            cambios = cambios + "\n Se le quita el teléfono, antes tenia: " + empNuevo.getTelefono();
+        } else if (value != null && empNuevo.getTelefono() == null) {
+            value = value.trim().toUpperCase();
+            cambios = cambios + "\n Se le asigna un nuevo teléfono, antes no tenía tenia, ahora tiene:  " + value;
+        } else if (!value.equals(empNuevo.getTelefono())) {
+            value = value.trim().toUpperCase();
+            cambios = cambios + "\n Se le cambia el teléfono, antes tenia: " + empNuevo.getTelefono() + " y ahora tiene: " + value;
+        }
+
+        empNuevo.setTelefono(value);
+
+        if (!cambios.isEmpty()) {
+            empNuevo.setFechaModifica(Utils.generarFecha());
+            empNuevo.setUsuModifica(user);
         }
 
     }

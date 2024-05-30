@@ -420,7 +420,7 @@ public class VistaNuevoEmpleado extends CustomComponent implements View ,Button.
         txtCodAcceso = new TextField("Código acceso: ");
         txtCodAcceso.setNullRepresentation("");
         txtCodAcceso.setWidth(appWidth, Sizeable.Unit.EM);
-        txtCodAcceso.setMaxLength(245);
+        txtCodAcceso.setMaxLength(45);
 
         // Los roles        
         cbRoles.addItems(roles);
@@ -465,7 +465,7 @@ public class VistaNuevoEmpleado extends CustomComponent implements View ,Button.
         empNuevo.setUsuCrea(user);
         empNuevo.setIdRol(((TRoles) cbRoles.getValue()).getId());
         empNuevo.setCodigoAcceso(txtCodAcceso.getValue() != null && !txtCodAcceso.getValue().trim().isEmpty() ? txtCodAcceso.getValue().trim().toLowerCase() : null);
-        empNuevo.setPais("1");
+        empNuevo.setPais("ES");
 
     }
 
