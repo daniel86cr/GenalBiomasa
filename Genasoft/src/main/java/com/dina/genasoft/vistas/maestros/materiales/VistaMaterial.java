@@ -16,9 +16,10 @@ import org.springframework.beans.factory.annotation.Value;
 import com.dina.genasoft.configuration.Constants;
 import com.dina.genasoft.controller.ControladorVistas;
 import com.dina.genasoft.db.entity.TEmpleados;
+import com.dina.genasoft.db.entity.TIva;
+import com.dina.genasoft.db.entity.TMateriales;
 import com.dina.genasoft.db.entity.TPermisos;
-import com.dina.genasoft.db.entity.TRegistrosCambiosEmpleados;
-import com.dina.genasoft.db.entity.TRoles;
+import com.dina.genasoft.db.entity.TRegistrosCambiosMateriales;
 import com.dina.genasoft.exception.GenasoftException;
 import com.dina.genasoft.utils.Utils;
 import com.dina.genasoft.utils.enums.EmpleadoEnum;
@@ -42,13 +43,12 @@ import com.vaadin.ui.CustomComponent;
 import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.Notification;
-import com.vaadin.ui.PasswordField;
 import com.vaadin.ui.TextField;
 import com.vaadin.ui.VerticalLayout;
 
 /**
  * @author Daniel Carmona Romero
- * Vista para mostrar/visualizar un empleado.
+ * Vista para mostrar/visualizar un material.
  */
 @SuppressWarnings("serial")
 @Theme("Genal")
@@ -59,19 +59,19 @@ public class VistaMaterial extends CustomComponent implements View ,Button.Click
     @Autowired
     private ControladorVistas             contrVista;
     /** El nombre de la vista.*/
-    public static final String            NAME     = "vEmpleado";
-    /** Para los campos que componen un empleado.*/
-    private BeanFieldGroup<TEmpleados>    binder;
+    public static final String            NAME     = "vMaterial";
+    /** Para los campos que componen un material.*/
+    private BeanFieldGroup<TMateriales>   binder;
     /** El boton para crear el empleado.*/
     private Button                        modificarButton;
-    /** El boton para volver al listado de empleados.*/
+    /** El boton para volver al listado de materiales.*/
     private Button                        listadoButton;
     /** Combobox para los estados.*/
     private ComboBox                      cbEstado;
     /** Combobox para los roles. */
-    private ComboBox                      cbRoles;
-    /** El empleado a crear.*/
-    private TEmpleados                    empNuevo;
+    private ComboBox                      cbIva;
+    /** El material a modificar.*/
+    private TMateriales                   nMaterial;
     /** Contendrá el nombre de la aplicación.*/
     @Value("${app.name}")
     private String                        appName;
@@ -81,22 +81,14 @@ public class VistaMaterial extends CustomComponent implements View ,Button.Click
     /** El log de la aplicación.*/
     private static final org.slf4j.Logger log      = org.slf4j.LoggerFactory.getLogger(VistaMaterial.class);
     // Los campos obligatorios
-    /** La caja de texto para el nombre de usuario.*/
-    private TextField                     txtNombreUsuario;
-    /** La caja de texto para el código externo de empleado.*/
-    private TextField                     txtIdExterno;
+    /** La caja de texto para la referencia .*/
+    private TextField                     txtReferencia;
     /** La caja de texto para el nombre.*/
     private TextField                     txtNombre;
-    /** La caja de texto para el DNI.*/
-    private TextField                     txtDni;
-    /** La caja de texto para el teléfono.*/
-    private TextField                     txtTelefono;
-    /** La caja de texto para la contraseña.*/
-    private PasswordField                 txtPassword;
-    /** La caja de texto para el correo electrónico.*/
-    private TextField                     txtCorreoE;
-    /** La caja de texto para el código de acceso del empleado.*/
-    private TextField                     txtCodAcceso;
+    /** La caja de texto para el LER.*/
+    private TextField                     txtLer;
+    /** La caja de texto para el precio.*/
+    private TextField                     txtPrecio;
     /** Los permisos del empleado actual. */
     private TPermisos                     permisos = null;
     /** El usuario que está logado. */
@@ -106,11 +98,12 @@ public class VistaMaterial extends CustomComponent implements View ,Button.Click
     /** Contendrá los cambios que se aplican al empleado. */
     private String                        cambios;
     private TEmpleados                    empleado;
+    private List<TIva>                    lIvas;
 
     @Override
     public void buttonClick(ClickEvent event) {
         if (event.getButton().equals(modificarButton)) {
-            // Creamos el evento para modificar un nuevo empleado con los datos introducidos en el formulario
+            // Creamos el evento para modificar un nuevo material con los datos introducidos en el formulario
             try {
                 if (validarCamposObligatorios()) {
                     Notification aviso = new Notification("Se debe informar los campos marcados con '*'", Notification.Type.ASSISTIVE_NOTIFICATION);
@@ -119,39 +112,21 @@ public class VistaMaterial extends CustomComponent implements View ,Button.Click
                     return;
                 }
 
-                if (txtCorreoE.getValue() != null && !txtCorreoE.getValue().isEmpty()) {
-                    if (!Utils.comprobarDireccionCorreo(txtCorreoE.getValue())) {
-                        Notification aviso = new Notification("No se ha indicado una dirección de correo electrónico válida", Notification.Type.ASSISTIVE_NOTIFICATION);
-                        aviso.setPosition(Position.MIDDLE_CENTER);
-                        aviso.show(Page.getCurrent());
-                        return;
-                    }
-                }
-
-                if (txtCodAcceso.getValue() != null && !txtCodAcceso.getValue().trim().isEmpty()) {
-                    if (txtCodAcceso.getValue().trim().length() < 3) {
-                        Notification aviso = new Notification("El campo '" + txtCodAcceso.getCaption() + "' no tiene la longitud correcta, como mínimo debe ser 3 caracteres", Notification.Type.ASSISTIVE_NOTIFICATION);
-                        aviso.setPosition(Position.MIDDLE_CENTER);
-                        aviso.show(Page.getCurrent());
-                        return;
-                    }
-                }
-
-                // Construimos el objeto empleado a partir de los datos introducidos en el formulario.
+                // Construimos el objeto material a partir de los datos introducidos en el formulario.
                 construirBean();
-                String result = contrVista.modificarEmpleado(empNuevo, user, time);
+                String result = contrVista.modificarMaterial(nMaterial, user, time);
                 if (result.equals(Constants.OPERACION_OK)) {
 
                     // Si hay cambios, guardamos los cambios en el registro de cambios
                     if (!cambios.isEmpty()) {
 
-                        TRegistrosCambiosEmpleados record = new TRegistrosCambiosEmpleados();
+                        TRegistrosCambiosMateriales record = new TRegistrosCambiosMateriales();
                         record.setCambio(cambios);
                         record.setFechaCambio(Utils.generarFecha());
-                        record.setIdEmpleado(empNuevo.getId());
+                        record.setIdMaterial(nMaterial.getId());
                         record.setUsuCrea(user);
 
-                        contrVista.crearRegistroCambioEmpleado(record, user, time);
+                        contrVista.crearRegistroCambioMaterial(record, user, time);
                     }
                     result = contrVista.obtenerDescripcionCodigo(result);
                     Notification aviso = new Notification(result, Notification.Type.ASSISTIVE_NOTIFICATION);
@@ -219,7 +194,7 @@ public class VistaMaterial extends CustomComponent implements View ,Button.Click
 
         if (time != null) {
             try {
-                binder = new BeanFieldGroup<>(TEmpleados.class);
+                binder = new BeanFieldGroup<>(TMateriales.class);
 
                 empleado = contrVista.obtenerEmpleadoPorId(user, user, time);
 
@@ -250,37 +225,37 @@ public class VistaMaterial extends CustomComponent implements View ,Button.Click
                 crearCombos();
                 //El fieldgroup no es un componente
 
-                // Obtenemos los roles activos.
-                List<TRoles> roles = Utils.generarListaGenerica();
+                // Obtenemos los iva activos.
+                lIvas = Utils.generarListaGenerica();
 
                 String parametros = event.getParameters();
 
                 if (parametros != null && !parametros.isEmpty()) {
-                    empNuevo = contrVista.obtenerEmpleadoPorId(Integer.valueOf(parametros), user, time);
+                    nMaterial = contrVista.obtenerMaterialPorId(Integer.valueOf(parametros), user, time);
                 } else {
                     parametros = null;
                 }
 
-                if (empNuevo == null) {
-                    Notification aviso = new Notification("No se ha encontrado el empleado.", Notification.Type.ERROR_MESSAGE);
+                if (nMaterial == null) {
+                    Notification aviso = new Notification("No se ha encontrado el material.", Notification.Type.ERROR_MESSAGE);
                     aviso.setPosition(Position.MIDDLE_CENTER);
                     aviso.show(Page.getCurrent());
                     getUI().getNavigator().navigateTo(VistaListadoMateriales.NAME);
                     return;
                 }
 
-                binder.setItemDataSource(empNuevo);
+                binder.setItemDataSource(nMaterial);
 
-                // Obtenemos los roles activos.
-                roles = contrVista.obtenerRolesActivosSinMaster(user, time);
+                // Obtenemos los ivas activos.
+                lIvas = contrVista.obtenerTiposIvaActivos(user, time);
 
                 // Creamos los botones de la pantalla.
                 crearBotones();
 
                 // Creamos los componetes que conforman la pantalla.
-                crearComponentes(parametros, roles);
+                crearComponentes(parametros);
 
-                Label texto = new Label(empNuevo.getNombre());
+                Label texto = new Label(nMaterial.getDescripcion());
                 texto.setStyleName("tituloTamano18");
                 texto.setHeight(4, Sizeable.Unit.EM);
                 Label texto2 = new Label(" ");
@@ -314,30 +289,20 @@ public class VistaMaterial extends CustomComponent implements View ,Button.Click
                 Label lblSpace = new Label(" ");
                 lblSpace.setHeight(5, Sizeable.Unit.EM);
 
-                formulario1.addComponent(txtNombreUsuario);
-                formulario1.setComponentAlignment(txtNombreUsuario, Alignment.MIDDLE_CENTER);
-                formulario1.addComponent(txtIdExterno);
-                formulario1.setComponentAlignment(txtIdExterno, Alignment.MIDDLE_CENTER);
-                formulario1.addComponent(txtCodAcceso);
-                formulario1.setComponentAlignment(txtCodAcceso, Alignment.MIDDLE_CENTER);
+                formulario1.addComponent(txtReferencia);
+                formulario1.setComponentAlignment(txtReferencia, Alignment.MIDDLE_CENTER);
                 formulario1.addComponent(txtNombre);
                 formulario1.setComponentAlignment(txtNombre, Alignment.MIDDLE_CENTER);
-                formulario1.addComponent(txtPassword);
-                formulario1.setComponentAlignment(txtPassword, Alignment.MIDDLE_CENTER);
-                formulario2.addComponent(txtDni);
-                formulario2.setComponentAlignment(txtDni, Alignment.MIDDLE_CENTER);
-                formulario2.addComponent(txtTelefono);
-                formulario2.setComponentAlignment(txtTelefono, Alignment.MIDDLE_CENTER);
-                formulario2.addComponent(txtCorreoE);
-                formulario2.setComponentAlignment(txtCorreoE, Alignment.MIDDLE_CENTER);
-                formulario2.addComponent(cbRoles);
-                formulario2.setComponentAlignment(cbRoles, Alignment.MIDDLE_CENTER);
-                formulario2.addComponent(cbEstado);
-                formulario2.setComponentAlignment(cbEstado, Alignment.MIDDLE_CENTER);
+                formulario1.addComponent(txtLer);
+                formulario1.setComponentAlignment(txtLer, Alignment.MIDDLE_CENTER);
+                formulario1.addComponent(txtPrecio);
+                formulario1.setComponentAlignment(txtPrecio, Alignment.MIDDLE_CENTER);
+                formulario1.addComponent(cbIva);
+                formulario1.setComponentAlignment(cbIva, Alignment.MIDDLE_CENTER);
+                formulario1.addComponent(cbEstado);
+                formulario1.setComponentAlignment(cbEstado, Alignment.MIDDLE_CENTER);
                 body.addComponent(formulario1);
-                body.setComponentAlignment(formulario1, Alignment.MIDDLE_LEFT);
-                body.addComponent(formulario2);
-                body.setComponentAlignment(formulario2, Alignment.MIDDLE_RIGHT);
+                body.setComponentAlignment(formulario1, Alignment.MIDDLE_CENTER);
                 viewLayout.addComponent(listadoButton);
                 viewLayout.addComponent(body);
                 viewLayout.setComponentAlignment(body, Alignment.MIDDLE_CENTER);
@@ -397,97 +362,56 @@ public class VistaMaterial extends CustomComponent implements View ,Button.Click
     private void crearCombos() {
         // Combo box para el estado.
         cbEstado = new ComboBox();
-        cbRoles = new ComboBox();
+        cbIva = new ComboBox();
 
     }
 
     /**
      * Método que nos crea los componetes que conforman la pantalla.
      */
-    private void crearComponentes(String nombre, List<TRoles> roles) {
+    private void crearComponentes(String nombre) {
 
         //Los campos que componen un empleado.
 
-        // El nombre con el que se hace login. 
-        txtNombreUsuario = (TextField) binder.buildAndBind("Nombre usuario:", "nombreUsuario");
-        txtNombreUsuario.setNullRepresentation("");
-        txtNombreUsuario.setRequired(true);
-        txtNombreUsuario.setWidth(appWidth, Sizeable.Unit.EM);
-        txtNombreUsuario.setMaxLength(245);
-        txtNombreUsuario.setEnabled(false);
-
         // El código de empleado.
-        txtIdExterno = (TextField) binder.buildAndBind("ID externo:", "idExterno");
-        txtIdExterno.setNullRepresentation("");
-        txtIdExterno.setWidth(appWidth, Sizeable.Unit.EM);
-        txtIdExterno.setMaxLength(245);
+        txtReferencia = (TextField) binder.buildAndBind("Referencia:", "referencia");
+        txtReferencia.setNullRepresentation("");
+        txtReferencia.setWidth(appWidth, Sizeable.Unit.EM);
+        txtReferencia.setMaxLength(1000);
+        txtReferencia.setRequired(true);
 
         // El nombre
-        txtNombre = (TextField) binder.buildAndBind("Nombre empleado:", "nombre");
+        txtNombre = (TextField) binder.buildAndBind("Nombre", "descripcion");
         txtNombre.setNullRepresentation("");
         txtNombre.setRequired(true);
         txtNombre.setWidth(appWidth, Sizeable.Unit.EM);
-        txtNombre.setMaxLength(245);
-        txtNombre.setEnabled(false);
+        txtNombre.setMaxLength(1000);
 
-        // El código de acceso
-        txtCodAcceso = (TextField) binder.buildAndBind("Código de acceso:", "codigoAcceso");
-        txtCodAcceso.setNullRepresentation("");
-        txtCodAcceso.setWidth(appWidth, Sizeable.Unit.EM);
-        txtCodAcceso.setMaxLength(45);
+        // LER
+        txtLer = (TextField) binder.buildAndBind("LER:", "ler");
+        txtLer.setNullRepresentation("");
+        txtLer.setRequired(true);
+        txtLer.setWidth(appWidth, Sizeable.Unit.EM);
+        txtLer.setMaxLength(445);
 
-        // La contraseña
-        txtPassword = (PasswordField) binder.buildAndBind("Contraseña:", "password", PasswordField.class);
-        txtPassword.setNullRepresentation("");
-        txtPassword.setRequired(true);
-        txtPassword.setWidth(appWidth, Sizeable.Unit.EM);
-        txtPassword.setMaxLength(245);
-        if (empleado.getIdRol().equals(1) || empleado.getId().equals(empNuevo.getId())) {
-            txtPassword.setEnabled(true);
-        } else {
-            if (empleado.getIdRol().equals(2) && empNuevo.getIdRol() > 2) {
-                txtPassword.setEnabled(true);
-            } else {
-                txtPassword.setEnabled(false);
-                txtPassword.addStyleName("visible");
-                txtPassword.addStyleName("deshabilitado");
-            }
-        }
-
-        // El Correo electrónico.
-        txtCorreoE = (TextField) binder.buildAndBind("Email:", "email", TextField.class);
-        txtCorreoE.setNullRepresentation("");
-        txtCorreoE.setWidth(appWidth, Sizeable.Unit.EM);
-        txtCorreoE.setMaxLength(100);
-
-        // El DNI.
-        txtDni = (TextField) binder.buildAndBind("DNI:", "dni", TextField.class);
-        txtDni.setNullRepresentation("");
-        txtDni.setWidth(appWidth, Sizeable.Unit.EM);
-        txtDni.setMaxLength(45);
-
-        // El número de teléfono
-        txtTelefono = (TextField) binder.buildAndBind("Telefono:", "telefono");
-        txtTelefono.setNullRepresentation("");
-        txtTelefono.setWidth(appWidth, Sizeable.Unit.EM);
-        txtTelefono.setMaxLength(45);
+        // El Precio.
+        txtPrecio = new TextField("Precio:");
+        txtPrecio.setNullRepresentation("0");
+        txtPrecio.setWidth(appWidth, Sizeable.Unit.EM);
+        txtPrecio.setRequired(true);
 
         // Los roles        
-        cbRoles.addItems(roles);
-        cbRoles.setCaption("Rol:");
-        cbRoles.setFilteringMode(FilteringMode.CONTAINS);
-        cbRoles.setRequired(true);
-        cbRoles.setNullSelectionAllowed(false);
-        cbRoles.setNewItemsAllowed(false);
-        cbRoles.setNullSelectionAllowed(false);
-        cbRoles.setWidth(appWidth, Sizeable.Unit.EM);
-
-        if (empleado.getId().equals(empNuevo.getId())) {
-            cbRoles.setEnabled(false);
-        }
-        for (TRoles rol : roles) {
-            if (rol.getId().equals(empNuevo.getIdRol())) {
-                cbRoles.setValue(rol);
+        cbIva.addItems(lIvas);
+        cbIva.setCaption("IVA:");
+        cbIva.setFilteringMode(FilteringMode.CONTAINS);
+        cbIva.setRequired(true);
+        cbIva.setNullSelectionAllowed(false);
+        cbIva.setNewItemsAllowed(false);
+        cbIva.setNullSelectionAllowed(false);
+        cbIva.setWidth(appWidth, Sizeable.Unit.EM);
+        for (TIva iva : lIvas) {
+            if (iva.getId().equals(nMaterial.getIva())) {
+                cbIva.setValue(iva);
                 break;
             }
         }
@@ -496,7 +420,7 @@ public class VistaMaterial extends CustomComponent implements View ,Button.Click
         cbEstado.setCaption("Estado:");
         cbEstado.addItem(Constants.ACTIVO);
         cbEstado.addItem(Constants.DESACTIVADO);
-        cbEstado.setValue(empNuevo.getEstado().equals(EmpleadoEnum.ACTIVO.getValue()) ? Constants.ACTIVO : Constants.DESACTIVADO);
+        cbEstado.setValue(nMaterial.getEstado().equals(EmpleadoEnum.ACTIVO.getValue()) ? Constants.ACTIVO : Constants.DESACTIVADO);
         cbEstado.setFilteringMode(FilteringMode.CONTAINS);
         cbEstado.setRequired(true);
         cbEstado.setNullSelectionAllowed(false);
@@ -510,71 +434,24 @@ public class VistaMaterial extends CustomComponent implements View ,Button.Click
     private void construirBean() throws GenasoftException {
         cambios = "";
         Integer estado = cbEstado.getValue().equals(Constants.ACTIVO) ? 1 : 0;
-        if (!empNuevo.getEstado().equals(estado)) {
-            cambios = "Se cambia el estado del empleado, pasa de " + empNuevo.getEstado() + " a " + estado;
+        if (!nMaterial.getEstado().equals(estado)) {
+            cambios = "Se cambia el estado del empleado, pasa de " + nMaterial.getEstado() + " a " + estado;
         }
-        empNuevo.setEstado(cbEstado.getValue().equals(Constants.ACTIVO) ? 1 : 0);
-        String value = txtDni.getValue();
-
-        value = txtDni.getValue();
-        if (value != null) {
-            value = value.trim().toUpperCase();
-        }
-        if (value == null && empNuevo.getDni() != null) {
-            cambios = cambios + "\n Se le quita el DNI, antes tenia: " + empNuevo.getDni();
-        } else if (value != null && empNuevo.getDni() == null) {
-            value = value.trim().toUpperCase();
-            cambios = cambios + "\n Se le asigna un nuevo DNI, antes no tenía tenia, ahora tiene:  " + value;
-        } else if (value != null && !value.equals(empNuevo.getDni())) {
-            value = value.trim().toUpperCase();
-            cambios = cambios + "\n Se le cambia el DNI, antes tenia: " + empNuevo.getDni() + " y ahora tiene: " + value;
-        }
-
-        empNuevo.setDni(value);
-
-        value = txtCodAcceso.getValue();
-        if (value != null) {
-            value = value.trim().toUpperCase();
-        }
-        if (value == null && empNuevo.getCodigoAcceso() != null) {
-            cambios = cambios + "\n Se le quita el cod_acceso, antes tenia: " + empNuevo.getCodigoAcceso();
-        } else if (value != null && empNuevo.getCodigoAcceso() == null) {
-            cambios = cambios + "\n Se le asigna un nuevo cod_acceso, antes no tenía tenia, ahora tiene:  " + value;
-        } else if (value != null && !value.equals(empNuevo.getCodigoAcceso())) {
-            cambios = cambios + "\n Se le cambia el cod_acceso, antes tenia: " + empNuevo.getCodigoAcceso() + " y ahora tiene: " + value;
-        }
-
-        empNuevo.setCodigoAcceso(value);
-
-        value = txtCorreoE.getValue();
+        nMaterial.setEstado(cbEstado.getValue().equals(Constants.ACTIVO) ? 1 : 0);
+        String value = txtReferencia.getValue();
 
         if (value != null) {
             value = value.trim().toUpperCase();
         }
-
-        if (value == null && empNuevo.getEmail() != null) {
-            cambios = cambios + "\n Se le quita el email, antes tenia: " + empNuevo.getEmail();
-        } else if (value != null && empNuevo.getEmail() == null) {
-            cambios = cambios + "\n Se le asigna un nuevo email, antes no tenía tenia, ahora tiene:  " + value;
-        } else if (value != null && !value.equals(empNuevo.getEmail())) {
-            cambios = cambios + "\n Se le cambia el email, antes tenia: " + empNuevo.getEmail() + " y ahora tiene: " + value;
-        }
-
-        empNuevo.setEmail(value);
-
-        value = txtIdExterno.getValue();
-        if (value != null) {
+        if (value == null && nMaterial.getReferencia() != null) {
+            cambios = cambios + "\n Se le quita la referencia, antes tenia: " + nMaterial.getReferencia();
+        } else if (value != null && nMaterial.getReferencia() == null) {
             value = value.trim().toUpperCase();
+            cambios = cambios + "\n Se le asigna una nueva referencia, antes no tenía tenia, ahora tiene:  " + value;
+        } else if (value != null && !value.equals(nMaterial.getReferencia())) {
+            value = value.trim().toUpperCase();
+            cambios = cambios + "\n Se le cambia la referencia, antes tenia: " + nMaterial.getReferencia() + " y ahora tiene: " + value;
         }
-        if (value == null && empNuevo.getIdExterno() != null) {
-            cambios = cambios + "\n Se le quita el cod_externo, antes tenia: " + empNuevo.getIdExterno();
-        } else if (value != null && empNuevo.getIdExterno() == null) {
-            cambios = cambios + "\n Se le asigna un nuevo cod_externo, antes no tenía tenia, ahora tiene:  " + value;
-        } else if (value != null && !value.equals(empNuevo.getIdExterno())) {
-            cambios = cambios + "\n Se le cambia el cod_externo, antes tenia: " + empNuevo.getIdExterno() + " y ahora tiene: " + value;
-        }
-
-        empNuevo.setIdExterno(value);
 
         value = txtNombre.getValue().trim().toUpperCase();
 
@@ -582,61 +459,45 @@ public class VistaMaterial extends CustomComponent implements View ,Button.Click
             value = value.trim().toUpperCase();
         }
 
-        if (value == null && empNuevo.getNombre() != null) {
-            cambios = cambios + "\n Se le quita el nombre, antes tenia: " + empNuevo.getNombre();
-        } else if (value != null && empNuevo.getNombre() == null) {
-            cambios = cambios + "\n Se le asigna un nuevo nombre, antes no tenía tenia, ahora tiene:  " + value;
-        } else if (value != null && !value.equals(empNuevo.getNombre())) {
-            cambios = cambios + "\n Se le cambia el nombre, antes tenia: " + empNuevo.getNombre() + " y ahora tiene: " + value;
+        if (value == null && nMaterial.getDescripcion() != null) {
+            cambios = cambios + "\n Se le quita la descripción, antes tenia: " + nMaterial.getDescripcion();
+        } else if (value != null && nMaterial.getDescripcion() == null) {
+            cambios = cambios + "\n Se le asigna una nueva descripción,  antes no tenía tenia, ahora tiene:  " + value;
+        } else if (value != null && !value.equals(nMaterial.getDescripcion())) {
+            cambios = cambios + "\n Se le cambia la descripción, antes tenia: " + nMaterial.getDescripcion() + " y ahora tiene: " + value;
         }
 
-        empNuevo.setNombre(value);
+        nMaterial.setDescripcion(value);
 
-        value = txtNombreUsuario.getValue();
+        value = txtLer.getValue();
 
-        if (value == null && empNuevo.getNombreUsuario() != null) {
-            cambios = cambios + "\n Se le quita el nombre_usuario, antes tenia: " + empNuevo.getNombreUsuario();
-        } else if (value != null && empNuevo.getNombreUsuario() == null) {
+        if (value == null && nMaterial.getLer() != null) {
+            cambios = cambios + "\n Se le quita el LER, antes tenia: " + nMaterial.getLer();
+        } else if (value != null && nMaterial.getLer() == null) {
             value = value.trim().toUpperCase();
-            cambios = cambios + "\n Se le asigna un nuevo nombre_usuario, antes no tenía tenia, ahora tiene:  " + value;
-        } else if (value != null && !value.equals(empNuevo.getNombreUsuario())) {
+            cambios = cambios + "\n Se le asigna un nuevo LER, antes no tenía tenia, ahora tiene:  " + value;
+        } else if (value != null && !value.equals(nMaterial.getLer())) {
             value = value.trim().toUpperCase();
-            cambios = cambios + "\n Se le cambia el nombre_usuario, antes tenia: " + empNuevo.getNombreUsuario() + " y ahora tiene: " + value;
+            cambios = cambios + "\n Se le cambia el LER, antes tenia: " + nMaterial.getLer() + " y ahora tiene: " + value;
         }
 
-        empNuevo.setNombreUsuario(value);
+        nMaterial.setLer(value);
 
-        if (!((TRoles) cbRoles.getValue()).getId().equals(empNuevo.getIdRol())) {
-            cambios = cambios + " Se le cambia el rol, antes tenia: " + empNuevo.getIdRol() + " ahora tiene: " + ((TRoles) cbRoles.getValue()).getId();
+        if (!((TIva) cbIva.getValue()).getId().equals(nMaterial.getIva())) {
+            cambios = cambios + "\n Se le cambia el IVA, antes tenia: " + nMaterial.getIva() + " ahora tiene: " + ((TIva) cbIva.getValue()).getId();
         }
 
-        empNuevo.setIdRol(((TRoles) cbRoles.getValue()).getId());
+        nMaterial.setIva(((TIva) cbIva.getValue()).getId());
 
-        if (!empNuevo.getPassword().equals(txtPassword.getValue())) {
-            cambios = cambios + " Se cambia la contraseña";
+        Double prec = Utils.formatearValorDouble(txtPrecio.getValue().trim());
+
+        if (!prec.equals(nMaterial.getPrecio())) {
+            cambios = cambios + "\n Se le cambia el precio, antes tenia: " + nMaterial.getPrecio() + " ahora tiene: " + prec;
         }
-        empNuevo.setPassword(txtPassword.getValue());
-
-        value = txtTelefono.getValue();
-        if (value != null) {
-            value = value.trim().toUpperCase();
-        }
-
-        if (value == null && empNuevo.getTelefono() != null) {
-            cambios = cambios + "\n Se le quita el teléfono, antes tenia: " + empNuevo.getTelefono();
-        } else if (value != null && empNuevo.getTelefono() == null) {
-            value = value.trim().toUpperCase();
-            cambios = cambios + "\n Se le asigna un nuevo teléfono, antes no tenía tenia, ahora tiene:  " + value;
-        } else if (value != null && !value.equals(empNuevo.getTelefono())) {
-            value = value.trim().toUpperCase();
-            cambios = cambios + "\n Se le cambia el teléfono, antes tenia: " + empNuevo.getTelefono() + " y ahora tiene: " + value;
-        }
-
-        empNuevo.setTelefono(value);
 
         if (!cambios.isEmpty()) {
-            empNuevo.setFechaModifica(Utils.generarFecha());
-            empNuevo.setUsuModifica(user);
+            nMaterial.setFechaModifica(Utils.generarFecha());
+            nMaterial.setUsuModifica(user);
         }
 
     }
@@ -646,7 +507,7 @@ public class VistaMaterial extends CustomComponent implements View ,Button.Click
      * @return true si no se cumple la validación
      */
     private boolean validarCamposObligatorios() {
-        return !txtNombreUsuario.isValid() || !cbEstado.isValid() || !txtNombre.isValid() || !txtPassword.isValid() || !cbRoles.isValid();
+        return !cbEstado.isValid() || !txtNombre.isValid() || !txtReferencia.isValid() || !txtLer.isValid() || !txtPrecio.isValid() || !cbIva.isValid();
     }
 
 }

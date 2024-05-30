@@ -362,7 +362,7 @@ public class VistaListadoMateriales extends CustomComponent implements View ,But
      * @return El Grid con las columnas.
      */
     private void crearTablaMateriales(TPermisos permisos) {
-        tablaMateriales = new TablaGenerica(new Object[] { "referencia", "descripcion", "ler", "precio", "iva", "fechaCrea", "fechaModifa", "estado" }, new String[] { "Referencia", "Nombre", "LER", "Precio", "IVA", "Fecha alta", "Fecha ult. Modificación", "Estado" }, bcMateriales);
+        tablaMateriales = new TablaGenerica(new Object[] { "referencia", "descripcion", "ler", "precio", "iva", "fechaCrea", "fechaModifica", "estado" }, new String[] { "Referencia", "Nombre", "LER", "Precio", "IVA", "Fecha alta", "Fecha ult. Modificación", "Estado" }, bcMateriales);
         tablaMateriales.addStyleName("big striped");
         tablaMateriales.setPageLength(25);
 

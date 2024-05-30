@@ -17,6 +17,7 @@ import com.dina.genasoft.db.entity.TPermisos;
 import com.dina.genasoft.exception.GenasoftException;
 import com.dina.genasoft.utils.Utils;
 import com.dina.genasoft.vistas.maestros.empleados.VistaListadoEmpleados;
+import com.dina.genasoft.vistas.maestros.materiales.VistaListadoMateriales;
 import com.vaadin.annotations.Theme;
 import com.vaadin.navigator.View;
 import com.vaadin.navigator.ViewChangeListener.ViewChangeEvent;
@@ -171,6 +172,16 @@ public class VistaMenuPrincipalMaestros extends CustomComponent implements View 
             public void buttonClick(ClickEvent event) {
 
                 getUI().getNavigator().navigateTo(VistaListadoEmpleados.NAME + "/" + empleado.getId());
+
+            }
+        });
+
+        // Evento para crear un nuevo empleado.
+        bMateriales.addClickListener(new ClickListener() {
+
+            public void buttonClick(ClickEvent event) {
+
+                getUI().getNavigator().navigateTo(VistaListadoMateriales.NAME + "/" + empleado.getId());
 
             }
         });

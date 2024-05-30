@@ -245,7 +245,7 @@ public class VistaNuevoEmpleado extends CustomComponent implements View ,Button.
                 crearBotones();
 
                 // Creamos los componetes que conforman la pantalla.
-                crearComponentes(roles);
+                crearComponentes();
 
                 Label texto = new Label("Nuevo empleado");
                 texto.setStyleName("tituloTamano18");
@@ -306,7 +306,7 @@ public class VistaNuevoEmpleado extends CustomComponent implements View ,Button.
                 viewLayout.addComponent(crearButton);
                 viewLayout.setComponentAlignment(crearButton, Alignment.MIDDLE_CENTER);
 
-                // Añadimos el logo de Natur tropic
+                // Añadimos el logo de GenalSoft
                 viewLayout.addComponent(contrVista.logoCliente());
                 setCompositionRoot(viewLayout);
                 // Establecemos el porcentaje de ratio para los layouts
@@ -368,7 +368,7 @@ public class VistaNuevoEmpleado extends CustomComponent implements View ,Button.
     /**
      * Método que nos crea los componetes que conforman la pantalla.
      */
-    private void crearComponentes(List<TRoles> roles) {
+    private void crearComponentes() {
         //Los campos que componen un empleado.
 
         // El nombre con el que se hace login. 

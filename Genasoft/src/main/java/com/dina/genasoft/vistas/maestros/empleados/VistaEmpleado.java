@@ -106,6 +106,7 @@ public class VistaEmpleado extends CustomComponent implements View ,Button.Click
     /** Contendrá los cambios que se aplican al empleado. */
     private String                        cambios;
     private TEmpleados                    empleado;
+    private List<TRoles>                  roles;
 
     @Override
     public void buttonClick(ClickEvent event) {
@@ -251,7 +252,7 @@ public class VistaEmpleado extends CustomComponent implements View ,Button.Click
                 //El fieldgroup no es un componente
 
                 // Obtenemos los roles activos.
-                List<TRoles> roles = Utils.generarListaGenerica();
+                roles = Utils.generarListaGenerica();
 
                 String parametros = event.getParameters();
 
@@ -278,7 +279,7 @@ public class VistaEmpleado extends CustomComponent implements View ,Button.Click
                 crearBotones();
 
                 // Creamos los componetes que conforman la pantalla.
-                crearComponentes(parametros, roles);
+                crearComponentes(parametros);
 
                 Label texto = new Label(empNuevo.getNombre());
                 texto.setStyleName("tituloTamano18");
@@ -404,7 +405,7 @@ public class VistaEmpleado extends CustomComponent implements View ,Button.Click
     /**
      * Método que nos crea los componetes que conforman la pantalla.
      */
-    private void crearComponentes(String nombre, List<TRoles> roles) {
+    private void crearComponentes(String nombre) {
 
         //Los campos que componen un empleado.
 
@@ -445,13 +446,10 @@ public class VistaEmpleado extends CustomComponent implements View ,Button.Click
         if (empleado.getIdRol().equals(1) || empleado.getId().equals(empNuevo.getId())) {
             txtPassword.setEnabled(true);
         } else {
-            if (empleado.getIdRol().equals(2) && empNuevo.getIdRol() > 2) {
-                txtPassword.setEnabled(true);
-            } else {
-                txtPassword.setEnabled(false);
-                txtPassword.addStyleName("visible");
-                txtPassword.addStyleName("deshabilitado");
-            }
+            txtPassword.setEnabled(false);
+            txtPassword.addStyleName("visible");
+            txtPassword.addStyleName("deshabilitado");
+
         }
 
         // El Correo electrónico.
@@ -607,13 +605,13 @@ public class VistaEmpleado extends CustomComponent implements View ,Button.Click
         empNuevo.setNombreUsuario(value);
 
         if (!((TRoles) cbRoles.getValue()).getId().equals(empNuevo.getIdRol())) {
-            cambios = cambios + " Se le cambia el rol, antes tenia: " + empNuevo.getIdRol() + " ahora tiene: " + ((TRoles) cbRoles.getValue()).getId();
+            cambios = cambios + "\n Se le cambia el rol, antes tenia: " + empNuevo.getIdRol() + " ahora tiene: " + ((TRoles) cbRoles.getValue()).getId();
         }
 
         empNuevo.setIdRol(((TRoles) cbRoles.getValue()).getId());
 
         if (!empNuevo.getPassword().equals(txtPassword.getValue())) {
-            cambios = cambios + " Se cambia la contraseña";
+            cambios = cambios + "\n Se cambia la contraseña";
         }
         empNuevo.setPassword(txtPassword.getValue());
 
