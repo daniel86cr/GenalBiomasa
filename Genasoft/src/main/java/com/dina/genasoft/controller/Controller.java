@@ -22,7 +22,6 @@ import com.dina.genasoft.exception.GenasoftException;
 import com.dina.genasoft.utils.EnvioCorreo;
 import com.dina.genasoft.utils.GeneradorZip;
 import com.dina.genasoft.utils.Utils;
-import com.dina.genasoft.utils.exportar.AlbaranPDF;
 import com.ibm.icu.util.Calendar;
 
 /**
@@ -44,8 +43,8 @@ public class Controller {
     @Autowired
     private GeneradorZip                  generadorZip;
     /** Inyección de Spring para poder acceder a la lógica de exportación de datos en Excel.*/
-    @Autowired
-    private AlbaranPDF                    albaranPDF;
+    //@Autowired
+    //private AlbaranPDF                    albaranPDF;
     /** Contendrá el nombre de la aplicación.*/
     @Value("${pdf.temp}")
     private String                        pdfTemp;

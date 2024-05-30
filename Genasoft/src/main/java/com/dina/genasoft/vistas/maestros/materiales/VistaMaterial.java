@@ -3,7 +3,7 @@
  *  
  *  Copyright (C) 2024
  */
-package com.dina.genasoft.vistas.maestros.empleados;
+package com.dina.genasoft.vistas.maestros.materiales;
 
 import java.util.List;
 
@@ -53,8 +53,8 @@ import com.vaadin.ui.VerticalLayout;
 @SuppressWarnings("serial")
 @Theme("Genal")
 @UIScope
-@SpringView(name = VistaEmpleado.NAME)
-public class VistaEmpleado extends CustomComponent implements View ,Button.ClickListener {
+@SpringView(name = VistaMaterial.NAME)
+public class VistaMaterial extends CustomComponent implements View ,Button.ClickListener {
     /** El controlador de las vistas. */
     @Autowired
     private ControladorVistas             contrVista;
@@ -79,7 +79,7 @@ public class VistaEmpleado extends CustomComponent implements View ,Button.Click
     @Value("${app.width}")
     private Integer                       appWidth;
     /** El log de la aplicación.*/
-    private static final org.slf4j.Logger log      = org.slf4j.LoggerFactory.getLogger(VistaEmpleado.class);
+    private static final org.slf4j.Logger log      = org.slf4j.LoggerFactory.getLogger(VistaMaterial.class);
     // Los campos obligatorios
     /** La caja de texto para el nombre de usuario.*/
     private TextField                     txtNombreUsuario;
@@ -191,7 +191,7 @@ public class VistaEmpleado extends CustomComponent implements View ,Button.Click
             }
 
         } else if (event.getButton().equals(listadoButton)) {
-            getUI().getNavigator().navigateTo(VistaListadoEmpleados.NAME);
+            getUI().getNavigator().navigateTo(VistaListadoMateriales.NAME);
         }
     }
 
@@ -265,7 +265,7 @@ public class VistaEmpleado extends CustomComponent implements View ,Button.Click
                     Notification aviso = new Notification("No se ha encontrado el empleado.", Notification.Type.ERROR_MESSAGE);
                     aviso.setPosition(Position.MIDDLE_CENTER);
                     aviso.show(Page.getCurrent());
-                    getUI().getNavigator().navigateTo(VistaListadoEmpleados.NAME);
+                    getUI().getNavigator().navigateTo(VistaListadoMateriales.NAME);
                     return;
                 }
 

@@ -428,6 +428,7 @@ public class VistaNuevoEmpleado extends CustomComponent implements View ,Button.
         cbRoles.setFilteringMode(FilteringMode.CONTAINS);
         cbRoles.setRequired(true);
         cbRoles.setNewItemsAllowed(false);
+        cbRoles.setNullSelectionAllowed(false);
         cbRoles.setWidth(appWidth, Sizeable.Unit.EM);
 
         // Los estados.
@@ -458,7 +459,7 @@ public class VistaNuevoEmpleado extends CustomComponent implements View ,Button.
 
         empNuevo.setPassword(txtPassword.getValue());
         if (txtTelefono.getValue() != null) {
-            empNuevo.setTelefono((Utils.formatearValorNumericoString(((String) txtTelefono.getValue()))));
+            empNuevo.setTelefono((Utils.formatearValorString(((String) txtTelefono.getValue()))));
         } else {
             empNuevo.setTelefono(null);
         }

@@ -211,18 +211,22 @@ public class VistaMenuPrincipalAdministrador extends CustomComponent implements 
      */
     private void crearBotones() {
         if (bMaestros == null) {
-            bMaestros = new Button("Entorno trazabilidades", this);
+            bMaestros = new Button("Entorno Maestros", this);
             bMaestros.addStyleName("wide tall big");
             bMaestros.setWidth(15, Sizeable.Unit.EM);
             bMaestros.setHeight(4, Sizeable.Unit.EM);
-            bRegistroPesajes = new Button("Entorno control de PT", this);
+            bRegistroPesajes = new Button("Registro pesajes", this);
             bRegistroPesajes.addStyleName("wide tall big");
             bRegistroPesajes.setWidth(15, Sizeable.Unit.EM);
             bRegistroPesajes.setHeight(4, Sizeable.Unit.EM);
-            bPesajes = new Button("Copia de seguridad", this);
+            bPesajes = new Button("Inventario pesajes", this);
             bPesajes.addStyleName("wide tall big");
             bPesajes.setWidth(15, Sizeable.Unit.EM);
             bPesajes.setHeight(4, Sizeable.Unit.EM);
+            bFacturacion = new Button("Entorno facturación", this);
+            bFacturacion.addStyleName("wide tall big");
+            bFacturacion.setWidth(15, Sizeable.Unit.EM);
+            bFacturacion.setHeight(4, Sizeable.Unit.EM);
 
         }
     }
@@ -319,7 +323,7 @@ public class VistaMenuPrincipalAdministrador extends CustomComponent implements 
         if (Utils.booleanFromInteger(permisos.getEntornoFacturacion())) {
             botones.addComponent(bFacturacion);
             botones.setComponentAlignment(bFacturacion, Alignment.MIDDLE_RIGHT);
-            botones.addComponent(l4);
+            botones.addComponent(l3);
         }
 
         return botones;

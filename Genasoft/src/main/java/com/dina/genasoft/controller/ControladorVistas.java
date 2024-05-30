@@ -1852,7 +1852,7 @@ public class ControladorVistas implements Serializable {
     public VerticalLayout logoCliente() {
 
         // Obtenemos la imagen desde el tema aplicado a la aplicación
-        Resource resource = new ThemeResource("logo/appLogo.png");
+        Resource resource = new ThemeResource("logo/appLogo2.png");
         // Cargamos la imagen desde el objeto Image
         Image image = new Image(null, resource);
 

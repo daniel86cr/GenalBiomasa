@@ -55,7 +55,8 @@
         		<mapper resource="SqlMaps/TDireccionClienteMapper.xml"></mapper>
         		<mapper resource="SqlMaps/TEmpleadoEmpresaMapper.xml"></mapper>
         		<mapper resource="SqlMaps/TEmpleadosMapper.xml"></mapper>
-        		<mapper resource="SqlMaps/TEmpresasMapper.xml"></mapper>        		        		
+        		<mapper resource="SqlMaps/TEmpresasMapper.xml"></mapper>
+        		<mapper resource="SqlMaps/TErroresMapper.xml"></mapper>
         		<mapper resource="SqlMaps/TFacturaPesajeMapper.xml"></mapper>
         		<mapper resource="SqlMaps/TFacturasMapper.xml"></mapper>
         		<mapper resource="SqlMaps/TIvaMapper.xml"></mapper>

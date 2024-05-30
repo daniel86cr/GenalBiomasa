@@ -3,7 +3,7 @@
  *  
  *  Copyright (C) 2024
  */
-package com.dina.genasoft.vistas.maestros.empleados;
+package com.dina.genasoft.vistas.maestros.materiales;
 
 import java.util.List;
 import java.util.Set;
@@ -18,9 +18,8 @@ import org.springframework.beans.factory.annotation.Value;
 import com.dina.genasoft.configuration.Constants;
 import com.dina.genasoft.controller.ControladorVistas;
 import com.dina.genasoft.db.entity.TEmpleados;
-import com.dina.genasoft.db.entity.TEmpleadosVista;
+import com.dina.genasoft.db.entity.TMaterialesVista;
 import com.dina.genasoft.db.entity.TPermisos;
-import com.dina.genasoft.db.entity.TRoles;
 import com.dina.genasoft.exception.GenasoftException;
 import com.dina.genasoft.utils.TablaGenerica;
 import com.dina.genasoft.utils.Utils;
@@ -63,50 +62,55 @@ import de.steinwedel.messagebox.MessageBox;
 @SuppressWarnings("serial")
 @Theme("Genal")
 @UIScope
-@SpringView(name = VistaListadoEmpleados.NAME)
-public class VistaListadoEmpleados extends CustomComponent implements View ,Button.ClickListener {
+@SpringView(name = VistaListadoMateriales.NAME)
+public class VistaListadoMateriales extends CustomComponent implements View ,Button.ClickListener {
     /** El nombre de la vista.*/
-    public static final String                     NAME           = "vEmpleados";
-    /** Necesario para mostrar los empleados*/
-    private BeanContainer<String, TEmpleadosVista> bcEmpleados;
+    public static final String                      NAME            = "vMateriales";
+    /** Necesario para mostrar los materiales*/
+    private BeanContainer<String, TMaterialesVista> bcMateriales;
     /** El controlador de las vistas. */
     @Autowired
-    private ControladorVistas                      contrVista;
+    private ControladorVistas                       contrVista;
     /** El boton para crear un empleado.*/
-    private Button                                 crearButton;
+    private Button                                  crearButton;
     /** El boton para crear un empleado.*/
-    private Button                                 modificarButton;
+    private Button                                  modificarButton;
     /** El boton para eliminar un empleado.*/
-    private Button                                 eliminarButton;
+    private Button                                  eliminarButton;
     // Elementos para realizar busquedas
-    /** Para filtrar por el nombre del empleado.*/
-    private TextField                              fNombre;
-    /** Para filtrar por rol. */
-    private ComboBox                               fRoles;
+    /** Para filtrar por el nombre del material.*/
+    private TextField                               fNombre;
+    /** Para filtrar por el nombre del material.*/
+    private TextField                               fReferencia;
+    /** Para filtrar por el nombre del material.*/
+    private TextField                               fLer;
     /** Para filtrar por estado. */
-    private ComboBox                               fEstados;
+    private ComboBox                                fEstados;
     /** Contendrá el nombre de la aplicación.*/
     @Value("${app.name}")
-    private String                                 appName;
+    private String                                  appName;
     /** El ID del empleado seleccionado.*/
-    private String                                 idSeleccionado;
+    private String                                  idSeleccionado;
     /** El log de la aplicación.*/
-    private static final org.slf4j.Logger          log            = org.slf4j.LoggerFactory.getLogger(VistaListadoEmpleados.class);
+    private static final org.slf4j.Logger           log             = org.slf4j.LoggerFactory.getLogger(VistaListadoMateriales.class);
     /** El usuario que está logado. */
-    private Integer                                user           = null;
+    private Integer                                 user            = null;
     /** La fecha en que se inició sesión. */
-    private Long                                   time           = null;
+    private Long                                    time            = null;
     /** El filtro que se le aplica al container. */
-    private FiltroContainer                        filter;
+    private FiltroContainer                         filter;
     /** No tengo ni puta idea para que sirve. */
-    private final Label                            status         = new Label("");
+    private final Label                             status          = new Label("");
     /** Tabla para mostrar los empleados del sistema. */
-    private Table                                  tablaEmpleados = null;
+    private Table                                   tablaMateriales = null;
     /** Para indicar que se está filtrando por el campo NOMBRE. */
-    private final String                           NOMBRE         = "nombre";
-    private TEmpleados                             empleado;
-    private TPermisos                              permisos;
-    private List<TRoles>                           lRoles;
+    private final String                            NOMBRE          = "nombre";
+    /** Para indicar que se está filtrando por el campo REFERENCIA. */
+    private final String                            REFERENCIA      = "ref";
+    /** Para indicar que se está filtrando por el campo LER. */
+    private final String                            LER             = "ler";
+    private TEmpleados                              empleado;
+    private TPermisos                               permisos;
 
     /**
      * Se inicializan botones, eventos, etc.
@@ -127,7 +131,7 @@ public class VistaListadoEmpleados extends CustomComponent implements View ,Butt
     public void enter(ViewChangeEvent event) {
         user = null;
         time = null;
-        List<TEmpleadosVista> lEmpleados = Utils.generarListaGenerica();
+        List<TMaterialesVista> lMateriales = Utils.generarListaGenerica();
         user = (Integer) getSession().getAttribute("user");
         if ((String) getSession().getAttribute("fecha") != null) {
             time = Long.parseLong((String) getSession().getAttribute("fecha"));
@@ -136,13 +140,10 @@ public class VistaListadoEmpleados extends CustomComponent implements View ,Butt
             try {
                 idSeleccionado = null;
 
-                bcEmpleados = new BeanContainer<>(TEmpleadosVista.class);
-                bcEmpleados.setBeanIdProperty("id");
+                bcMateriales = new BeanContainer<>(TMaterialesVista.class);
+                bcMateriales.setBeanIdProperty("id");
 
-                // Obtenemos los roles activos.
-                lRoles = contrVista.obtenerRolesActivosSinMaster(user, time);
-
-                Label texto = new Label("Empleados");
+                Label texto = new Label("Materiales");
                 texto.setStyleName("tituloTamano18");
                 // Incluimos en el layout los componentes
                 VerticalLayout titulo = new VerticalLayout(texto);
@@ -182,12 +183,12 @@ public class VistaListadoEmpleados extends CustomComponent implements View ,Butt
                 viewLayout.addComponent(titulo);
                 viewLayout.setComponentAlignment(titulo, Alignment.TOP_CENTER);
 
-                crearTablaEmpleados(permisos);
+                crearTablaMateriales(permisos);
 
-                lEmpleados = contrVista.obtenerEmpleadosVista(user, time);
+                lMateriales = contrVista.obtenerTodosMaterialesVista(user, time);
 
-                bcEmpleados.removeAllItems();
-                bcEmpleados.addAll(lEmpleados);
+                bcMateriales.removeAllItems();
+                bcMateriales.addAll(lMateriales);
 
                 Label tituloFiltrar = new Label("Filtrar");
                 tituloFiltrar.setStyleName("tituloTamano12");
@@ -200,7 +201,7 @@ public class VistaListadoEmpleados extends CustomComponent implements View ,Butt
 
                 viewLayout.addComponent(filtro);
                 viewLayout.addComponent(botonera);
-                viewLayout.addComponent(tablaEmpleados);
+                viewLayout.addComponent(tablaMateriales);
                 // Añadimos el logo de GENAL BIOMASA
                 viewLayout.addComponent(contrVista.logoCliente());
                 setCompositionRoot(viewLayout);
@@ -238,9 +239,9 @@ public class VistaListadoEmpleados extends CustomComponent implements View ,Butt
      */
     private void crearBotones() {
         // Creamos los botones.
-        crearButton = new Button("Crear empleado", this);
-        modificarButton = new Button("Editar empleado", this);
-        eliminarButton = new Button("Desactivar empleado", this);
+        crearButton = new Button("Crear material", this);
+        modificarButton = new Button("Editar material", this);
+        eliminarButton = new Button("Desactivar material", this);
     }
 
     @Override
@@ -258,7 +259,7 @@ public class VistaListadoEmpleados extends CustomComponent implements View ,Butt
 
             public void buttonClick(ClickEvent event) {
 
-                getUI().getNavigator().navigateTo(VistaNuevoEmpleado.NAME + "/" + user);
+                getUI().getNavigator().navigateTo(VistaNuevoMaterial.NAME + "/" + user);
             }
 
         });
@@ -270,7 +271,7 @@ public class VistaListadoEmpleados extends CustomComponent implements View ,Butt
 
                 if (idSeleccionado != null && !idSeleccionado.contains(",")) {
 
-                    getUI().getNavigator().navigateTo(VistaEmpleado.NAME + "/" + idSeleccionado);
+                    getUI().getNavigator().navigateTo(VistaMaterial.NAME + "/" + idSeleccionado);
 
                 } else {
                     Notification aviso = new Notification("Se debe seleccionar un registro del listado", Notification.Type.ASSISTIVE_NOTIFICATION);
@@ -288,7 +289,7 @@ public class VistaListadoEmpleados extends CustomComponent implements View ,Butt
 
                 if (idSeleccionado != null) {
 
-                    MessageBox.createQuestion().withCaption(appName).withMessage("¿Quieres desactivar el registro seleccionado?").withNoButton().withYesButton(() -> desactivarEmpleado(idSeleccionado), ButtonOption.caption("Sí")).open();
+                    MessageBox.createQuestion().withCaption(appName).withMessage("¿Quieres desactivar el registro seleccionado?").withNoButton().withYesButton(() -> desactivarMaterial(idSeleccionado), ButtonOption.caption("Sí")).open();
 
                 } else {
                     Notification aviso = new Notification("Se debe seleccionar un registro del listado", Notification.Type.ASSISTIVE_NOTIFICATION);
@@ -306,7 +307,7 @@ public class VistaListadoEmpleados extends CustomComponent implements View ,Butt
      * @param idSeleccionado El Id del empleado a desactivar.
      */
     @SuppressWarnings("unchecked")
-    private void desactivarEmpleado(String idSeleccionado) {
+    private void desactivarMaterial(String idSeleccionado) {
 
         try {
             if (idSeleccionado.contains(",")) {
@@ -314,10 +315,10 @@ public class VistaListadoEmpleados extends CustomComponent implements View ,Butt
                 int i = 0;
                 String result = "";
                 while (i < ids.length) {
-                    result = contrVista.desactivarEmpleado(Integer.valueOf(ids[i]), user, time);
+                    result = contrVista.desactivarMaterial(Integer.valueOf(ids[i]), user, time);
 
                     result = contrVista.obtenerDescripcionCodigo(result);
-                    Item articulo = tablaEmpleados.getItem("" + ids[i]);
+                    Item articulo = tablaMateriales.getItem("" + ids[i]);
                     String est = "Desactivado";
                     if (articulo.getItemProperty("estado").getValue().equals("Activo")) {
                         est = "Desactivado";
@@ -329,13 +330,13 @@ public class VistaListadoEmpleados extends CustomComponent implements View ,Butt
                 aviso.setPosition(Position.MIDDLE_CENTER);
                 aviso.show(Page.getCurrent());
             } else {
-                String result = contrVista.desactivarEmpleado(Integer.valueOf(idSeleccionado), user, time);
+                String result = contrVista.desactivarMaterial(Integer.valueOf(idSeleccionado), user, time);
 
                 result = contrVista.obtenerDescripcionCodigo(result);
                 Notification aviso = new Notification(result, Notification.Type.ASSISTIVE_NOTIFICATION);
                 aviso.setPosition(Position.MIDDLE_CENTER);
                 aviso.show(Page.getCurrent());
-                Item articulo = tablaEmpleados.getItem("" + idSeleccionado);
+                Item articulo = tablaMateriales.getItem("" + idSeleccionado);
                 String est = "Desactivado";
                 if (articulo.getItemProperty("estado").getValue().equals("Activo")) {
                     est = "Desactivado";
@@ -360,19 +361,19 @@ public class VistaListadoEmpleados extends CustomComponent implements View ,Butt
      * Método que se encaerga de crear y montar el grid.
      * @return El Grid con las columnas.
      */
-    private void crearTablaEmpleados(TPermisos permisos) {
-        tablaEmpleados = new TablaGenerica(new Object[] { "nombreUsuario", "nombre", "telefono", "email", "idRol", "fechaCrea", "estado" }, new String[] { "Nombre de usuario", "Nombre", "Teléfono", "Email", "Rol", "Fecha alta", "Estado" }, bcEmpleados);
-        tablaEmpleados.addStyleName("big striped");
-        tablaEmpleados.setPageLength(25);
+    private void crearTablaMateriales(TPermisos permisos) {
+        tablaMateriales = new TablaGenerica(new Object[] { "referencia", "descripcion", "ler", "precio", "iva", "fechaCrea", "fechaModifa", "estado" }, new String[] { "Referencia", "Nombre", "LER", "Precio", "IVA", "Fecha alta", "Fecha ult. Modificación", "Estado" }, bcMateriales);
+        tablaMateriales.addStyleName("big striped");
+        tablaMateriales.setPageLength(25);
 
         // Establecemos tamaño fijo en columnas específicas.
 
-        tablaEmpleados.setMultiSelect(true);
-        tablaEmpleados.addValueChangeListener(new Property.ValueChangeListener() {
+        tablaMateriales.setMultiSelect(true);
+        tablaMateriales.addValueChangeListener(new Property.ValueChangeListener() {
             @Override
             public void valueChange(ValueChangeEvent event) {
                 @SuppressWarnings("unchecked")
-                Set<String> values = (Set<String>) tablaEmpleados.getValue();
+                Set<String> values = (Set<String>) tablaMateriales.getValue();
                 idSeleccionado = "";
                 for (String v : values) {
                     if (v.isEmpty())
@@ -387,13 +388,13 @@ public class VistaListadoEmpleados extends CustomComponent implements View ,Butt
             }
         });
 
-        tablaEmpleados.addItemClickListener(new ItemClickListener() {
+        tablaMateriales.addItemClickListener(new ItemClickListener() {
 
             @Override
             public void itemClick(ItemClickEvent event) {
                 idSeleccionado = (String) event.getItemId();
                 if (event.isDoubleClick()) {
-                    getUI().getNavigator().navigateTo(VistaEmpleado.NAME + "/" + idSeleccionado);
+                    getUI().getNavigator().navigateTo(VistaMaterial.NAME + "/" + idSeleccionado);
                 }
             }
         });
@@ -467,7 +468,7 @@ public class VistaListadoEmpleados extends CustomComponent implements View ,Butt
                 // Remove old filter
                 if (event.getText() != null && !event.getText().isEmpty()) {
                     // Set new filter for the "Name" column
-                    bcEmpleados.removeAllContainerFilters();
+                    bcMateriales.removeAllContainerFilters();
                     String[] params = event.getText().trim().split(" ");
                     String filtro = "";
                     for (int i = 0; i < params.length; i++) {
@@ -475,7 +476,7 @@ public class VistaListadoEmpleados extends CustomComponent implements View ,Butt
                     }
                     filtro = filtro.toLowerCase();
                     filter = new FiltroContainer("nombre", filtro, status);
-                    bcEmpleados.addContainerFilter(filter);
+                    bcMateriales.addContainerFilter(filter);
                     aplicarFiltro2(NOMBRE);
                 } else {
                     fNombre.setValue(null);
@@ -486,18 +487,63 @@ public class VistaListadoEmpleados extends CustomComponent implements View ,Butt
             }
         });
 
-        // Campo para filtrar por estado.
-        fRoles = new ComboBox();
-        fRoles.addItem("Todos");
-        fRoles.addItems(lRoles);
-        fRoles.setNullSelectionAllowed(false);
-        fRoles.setFilteringMode(FilteringMode.CONTAINS);
-        fRoles.setValue("Todos");
-        fRoles.addValueChangeListener(new ValueChangeListener() {
+        // Campo para filtrar por la referencia
+        fReferencia = new TextField("");
+        fReferencia.setNullRepresentation("");
+        fReferencia.addTextChangeListener(new TextChangeListener() {
 
             @Override
-            public void valueChange(ValueChangeEvent event) {
-                aplicarFiltro();
+            public void textChange(TextChangeEvent event) {
+
+                // Remove old filter
+                if (event.getText() != null && !event.getText().isEmpty()) {
+                    // Set new filter for the "Name" column
+                    bcMateriales.removeAllContainerFilters();
+                    String[] params = event.getText().trim().split(" ");
+                    String filtro = "";
+                    for (int i = 0; i < params.length; i++) {
+                        filtro = filtro + ".*(" + params[i] + ").*";
+                    }
+                    filtro = filtro.toLowerCase();
+                    filter = new FiltroContainer("referencia", filtro, status);
+                    bcMateriales.addContainerFilter(filter);
+                    aplicarFiltro2(REFERENCIA);
+                } else {
+                    fReferencia.setValue(null);
+                    aplicarFiltro();
+
+                }
+
+            }
+        });
+
+        // Campo para filtrar por el LER
+        fLer = new TextField("");
+        fLer.setNullRepresentation("");
+        fLer.addTextChangeListener(new TextChangeListener() {
+
+            @Override
+            public void textChange(TextChangeEvent event) {
+
+                // Remove old filter
+                if (event.getText() != null && !event.getText().isEmpty()) {
+                    // Set new filter for the "Name" column
+                    bcMateriales.removeAllContainerFilters();
+                    String[] params = event.getText().trim().split(" ");
+                    String filtro = "";
+                    for (int i = 0; i < params.length; i++) {
+                        filtro = filtro + ".*(" + params[i] + ").*";
+                    }
+                    filtro = filtro.toLowerCase();
+                    filter = new FiltroContainer("ler", filtro, status);
+                    bcMateriales.addContainerFilter(filter);
+                    aplicarFiltro2(LER);
+                } else {
+                    fLer.setValue(null);
+                    aplicarFiltro();
+
+                }
+
             }
         });
 
@@ -528,12 +574,13 @@ public class VistaListadoEmpleados extends CustomComponent implements View ,Butt
         table.addStyleName("big striped");
         // La cabecera de la tabla del filtro.
         table.addContainerProperty("Nombre", TextField.class, null);
-        table.addContainerProperty("Rol", ComboBox.class, null);
+        table.addContainerProperty("Referencia", TextField.class, null);
+        table.addContainerProperty("LER", TextField.class, null);
         table.addContainerProperty("Estado", ComboBox.class, null);
         table.setPageLength(table.size());
 
         // Los componentes que componen al filtro
-        table.addItem(new Object[] { fNombre, fRoles, fEstados }, 1);
+        table.addItem(new Object[] { fNombre, fReferencia, fLer, fEstados }, 1);
 
         filtro.addComponent(table);
         filtro.setSpacing(true);
@@ -546,7 +593,7 @@ public class VistaListadoEmpleados extends CustomComponent implements View ,Butt
      */
     private void aplicarFiltro() {
         boolean entra = false;
-        bcEmpleados.removeAllContainerFilters();
+        bcMateriales.removeAllContainerFilters();
         if (fNombre.getValue() != null && !fNombre.getValue().isEmpty()) {
             // Set new filter for the "Name" column
             String[] params = fNombre.getValue().split(" ");
@@ -556,27 +603,47 @@ public class VistaListadoEmpleados extends CustomComponent implements View ,Butt
             }
             filtro = filtro.toLowerCase();
             filter = new FiltroContainer("nombre", filtro, status);
-            bcEmpleados.addContainerFilter(filter);
+            bcMateriales.addContainerFilter(filter);
+            entra = true;
+        }
+
+        if (fReferencia.getValue() != null && !fReferencia.getValue().isEmpty()) {
+            // Set new filter for the "Name" column
+            String[] params = fReferencia.getValue().split(" ");
+            String filtro = "";
+            for (int i = 0; i < params.length; i++) {
+                filtro = filtro + ".*(" + params[i] + ").*";
+            }
+            filtro = filtro.toLowerCase();
+            filter = new FiltroContainer("referencia", filtro, status);
+            bcMateriales.addContainerFilter(filter);
+            entra = true;
+        }
+
+        if (fLer.getValue() != null && !fLer.getValue().isEmpty()) {
+            // Set new filter for the "Name" column
+            String[] params = fLer.getValue().split(" ");
+            String filtro = "";
+            for (int i = 0; i < params.length; i++) {
+                filtro = filtro + ".*(" + params[i] + ").*";
+            }
+            filtro = filtro.toLowerCase();
+            filter = new FiltroContainer("ler", filtro, status);
+            bcMateriales.addContainerFilter(filter);
             entra = true;
         }
 
         if (!fEstados.getValue().equals("Todos")) {
             // Set new filter for the "Name" column
             filter = new FiltroContainer("estado", (String) ".*(" + fEstados.getValue().toString().toLowerCase() + ").*", status);
-            bcEmpleados.addContainerFilter(filter);
+            bcMateriales.addContainerFilter(filter);
             entra = true;
         }
-        if (!fRoles.getValue().equals("Todos")) {
-            String nombreRol = ((TRoles) fRoles.getValue()).getDescripcion().toLowerCase();
-            // Set new filter for the "Name" column
-            filter = new FiltroContainer("idRol", (String) ".*(" + nombreRol + ").*", status);
-            bcEmpleados.addContainerFilter(filter);
-            entra = true;
-        }
+
         if (!entra) {
-            bcEmpleados.removeAllItems();
+            bcMateriales.removeAllItems();
             try {
-                bcEmpleados.addAll(contrVista.obtenerEmpleadosVista(user, time));
+                bcMateriales.addAll(contrVista.obtenerTodosMaterialesVista(user, time));
             } catch (GenasoftException tbe) {
                 log.error("La sesión es inválida, se ha iniciado sesión en otro dispositivo.");
                 // Si no se encuentran permisos con el rol especificado, informamos al empleado y cerramos sesión.
@@ -611,30 +678,56 @@ public class VistaListadoEmpleados extends CustomComponent implements View ,Butt
             }
             filtr = filtr.toLowerCase();
             filter = new FiltroContainer("nombre", filtr, status);
-            bcEmpleados.addContainerFilter(filter);
+            bcMateriales.addContainerFilter(filter);
             entra = true;
         }
         if (fNombre.getValue() != null && !fNombre.getValue().isEmpty()) {
             entra = true;
         }
 
+        if (fReferencia.getValue() != null && !fReferencia.getValue().isEmpty() && !filtro.equals(REFERENCIA)) {
+            // Set new filter for the "Name" column
+            String[] params = fReferencia.getValue().split(" ");
+            String filtr = "";
+            for (int i = 0; i < params.length; i++) {
+                filtr = filtr + ".*(" + params[i] + ").*";
+            }
+            filtr = filtr.toLowerCase();
+            filter = new FiltroContainer("referencia", filtr, status);
+            bcMateriales.addContainerFilter(filter);
+            entra = true;
+        }
+        if (fReferencia.getValue() != null && !fReferencia.getValue().isEmpty()) {
+            entra = true;
+        }
+
+        if (fLer.getValue() != null && !fLer.getValue().isEmpty() && !filtro.equals(LER)) {
+            // Set new filter for the "Name" column
+            String[] params = fLer.getValue().split(" ");
+            String filtr = "";
+            for (int i = 0; i < params.length; i++) {
+                filtr = filtr + ".*(" + params[i] + ").*";
+            }
+            filtr = filtr.toLowerCase();
+            filter = new FiltroContainer("ler", filtr, status);
+            bcMateriales.addContainerFilter(filter);
+            entra = true;
+        }
+        if (fLer.getValue() != null && !fLer.getValue().isEmpty()) {
+            entra = true;
+        }
+
         if (!fEstados.getValue().equals("Todos")) {
             // Set new filter for the "Name" column
             filter = new FiltroContainer("estado", (String) ".*(" + fEstados.getValue().toString().toLowerCase() + ").*", status);
-            bcEmpleados.addContainerFilter(filter);
+            bcMateriales.addContainerFilter(filter);
             entra = true;
         }
-        if (!fRoles.getValue().equals("Todos")) {
-            String nombreRol = ((TRoles) fRoles.getValue()).getDescripcion().toLowerCase();
-            // Set new filter for the "Name" column
-            filter = new FiltroContainer("idRol", (String) ".*(" + nombreRol + ").*", status);
-            bcEmpleados.addContainerFilter(filter);
-            entra = true;
-        }
+
         if (!entra) {
-            bcEmpleados.removeAllItems();
+            bcMateriales.removeAllItems();
             try {
-                bcEmpleados.addAll(contrVista.obtenerEmpleadosVista(user, time));
+                bcMateriales.addAll(contrVista.obtenerTodosMaterialesVista(user, time));
             } catch (GenasoftException tbe) {
                 log.error("La sesión es inválida, se ha iniciado sesión en otro dispositivo.");
                 // Si no se encuentran permisos con el rol especificado, informamos al empleado y cerramos sesión.

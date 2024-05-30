@@ -1,5 +1,6 @@
 @import "../chameleon/legacy-styles.css";
 
+
 /** 
  * "optional-" prefix means that the style is not necessarily used, it can be left blank
  * "generated-" prefix means that the style is calculated from some other color, and not directly selected by the editor user
@@ -8,7 +9,7 @@
 
 /* Application background */
 .v-app {
-	background: rgb(255,255,255);
+	background: rgb(252,255,246);
 	}
 
 .v-window,
@@ -18,8 +19,8 @@
 .v-contextmenu,
 .v-Notification,
 .v-menubar-submenu {
-	background-color: rgb(255,255,255);
-	background-color: rgba(255,255,255,.85);
+	background-color: rgb(252,255,246);
+	background-color: rgba(252,255,246,.85);
 	}
 
 body.v-ie6 .v-window,
@@ -48,7 +49,7 @@ body.v-ie7 .v-menubar-submenu,
 .v-accordion-opaque div.v-accordion-item-open,
 .v-table-scrollposition,
 .v-table-body {
-	background-color: rgb(255,255,255);
+	background-color: rgb(252,255,246);
 	}
 
 /* Base font size and color */
@@ -95,16 +96,16 @@ body.v-ie7 .v-menubar-submenu,
 .v-ie .v-button.v-pressed,
 div.v-button-down,
 .v-slider .v-slider-handle-active {
-	background-color: rgb(74,174,204);
-	border-color: rgb(63,115,130);
+	background-color: rgb(83,143,24);
+	border-color: rgb(60,91,30);
 	}
 
 div.v-button-down:active {
-	background-color: rgb(70,142,163);
+	background-color: rgb(71,114,29);
 	}
 	
 .v-button:focus {
-	background-color: rgb(74,174,204);
+	background-color: rgb(83,143,24);
 	}
 
 /* Base border color */
@@ -124,16 +125,16 @@ div.v-table-focus-slot-right,
 input.v-textfield,
 textarea.v-textarea,
 .v-filterselect {
-	border-color: rgb(70,142,163);
+	border-color: rgb(71,114,29);
 	}
 
 
 input.v-textfield,
 textarea.v-textarea,
 .v-filterselect {
-	border-bottom-color: rgb(74,174,204);
-	border-left-color: rgb(74,174,204);
-	border-right-color: rgb(74,174,204);
+	border-bottom-color: rgb(83,143,24);
+	border-left-color: rgb(83,143,24);
+	border-right-color: rgb(83,143,24);
 	font-size: 18px;
 	}
 
@@ -164,8 +165,8 @@ td.v-datefield-calendarpanel-month,
 .v-tabsheet-scroller,
 .v-csslayout-toolbar,
 .v-menubar {
-	background-color: rgb(74,213,255);
-	border-color: rgb(70,142,163);
+	background-color: rgb(96,179,14);
+	border-color: rgb(71,114,29);
 	}
 
 .v-button .v-button-wrap,
@@ -204,11 +205,11 @@ td.v-datefield-calendarpanel-month,
 .v-splitpanel-vsplitter-small,
 .v-splitpanel-hsplitter-small-locked,
 .v-splitpanel-vsplitter-small-locked {
-	background-color: rgb(74,174,204);
+	background-color: rgb(83,143,24);
 	}
 
 .v-progressindicator-wrapper {
-	border-color: rgb(74,174,204);
+	border-color: rgb(83,143,24);
 	}
 
 .v-button,
@@ -222,7 +223,7 @@ td.v-datefield-calendarpanel-month,
 .v-accordion-item-caption,
 .v-menubar .v-menubar-menuitem,
 .v-filterselect-select-button .v-filterselect-input {
-	text-shadow: 0 1px 0 rgb(201,242,255);
+	text-shadow: 0 1px 0 rgb(180,209,151);
 	font-size: 18px;
 	}
 
@@ -257,7 +258,7 @@ td.v-datefield-calendarpanel-month,
 .v-accordion-item-caption,
 .v-accordion-item-open,
 .v-menubar-separator span {
-	border-color: rgb(204,204,204);
+	border-color: rgb(202,204,197);
 	}
 
 /* Alternate colors */
@@ -271,7 +272,7 @@ td.v-datefield-calendarpanel-month,
 .v-popupview-popup a,
 .v-popupview,
 .sidebar-menu .v-label {
-	color: rgb(96,179,14);
+	color: rgb(38,194,255);
 	}
 
 .v-button-default,
@@ -283,12 +284,12 @@ td.v-datefield-calendarpanel-month,
 .sidebar-menu .tab-selected,
 .sidebar-menu .selected,
 .v-horizontallayout-segment-alternate .v-button-down {
-	border-color: rgb(71,114,29);
+	border-color: rgb(51,132,163);
 	}
 
 .v-button-default:focus,
 .v-horizontallayout-segment-alternate .v-button-down:active {
-	background-color: rgb(83,143,24);
+	background-color: rgb(48,160,204);
 	}
 
 .v-button-default:active .v-button-wrap,
@@ -298,7 +299,7 @@ td.v-datefield-calendarpanel-month,
 .v-datefield-calendarpanel-day-focused,
 .v-datefield-calendarpanel-day:hover,
 .v-horizontallayout-segment-alternate .v-button-down .v-button-wrap {
-	border-color: rgb(83,143,24);
+	border-color: rgb(48,160,204);
 	}
 
 .v-button-default,
@@ -320,28 +321,25 @@ td.v-datefield-calendarpanel-month,
 .v-horizontallayout-segment-alternate .v-button-down,
 .v-menubar .v-menubar-menuitem-selected,
 .v-menubar-submenu .v-menubar-menuitem-selected {
-	background-color: rgb(96,179,14);
-	color: rgb(244,245,243);
-	text-shadow: 0 -1px 0 rgb(71,114,29);
+	background-color: rgb(38,194,255);
+	color: rgb(253,255,255);
+	text-shadow: 0 -1px 0 rgb(51,132,163);
 	}
 
 .v-ie6 .v-progressindicator-indicator {
-	background-color: rgb(96,179,14);
+	background-color: rgb(38,194,255);
 	}
 
 .v-panel-caption,
 .v-table-striped .v-table-row-odd,
 .sidebar-menu {
-	background: rgb(218,227,208);
+	background: rgb(236,250,255);
 	}
 
 .sidebar-menu .tab-selected,
 .sidebar-menu .selected {
-	text-shadow: 0 1px 0 rgb(71,114,29);
+	text-shadow: 0 1px 0 rgb(51,132,163);
 	}
-.posLayoutFixed{
-	position:fixed;
-}
 .tituloTamano18{
 	font-size: 30px;
     text-align:center;
@@ -1524,99 +1522,99 @@ td.v-datefield-calendarpanel-month,
 	padding-left: 50px;
 }
 
-.v-tree-grid-expander {
+ .v-tree-grid-expander {
 	display: inline-block;
 	width: 10px;
 	padding-right: 10px;
 }
 
-.v-tree-grid-expander::before {
+ .v-tree-grid-expander::before {
 	display: inline-block;
 	padding-right: 4px;
 	font-family: FontAwesome;
 }
 
-.v-tree-grid-expander.expanded::before {
+ .v-tree-grid-expander.expanded::before {
 	content: "\f0d7";
 }
 
-.v-tree-grid-expander.collapsed::before {
+ .v-tree-grid-expander.collapsed::before {
 	content: "\f0da";
 }
 
-.v-tree-grid-node.depth-0 {
+ .v-tree-grid-node.depth-0 {
 	padding-left: 0px;
 }
 
-.v-tree-grid-node.depth-1 {
+ .v-tree-grid-node.depth-1 {
 	padding-left: 20px;
 }
 
-.v-tree-grid-node.depth-2 {
+ .v-tree-grid-node.depth-2 {
 	padding-left: 40px;
 }
 
-.v-tree-grid-node.depth-3 {
+ .v-tree-grid-node.depth-3 {
 	padding-left: 60px;
 }
 
-.v-tree-grid-node.depth-4 {
+ .v-tree-grid-node.depth-4 {
 	padding-left: 80px;
 }
 
-.v-tree-grid-node.depth-5 {
+ .v-tree-grid-node.depth-5 {
 	padding-left: 100px;
 }
 
-.v-tree-grid-node.depth-6 {
+ .v-tree-grid-node.depth-6 {
 	padding-left: 120px;
 }
 
-.v-tree-grid-node.depth-7 {
+ .v-tree-grid-node.depth-7 {
 	padding-left: 140px;
 }
 
-.v-tree-grid-node.depth-8 {
+ .v-tree-grid-node.depth-8 {
 	padding-left: 160px;
 }
 
-.v-tree-grid-node.depth-9 {
+ .v-tree-grid-node.depth-9 {
 	padding-left: 180px;
 }
 
-.v-tree-grid-node.depth-10 {
+ .v-tree-grid-node.depth-10 {
 	padding-left: 200px;
 }
 
-.v-tree-grid-node.depth-11 {
+ .v-tree-grid-node.depth-11 {
 	padding-left: 220px;
 }
 
-.v-tree-grid-node.depth-12 {
+ .v-tree-grid-node.depth-12 {
 	padding-left: 240px;
 }
 
-.v-tree-grid-node.depth-13 {
+ .v-tree-grid-node.depth-13 {
 	padding-left: 260px;
 }
 
-.v-tree-grid-node.depth-14 {
+ .v-tree-grid-node.depth-14 {
 	padding-left: 280px;
 }
 
-.v-tree-grid-node.depth-15 {
+ .v-tree-grid-node.depth-15 {
 	padding-left: 300px;
 }
 
-.v-tree-grid-cell-content {
+ .v-tree-grid-cell-content {
 	display: inline-block;
 }
 
-.v-grid {
+ .v-grid {
 	position: relative;
 }
 
-.v-grid-scroller {
+ .v-grid-scroller {
 	position: absolute;
 	z-index: 1;
 	outline: none;
@@ -1625,7 +1623,7 @@ td.v-datefield-calendarpanel-month,
 	box-sizing: border-box;
 }
 
-.v-grid-scroller-horizontal {
+ .v-grid-scroller-horizontal {
 	left: 0;
 	right: 0;
 	bottom: 0;
@@ -1633,7 +1631,7 @@ td.v-datefield-calendarpanel-month,
 	-ms-overflow-y: hidden;
 }
 
-.v-grid-scroller-vertical {
+ .v-grid-scroller-vertical {
 	right: 0;
 	top: 0;
 	bottom: 0;
@@ -1641,7 +1639,7 @@ td.v-datefield-calendarpanel-month,
 	-ms-overflow-x: hidden;
 }
 
-.v-grid-tablewrapper {
+ .v-grid-tablewrapper {
 	position: absolute;
 	overflow: hidden;
 	-webkit-box-sizing: border-box;
@@ -1650,13 +1648,13 @@ td.v-datefield-calendarpanel-month,
 	z-index: 5;
 }
 
-.v-grid-tablewrapper > table {
+ .v-grid-tablewrapper > table {
 	border-spacing: 0;
 	table-layout: fixed;
 	width: inherit;
 }
 
-.v-grid-header-deco, .v-grid-footer-deco {
+ .v-grid-header-deco,  .v-grid-footer-deco {
 	position: absolute;
 	right: 0;
 	-webkit-box-sizing: border-box;
@@ -1664,7 +1662,7 @@ td.v-datefield-calendarpanel-month,
 	box-sizing: border-box;
 }
 
-.v-grid-horizontal-scrollbar-deco {
+ .v-grid-horizontal-scrollbar-deco {
 	position: absolute;
 	bottom: 0;
 	left: 0;
@@ -1674,53 +1672,53 @@ td.v-datefield-calendarpanel-month,
 	box-sizing: border-box;
 }
 
-.v-grid-header, .v-grid-body, .v-grid-footer {
+ .v-grid-header,  .v-grid-body,  .v-grid-footer {
 	position: absolute;
 	left: 0;
 	width: inherit;
 	z-index: 10;
 }
 
-.v-grid-header, .v-grid-header-deco {
+ .v-grid-header,  .v-grid-header-deco {
 	top: 0;
 }
 
-.v-grid-footer, .v-grid-footer-deco {
+ .v-grid-footer,  .v-grid-footer-deco {
 	bottom: 0;
 }
 
-.v-grid-body {
+ .v-grid-body {
 	-ms-touch-action: none;
 	touch-action: none;
 	z-index: 0;
 	top: 0;
 }
 
-.v-grid-body .v-grid-row {
+ .v-grid-body .v-grid-row {
 	position: absolute;
 	top: 0;
 	left: 0;
 }
 
-.v-grid-row {
+ .v-grid-row {
 	display: block;
 }
 
-.v-ie8 .v-grid-row, .v-ie9 .v-grid-row {
+.v-ie8  .v-grid-row, .v-ie9  .v-grid-row {
 	float: left;
 	clear: left;
 	margin-top: 0;
 }
 
-.v-grid-row  > td, .v-grid-row  > th {
+ .v-grid-row  > td,  .v-grid-row  > th {
 	background-color: white;
 }
 
-.v-grid-row {
+ .v-grid-row {
 	width: inherit;
 }
 
-.v-grid-cell {
+ .v-grid-cell {
 	display: block;
 	float: left;
 	padding: 2px;
@@ -1732,18 +1730,18 @@ td.v-datefield-calendarpanel-month,
 	font-size: 16px;
 }
 
-.v-grid-cell.frozen {
+ .v-grid-cell.frozen {
 	position: relative;
 	z-index: 1;
 }
 
-.v-grid-spacer {
+ .v-grid-spacer {
 	position: absolute;
 	display: block;
 	background-color: white;
 }
 
-.v-grid-spacer  > td {
+ .v-grid-spacer  > td {
 	width: 100%;
 	height: 100%;
 	-webkit-box-sizing: border-box;
@@ -1751,42 +1749,42 @@ td.v-datefield-calendarpanel-month,
 	box-sizing: border-box;
 }
 
-.v-ie8 .v-grid-spacer, .v-ie9 .v-grid-spacer {
+.v-ie8  .v-grid-spacer, .v-ie9  .v-grid-spacer {
 	margin-top: 0;
 }
 
-.v-grid {
+ .v-grid {
 	outline: none;
 }
 
-.v-grid-scroller-vertical, .v-grid-scroller-horizontal {
+ .v-grid-scroller-vertical,  .v-grid-scroller-horizontal {
 	border: 1px solid #d4d4d4;
 }
 
-.v-grid-scroller-vertical {
+ .v-grid-scroller-vertical {
 	border-left: none;
 }
 
-.v-grid-scroller-horizontal {
+ .v-grid-scroller-horizontal {
 	border-top: none;
 }
 
-.v-grid-tablewrapper {
+ .v-grid-tablewrapper {
 	border: 1px solid #d4d4d4;
 }
 
-.v-grid .header-drag-table {
+ .v-grid .header-drag-table {
 	border-spacing: 0;
 	position: relative;
 	table-layout: fixed;
 	width: inherit;
 }
 
-.v-grid .header-drag-table .v-grid-header {
+ .v-grid .header-drag-table .v-grid-header {
 	position: absolute;
 }
 
-.v-grid .header-drag-table .v-grid-header  > .v-grid-cell {
+ .v-grid .header-drag-table .v-grid-header  > .v-grid-cell {
 	border: 1px solid #d4d4d4;
 	margin-top: -10px;
 	opacity: 0.9;
@@ -1794,13 +1792,13 @@ td.v-datefield-calendarpanel-month,
 	z-index: 30000;
 }
 
-.v-grid .header-drag-table .v-grid-header  > .v-grid-drop-marker {
+ .v-grid .header-drag-table .v-grid-header  > .v-grid-drop-marker {
 	background-color: rgb(0,194,16);
 	position: absolute;
 	width: 3px;
 }
 
-.v-grid-sidebar.v-contextmenu {
+ .v-grid-sidebar.v-contextmenu {
 	-webkit-box-shadow: none;
 	box-shadow: none;
 	border-radius: 0;
@@ -1814,11 +1812,11 @@ td.v-datefield-calendarpanel-month,
 	z-index: 5;
 }
 
-.v-grid-sidebar.v-contextmenu.v-grid-sidebar-popup {
+ .v-grid-sidebar.v-contextmenu.v-grid-sidebar-popup {
 	right: auto;
 }
 
-.v-grid-sidebar.v-contextmenu .v-grid-sidebar-button {
+ .v-grid-sidebar.v-contextmenu .v-grid-sidebar-button {
 	background: transparent;
 	border: none;
 	color: inherit;
@@ -1829,110 +1827,110 @@ td.v-datefield-calendarpanel-month,
 	line-height: 1;
 }
 
-.v-grid-sidebar.v-contextmenu .v-grid-sidebar-button[disabled] {
+ .v-grid-sidebar.v-contextmenu .v-grid-sidebar-button[disabled] {
 	cursor: default;
 }
 
-.v-grid-sidebar.v-contextmenu .v-grid-sidebar-button::-moz-focus-inner {
+ .v-grid-sidebar.v-contextmenu .v-grid-sidebar-button::-moz-focus-inner {
 	border: 0;
 }
 
-.v-grid-sidebar.v-contextmenu .v-grid-sidebar-button:after {
+ .v-grid-sidebar.v-contextmenu .v-grid-sidebar-button:after {
 	content: "\f0c9";
 	display: block;
 	font-family: Georgia,'Times New Roman',times,serif;
 	font-size: 14px;
 }
 
-.v-grid-sidebar.v-contextmenu.closed {
+ .v-grid-sidebar.v-contextmenu.closed {
 	border-radius: 0;
 }
 
-.v-grid-sidebar.v-contextmenu.open .v-grid-sidebar-button {
+ .v-grid-sidebar.v-contextmenu.open .v-grid-sidebar-button {
 	width: 100%;
 }
 
-.v-grid-sidebar.v-contextmenu.open .v-grid-sidebar-button:after {
+ .v-grid-sidebar.v-contextmenu.open .v-grid-sidebar-button:after {
 	content: "\f0c9";
 	font-size: 14px;
 	line-height: 1;
 }
 
-.v-ie .v-grid-sidebar.v-contextmenu.open .v-grid-sidebar-button {
+.v-ie  .v-grid-sidebar.v-contextmenu.open .v-grid-sidebar-button {
 	vertical-align: middle;
 }
 
-.v-ie8 .v-grid-sidebar.v-contextmenu.open .v-grid-sidebar-button:after {
+.v-ie8  .v-grid-sidebar.v-contextmenu.open .v-grid-sidebar-button:after {
 	vertical-align: middle;
 	text-align: center;
 	display: inline;
 }
 
-.v-grid-sidebar.v-contextmenu .v-grid-sidebar-content {
+ .v-grid-sidebar.v-contextmenu .v-grid-sidebar-content {
 	padding: 4px 0;
 	overflow-y: auto;
 	overflow-x: hidden;
 }
 
-.v-grid-sidebar.v-contextmenu .v-grid-sidebar-content .gwt-MenuBar .gwt-MenuItem .column-hiding-toggle {
+ .v-grid-sidebar.v-contextmenu .v-grid-sidebar-content .gwt-MenuBar .gwt-MenuItem .column-hiding-toggle {
 	text-shadow: none;
 }
 
-.v-grid-cell {
+ .v-grid-cell {
 	background-color: white;
 	padding: 0 18px;
 	line-height: 37px;
 	text-overflow: ellipsis;
 }
 
-.v-grid-cell  > * {
+ .v-grid-cell  > * {
 	line-height: 1.55;
 	vertical-align: middle;
 }
 
-.v-grid-cell  > div {
+ .v-grid-cell  > div {
 	display: inline-block;
 }
 
-.v-grid-cell.frozen {
+ .v-grid-cell.frozen {
 	-webkit-box-shadow: 1px 0 2px rgba(0, 0, 0, 0.1);
 	box-shadow: 1px 0 2px rgba(0, 0, 0, 0.1);
 	border-right: 1px solid #d4d4d4;
 }
 
-.v-grid-cell.frozen  + th, .v-grid-cell.frozen  + td {
+ .v-grid-cell.frozen  + th,  .v-grid-cell.frozen  + td {
 	border-left: none;
 }
 
-.v-grid-row > td, .v-grid-editor-cells > div {
+ .v-grid-row > td,  .v-grid-editor-cells > div {
 	border-left: 1px solid #d4d4d4;
 	border-bottom: 1px solid #d4d4d4;
 }
 
-.v-grid-row > td:first-child, .v-grid-editor-cells > div:first-child {
+ .v-grid-row > td:first-child,  .v-grid-editor-cells > div:first-child {
 	border-left: none;
 }
 
-.v-grid-editor-cells.frozen > div {
+ .v-grid-editor-cells.frozen > div {
 	-webkit-box-shadow: 1px 0 2px rgba(0, 0, 0, 0.1);
 	box-shadow: 1px 0 2px rgba(0, 0, 0, 0.1);
 	border-right: 1px solid #d4d4d4;
 	border-left: none;
 }
 
-.v-grid-row-stripe > td {
+ .v-grid-row-stripe > td {
 	background-color: #f5f5f5;
 }
 
-.v-grid-row-selected > td {
+ .v-grid-row-selected > td {
 	background: #197de1;
 }
 
-.v-grid-row-focused > td {
+ .v-grid-row-focused > td {
 	
 }
 
-.v-grid-header th {
+ .v-grid-header th {
 	position: relative;
 	background-color: #fafafa;
 	font-size: 14px;
@@ -1943,15 +1941,15 @@ td.v-datefield-calendarpanel-month,
 	text-align: left;
 }
 
-.v-grid-header th:first-child {
+ .v-grid-header th:first-child {
 	border-left: none;
 }
 
-.v-grid-header .sort-asc, .v-grid-header .sort-desc {
+ .v-grid-header .sort-asc,  .v-grid-header .sort-desc {
 	padding-right: 35px;
 }
 
-.v-grid-header .sort-asc:after, .v-grid-header .sort-desc:after {
+ .v-grid-header .sort-asc:after,  .v-grid-header .sort-desc:after {
 	font-family: ThemeIcons, sans-serif;
 	content: "\f0de" " " attr(sort-order);
 	position: absolute;
@@ -1959,11 +1957,11 @@ td.v-datefield-calendarpanel-month,
 	font-size: 12px;
 }
 
-.v-grid-header .sort-desc:after {
+ .v-grid-header .sort-desc:after {
 	content: "\f0dd" " " attr(sort-order);
 }
 
-.v-grid-column-resize-handle {
+ .v-grid-column-resize-handle {
 	position: absolute;
 	width: 36px;
 	right: -18px;
@@ -1978,7 +1976,7 @@ td.v-datefield-calendarpanel-month,
 	user-select: none;
 }
 
-.v-grid-column-resize-simple-indicator {
+ .v-grid-column-resize-simple-indicator {
 	position: absolute;
 	width: 3px;
 	top: 0px;
@@ -1993,7 +1991,7 @@ td.v-datefield-calendarpanel-month,
 	user-select: none;
 }
 
-.v-grid-footer td {
+ .v-grid-footer td {
 	background-color: #fafafa;
 	font-size: 14px;
 	font-weight: inherit;
@@ -2003,15 +2001,15 @@ td.v-datefield-calendarpanel-month,
 	
 }
 
-.v-grid-footer td:first-child {
+ .v-grid-footer td:first-child {
 	border-left: none;
 }
 
-.v-grid-header .v-grid-cell, .v-grid-footer .v-grid-cell {
+ .v-grid-header .v-grid-cell,  .v-grid-footer .v-grid-cell {
 	overflow: visible;
 }
 
-.v-grid-column-header-content, .v-grid-column-footer-content {
+ .v-grid-column-header-content,  .v-grid-column-footer-content {
 	width: 100%;
 	overflow: hidden;
 	text-overflow: ellipsis;
@@ -2019,29 +2017,29 @@ td.v-datefield-calendarpanel-month,
 	vertical-align: baseline;
 }
 
-.v-grid-header-deco {
+ .v-grid-header-deco {
 	border-top: 1px solid #d4d4d4;
 	border-right: 1px solid #d4d4d4;
 	background-color: #fafafa;
 }
 
-.v-grid-footer-deco {
+ .v-grid-footer-deco {
 	border-bottom: 1px solid #d4d4d4;
 	border-right: 1px solid #d4d4d4;
 	background-color: #fafafa;
 }
 
-.v-grid-horizontal-scrollbar-deco {
+ .v-grid-horizontal-scrollbar-deco {
 	background-color: #fafafa;
 	border: 1px solid #d4d4d4;
 	border-top: none;
 }
 
-.v-grid-cell-focused {
+ .v-grid-cell-focused {
 	position: relative;
 }
 
-.v-grid-cell-focused:before {
+ .v-grid-cell-focused:before {
 	content: "";
 	position: absolute;
 	top: 0;
@@ -2053,19 +2051,19 @@ td.v-datefield-calendarpanel-month,
 	pointer-events: none;
 }
 
-.ie8 .v-grid-cell-focused:before, .ie9 .v-grid-cell-focused:before, .ie10 .v-grid-cell-focused:before {
+.ie8  .v-grid-cell-focused:before, .ie9  .v-grid-cell-focused:before, .ie10  .v-grid-cell-focused:before {
 	content: url(data:image/svg+xml;charset=utf-8;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciPjwvc3ZnPg==);
 }
 
-.v-grid:focus .v-grid-cell-focused:before {
+ .v-grid:focus .v-grid-cell-focused:before {
 	display: block;
 }
 
-.v-grid.v-disabled:focus .v-grid-cell-focused:before {
+ .v-grid.v-disabled:focus .v-grid-cell-focused:before {
 	display: none;
 }
 
-.v-grid-editor {
+ .v-grid-editor {
 	position: absolute;
 	z-index: 20;
 	overflow: hidden;
@@ -2079,20 +2077,20 @@ td.v-datefield-calendarpanel-month,
 	box-shadow: 0 0 9px rgba(0, 0, 0, 0.2);
 }
 
-.v-grid-editor.unbuffered .v-grid-editor-footer {
+ .v-grid-editor.unbuffered .v-grid-editor-footer {
 	width: 100%;
 }
 
-.v-grid-editor-cells {
+ .v-grid-editor-cells {
 	position: relative;
 	white-space: nowrap;
 }
 
-.v-grid-editor-cells.frozen {
+ .v-grid-editor-cells.frozen {
 	z-index: 2;
 }
 
-.v-grid-editor-cells  > div {
+ .v-grid-editor-cells  > div {
 	display: inline-block;
 	-webkit-box-sizing: border-box;
 	-moz-box-sizing: border-box;
@@ -2101,56 +2099,56 @@ td.v-datefield-calendarpanel-month,
 	background: white;
 }
 
-.v-grid-editor-cells  > div:first-child {
+ .v-grid-editor-cells  > div:first-child {
 	border-left: none;
 }
 
-.v-grid-editor-cells  > div  > * {
+ .v-grid-editor-cells  > div  > * {
 	vertical-align: middle;
 	display: inline-block;
 }
 
-.v-grid-editor-cells  > div .v-filterselect {
+ .v-grid-editor-cells  > div .v-filterselect {
 	padding-left: 0;
 }
 
-.v-grid-editor-cells  > div input[type="text"], .v-grid-editor-cells  > div input[type="text"].v-filterselect-input, .v-grid-editor-cells  > div input[type="password"] {
+ .v-grid-editor-cells  > div input[type="text"],  .v-grid-editor-cells  > div input[type="text"].v-filterselect-input,  .v-grid-editor-cells  > div input[type="password"] {
 	padding-left: 18px;
 }
 
-.v-grid-editor-cells  > div input[type="text"]:not(.v-filterselect-input), .v-grid-editor-cells  > div input[type="password"] {
+ .v-grid-editor-cells  > div input[type="text"]:not(.v-filterselect-input),  .v-grid-editor-cells  > div input[type="password"] {
 	padding-right: 9px;
 }
 
-.v-grid-editor-cells  > div input[type="checkbox"] {
+ .v-grid-editor-cells  > div input[type="checkbox"] {
 	margin-left: 18px;
 }
 
-.v-grid-editor-cells  > div .v-textfield, .v-grid-editor-cells  > div .v-datefield, .v-grid-editor-cells  > div .v-filterselect {
+ .v-grid-editor-cells  > div .v-textfield,  .v-grid-editor-cells  > div .v-datefield,  .v-grid-editor-cells  > div .v-filterselect {
 	min-width: 100%;
 	max-width: 100%;
 	min-height: 100%;
 	max-height: 100%;
 }
 
-.v-ie8 .v-grid-editor-cells  > div .v-datefield-button {
+.v-ie8  .v-grid-editor-cells  > div .v-datefield-button {
 	margin-left: -37px;
 }
 
-.v-ie8 .v-grid-editor-cells  > div .v-filterselect-button {
+.v-ie8  .v-grid-editor-cells  > div .v-filterselect-button {
 	margin-left: -25px;
 }
 
-.v-grid-editor-cells  > div .v-select, .v-grid-editor-cells  > div .v-select-select {
+ .v-grid-editor-cells  > div .v-select,  .v-grid-editor-cells  > div .v-select-select {
 	min-width: 100%;
 	max-width: 100%;
 }
 
-.v-grid-editor-cells  > div.not-editable.v-grid-cell {
+ .v-grid-editor-cells  > div.not-editable.v-grid-cell {
 	float: none;
 }
 
-.v-grid-editor-cells .error::before {
+ .v-grid-editor-cells .error::before {
 	position: absolute;
 	display: block;
 	height: 0;
@@ -2160,11 +2158,11 @@ td.v-datefield-calendarpanel-month,
 	border-right: 5px solid transparent;
 }
 
-.v-grid-editor-cells .error, .v-grid-editor-cells .error > input {
+ .v-grid-editor-cells .error,  .v-grid-editor-cells .error > input {
 	background-color: #fee;
 }
 
-.v-grid-editor-footer {
+ .v-grid-editor-footer {
 	display: table;
 	height: 37px;
 	border-top: 1px solid #d4d4d4;
@@ -2173,30 +2171,30 @@ td.v-datefield-calendarpanel-month,
 	padding: 0 5px;
 }
 
-.v-grid-editor-footer  + .v-grid-editor-cells > div {
+ .v-grid-editor-footer  + .v-grid-editor-cells > div {
 	border-bottom: none;
 	border-top: 1px solid #d4d4d4;
 }
 
-.v-grid-editor-footer:first-child {
+ .v-grid-editor-footer:first-child {
 	border-top: none;
 	margin-top: 0;
 	border-bottom: 1px solid #d4d4d4;
 	margin-bottom: -1px;
 }
 
-.v-grid-editor-message, .v-grid-editor-buttons {
+ .v-grid-editor-message,  .v-grid-editor-buttons {
 	display: table-cell;
 	white-space: nowrap;
 	vertical-align: middle;
 }
 
-.v-grid-editor-message {
+ .v-grid-editor-message {
 	width: 100%;
 	position: relative;
 }
 
-.v-grid-editor-message  > div {
+ .v-grid-editor-message  > div {
 	position: absolute;
 	width: 100%;
 	overflow: hidden;
@@ -2205,15 +2203,15 @@ td.v-datefield-calendarpanel-month,
 	top: 0;
 }
 
-.v-grid-editor-save {
+ .v-grid-editor-save {
 	margin-right: 4px;
 }
 
-.v-grid-spacer {
+ .v-grid-spacer {
 	padding-left: 1px;
 }
 
-.v-grid-spacer > td {
+ .v-grid-spacer > td {
 	display: block;
 	padding: 0;
 	background-color: white;
@@ -2221,20 +2219,20 @@ td.v-datefield-calendarpanel-month,
 	border-bottom: 1px solid #d4d4d4;
 }
 
-.v-grid-spacer.stripe > td {
+ .v-grid-spacer.stripe > td {
 	background-color: #f5f5f5;
 	border-top: 1px solid #e5e5e5;
 	border-bottom: 1px solid #d4d4d4;
 }
 
-.v-grid-spacer-deco-container {
+ .v-grid-spacer-deco-container {
 	border-top: 1px solid transparent;
 	position: relative;
 	top: 0;
 	z-index: 5;
 }
 
-.v-grid-spacer-deco {
+ .v-grid-spacer-deco {
 	top: 0;
 	left: 0;
 	width: 2px;
@@ -2244,16 +2242,16 @@ td.v-datefield-calendarpanel-month,
 	pointer-events: none;
 }
 
-.ie8 .v-grid-spacer-deco:before, .ie9 .v-grid-spacer-deco:before, .ie10 .v-grid-spacer-deco:before {
+.ie8  .v-grid-spacer-deco:before, .ie9  .v-grid-spacer-deco:before, .ie10  .v-grid-spacer-deco:before {
 	content: url(data:image/svg+xml;charset=utf-8;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciPjwvc3ZnPg==);
 }
 
-.v-grid-cell > .v-progressbar {
+ .v-grid-cell > .v-progressbar {
 	width: 100%;
 	
 }
 
-.v-grid {
+ .v-grid {
 	-webkit-user-select: text;
 	-moz-user-select: text;
 	-ms-user-select: text;
@@ -2261,12 +2259,12 @@ td.v-datefield-calendarpanel-month,
 	background-color: #fafafa;
 }
 
-.v-grid.v-disabled {
+ .v-grid.v-disabled {
 	opacity: 0.5;
 	filter: alpha(opacity=50) ;
 }
 
-.v-grid-header .v-grid-cell {
+ .v-grid-header .v-grid-cell {
 	background-color: rgb(204,77,136);
 	border-color: rgb(130,65,95);
 	background-image: -webkit-linear-gradient(top, #FF29B8 2%, #EC699D 98%);
@@ -2274,7 +2272,7 @@ td.v-datefield-calendarpanel-month,
 	text-shadow: 0 1px 0 rgba(255, 255, 255, 0.05);
 }
 
-.v-grid-header .v-grid-cell.dragged {
+ .v-grid-header .v-grid-cell.dragged {
 	opacity: 0.5;
 	filter: alpha(opacity=50) ;
 	-webkit-transition: opacity 0.3s ease-in-out;
@@ -2282,30 +2280,30 @@ td.v-datefield-calendarpanel-month,
 	transition: opacity 0.3s ease-in-out;
 }
 
-.v-grid-header .v-grid-cell.dragged-column-header {
+ .v-grid-header .v-grid-cell.dragged-column-header {
 	margin-top: -19px;
 }
 
-.v-grid-footer .v-grid-cell {
+ .v-grid-footer .v-grid-cell {
 	background-color: #fafafa;
 	background-image: -webkit-linear-gradient(top, #fafafa 2%, #efefef 98%);
 	background-image: linear-gradient(to bottom,#fafafa 2%, #efefef 98%);
 	text-shadow: 0 1px 0 rgba(255, 255, 255, 0.05);
 }
 
-.v-grid-header-deco {
+ .v-grid-header-deco {
 	background-color: #fafafa;
 	background-image: -webkit-linear-gradient(top, #fafafa 2%, #efefef 98%);
 	background-image: linear-gradient(to bottom,#fafafa 2%, #efefef 98%);
 }
 
-.v-grid-footer-deco, .v-grid-horizontal-scrollbar-deco {
+ .v-grid-footer-deco,  .v-grid-horizontal-scrollbar-deco {
 	background-color: #fafafa;
 	background-image: -webkit-linear-gradient(top, #fafafa 2%, #efefef 98%);
 	background-image: linear-gradient(to bottom,#fafafa 2%, #efefef 98%);
 }
 
-.v-grid-row-selected  > .v-grid-cell {
+ .v-grid-row-selected  > .v-grid-cell {
 	background-color: rgb(0,194,16);
 	background-image: -webkit-linear-gradient(top, #1b87e3 2%, #166ed5 98%);
 	background-image: linear-gradient(to bottom,#1b87e3 2%, #166ed5 98%);
@@ -2314,17 +2312,17 @@ td.v-datefield-calendarpanel-month,
 	border-color: rgb(0,194,16);
 }
 
-.v-grid-row-selected  > .v-grid-cell-focused:before {
+ .v-grid-row-selected  > .v-grid-cell-focused:before {
 	border-color: rgb(0,194,16);
 }
 
-.v-grid-editor {
+ .v-grid-editor {
 	-webkit-box-shadow: 0 0 0 2px rgba(25, 125, 225, 0.5);
 	box-shadow: 0 0 0 2px rgba(25, 125, 225, 0.5);
 	border-color: rgb(0,194,16);;
 }
 
-.v-grid-editor-footer {
+ .v-grid-editor-footer {
 	font-size: 14px;
 	padding: 0 6px;
 	background: #fafafa;
@@ -2333,37 +2331,37 @@ td.v-datefield-calendarpanel-month,
 	animation: valo-grid-editor-footer-animate-in 200ms 120ms backwards;
 }
 
-.v-grid-editor-footer:first-child {
+ .v-grid-editor-footer:first-child {
 	-webkit-animation: valo-grid-editor-footer-animate-in-alt 200ms 120ms backwards;
 	-moz-animation: valo-grid-editor-footer-animate-in-alt 200ms 120ms backwards;
 	animation: valo-grid-editor-footer-animate-in-alt 200ms 120ms backwards;
 }
 
-.v-grid-editor-cells {
+ .v-grid-editor-cells {
 	z-index: 1;
 }
 
-.v-grid-editor-cells > div:before {
+ .v-grid-editor-cells > div:before {
 	content: "";
 	display: inline-block;
 	height: 100%;
 	vertical-align: middle;
 }
 
-.v-grid-editor-cells > div.not-editable.v-grid-cell {
+ .v-grid-editor-cells > div.not-editable.v-grid-cell {
 	float: none;
 }
 
-.v-grid-editor-cells > div .error::before {
+ .v-grid-editor-cells > div .error::before {
 	border-top: 9px solid #ed473b;
 	border-right: 9px solid transparent;
 }
 
-.v-grid-editor-cells > div .error, .v-grid-editor-cells > div .error > input {
+ .v-grid-editor-cells > div .error,  .v-grid-editor-cells > div .error > input {
 	background-color: #fffbfb;
 }
 
-.v-grid-editor-cells > div .v-textfield, .v-grid-editor-cells > div .v-textfield-focus, .v-grid-editor-cells > div .v-datefield, .v-grid-editor-cells > div .v-datefield .v-textfield-focus, .v-grid-editor-cells > div .v-filterselect-input, .v-grid-editor-cells > div .v-filterselect-input:focus {
+ .v-grid-editor-cells > div .v-textfield,  .v-grid-editor-cells > div .v-textfield-focus,  .v-grid-editor-cells > div .v-datefield,  .v-grid-editor-cells > div .v-datefield .v-textfield-focus,  .v-grid-editor-cells > div .v-filterselect-input,  .v-grid-editor-cells > div .v-filterselect-input:focus {
 	border: none;
 	border-radius: 0;
 	background: transparent;
@@ -2375,15 +2373,15 @@ td.v-datefield-calendarpanel-month,
 	padding-left: 44.4px;
 }
 
-.v-ie8 .v-grid-editor-cells > div .v-datefield-button {
+.v-ie8  .v-grid-editor-cells > div .v-datefield-button {
 	margin-left: 0px;
 }
 
-.v-ie8 .v-grid-editor-cells > div .v-filterselect-button {
+.v-ie8  .v-grid-editor-cells > div .v-filterselect-button {
 	margin-left: 0px;
 }
 
-.v-grid-editor-cells > div .v-textfield-focus, .v-grid-editor-cells > div .v-datefield .v-textfield-focus, .v-grid-editor-cells > div .v-filterselect-input:focus {
+.v-grid-editor-cells > div .v-textfield-focus,  .v-grid-editor-cells > div .v-datefield .v-textfield-focus,  .v-grid-editor-cells > div .v-filterselect-input:focus {
 	position: relative;
 }
 
@@ -2413,7 +2411,7 @@ td.v-datefield-calendarpanel-month,
 	content: "!";
 }
 
-.v-grid-editor-save, .v-grid-editor-cancel {
+.v-grid-editor-save,  .v-grid-editor-cancel {
 	cursor: pointer;
 	color: rgb(0,194,16);;
 	text-decoration: underline;
@@ -2430,11 +2428,11 @@ td.v-datefield-calendarpanel-month,
 	outline: none;
 }
 
-.v-grid-editor-save:hover, .v-grid-editor-cancel:hover {
+.v-grid-editor-save:hover,  .v-grid-editor-cancel:hover {
 	color: rgb(0,194,16);
 }
 
-.v-grid-editor-save.v-disabled, .v-grid-editor-cancel.v-disabled {
+.v-grid-editor-save.v-disabled,  .v-grid-editor-cancel.v-disabled {
 	opacity: 0.5;
 	filter: alpha(opacity=50) ;
 }
@@ -2443,24 +2441,24 @@ td.v-datefield-calendarpanel-month,
 	margin-top: -1px;
 }
 
-.v-grid-sidebar.v-contextmenu.open .v-grid-sidebar-content {
+ .v-grid-sidebar.v-contextmenu.open .v-grid-sidebar-content {
 	margin: 0 0 2px;
 	padding: 4px 4px 2px;
 	overflow-y: auto;
 	overflow-x: hidden;
 }
 
-.v-grid-sidebar.v-contextmenu.closed {
+ .v-grid-sidebar.v-contextmenu.closed {
 	background-color: #fafafa;
 	background-image: -webkit-linear-gradient(top, #fafafa 2%, #efefef 98%);
 	background-image: linear-gradient(to bottom,#fafafa 2%, #efefef 98%);
 }
 
-.v-grid-scroller::-webkit-scrollbar {
+ .v-grid-scroller::-webkit-scrollbar {
 	border: none;
 }
 
-.v-grid-scroller::-webkit-scrollbar-thumb {
+ .v-grid-scroller::-webkit-scrollbar-thumb {
 	border-radius: 10px;
 	border: 4px solid transparent;
 	background: rgba(0, 0, 0, 0.3);
@@ -2468,31 +2466,31 @@ td.v-datefield-calendarpanel-month,
 	background-clip: content-box;
 }
 
-.v-grid-scroller-vertical::-webkit-scrollbar-thumb {
+ .v-grid-scroller-vertical::-webkit-scrollbar-thumb {
 	min-height: 30px;
 }
 
-.v-grid-scroller-horizontal::-webkit-scrollbar-thumb {
+ .v-grid-scroller-horizontal::-webkit-scrollbar-thumb {
 	min-width: 30px;
 }
 
-.v-gridlayout-margin-top {
+ .v-gridlayout-margin-top {
 	padding-top: 37px;
 }
 
-.v-gridlayout-margin-bottom {
+ .v-gridlayout-margin-bottom {
 	padding-bottom: 37px;
 }
 
-.v-gridlayout-margin-left {
+ .v-gridlayout-margin-left {
 	padding-left: 37px;
 }
 
-.v-gridlayout-margin-right {
+ .v-gridlayout-margin-right {
 	padding-right: 37px;
 }
 
-.v-gridlayout-spacing-on {
+ .v-gridlayout-spacing-on {
 	padding-left: 12px;
 	padding-top: 12px;
 }
@@ -2578,6 +2576,4 @@ td.v-datefield-calendarpanel-month,
   pointer-events: auto;
   width: 60px;
   height: 60px;
-  
 }
-    

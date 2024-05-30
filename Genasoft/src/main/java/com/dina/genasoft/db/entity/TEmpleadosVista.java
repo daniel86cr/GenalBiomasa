@@ -388,9 +388,9 @@ public class TEmpleadosVista implements Serializable {
      * @param co El objeto con los datos a nutrir.
      */
     public TEmpleadosVista(TEmpleados e) {
-        this.codigoAcceso = Utils.formatearValorNumericoString(e.getCodigoAcceso());
-        this.dni = Utils.formatearValorNumericoString(e.getDni());
-        this.email = Utils.formatearValorNumericoString(e.getEmail());
+        this.codigoAcceso = Utils.formatearValorString(e.getCodigoAcceso());
+        this.dni = Utils.formatearValorString(e.getDni());
+        this.email = Utils.formatearValorString(e.getEmail());
         this.estado = e.getEstado().equals(EmpleadoEnum.ACTIVO.getValue()) ? Constants.ACTIVO : Constants.DESACTIVADO;
         this.fechaCrea = new SimpleDateFormat("dd/MM/yyyy hh:mm").format(e.getFechaCrea());
         this.fechaModifica = e.getFechaModifica() != null ? new SimpleDateFormat("dd/MM/yyyy hh:mm").format(e.getFechaModifica()) : "-";

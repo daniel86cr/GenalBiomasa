@@ -278,7 +278,7 @@ public class VistaMenuPrincipalMaestros extends CustomComponent implements View 
         viewLayout.setComponentAlignment(titulo, Alignment.MIDDLE_RIGHT);
         viewLayout.addComponent(body);
         // Añadimos el logo de DATA FOOD
-        viewLayout.addComponent(contrVista.logoCliente());
+        //viewLayout.addComponent(contrVista.logoCliente());
         viewLayout.setExpandRatio(body, 0.1f);
 
         return viewLayout;
@@ -299,6 +299,8 @@ public class VistaMenuPrincipalMaestros extends CustomComponent implements View 
         l4.setHeight(3, Sizeable.Unit.EM);
         Label l5 = new Label(" ");
         l5.setHeight(3, Sizeable.Unit.EM);
+        Label l6 = new Label(" ");
+        l6.setHeight(3, Sizeable.Unit.EM);
         // Layout para los botones.
         VerticalLayout botones = new VerticalLayout();
         botones.setSpacing(true);
@@ -319,11 +321,11 @@ public class VistaMenuPrincipalMaestros extends CustomComponent implements View 
 
         botones.addComponent(bOperadores);
         botones.setComponentAlignment(bOperadores, Alignment.MIDDLE_RIGHT);
-        botones.addComponent(l4);
+        botones.addComponent(l3);
 
         botones.addComponent(bTransportistas);
         botones.setComponentAlignment(bTransportistas, Alignment.MIDDLE_RIGHT);
-        botones.addComponent(l4);
+        botones.addComponent(l6);
 
         return botones;
     }
