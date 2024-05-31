@@ -356,7 +356,7 @@ public class VistaNuevoMaterial extends CustomComponent implements View ,Button.
         txtLer.setMaxLength(445);
 
         // El Precio.
-        txtPrecio = (TextField) binder.buildAndBind("Precio:", "precio");
+        txtPrecio = (TextField) binder.buildAndBind("Precio Kg:", "precio");
         txtPrecio.setNullRepresentation("0");
         txtPrecio.setWidth(appWidth, Sizeable.Unit.EM);
         txtPrecio.setRequired(true);

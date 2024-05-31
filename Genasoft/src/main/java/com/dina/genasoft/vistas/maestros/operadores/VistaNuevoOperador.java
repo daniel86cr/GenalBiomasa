@@ -3,10 +3,7 @@
  *  
  *  Copyright (C) 2024
  */
-package com.dina.genasoft.vistas.maestros.materiales;
-
-import java.text.DecimalFormat;
-import java.util.List;
+package com.dina.genasoft.vistas.maestros.operadores;
 
 import javax.annotation.PostConstruct;
 
@@ -17,13 +14,10 @@ import org.springframework.beans.factory.annotation.Value;
 import com.dina.genasoft.configuration.Constants;
 import com.dina.genasoft.controller.ControladorVistas;
 import com.dina.genasoft.db.entity.TEmpleados;
-import com.dina.genasoft.db.entity.TIva;
-import com.dina.genasoft.db.entity.TMateriales;
+import com.dina.genasoft.db.entity.TOperadores;
 import com.dina.genasoft.db.entity.TPermisos;
-import com.dina.genasoft.db.entity.TRegistrosCambiosMateriales;
 import com.dina.genasoft.exception.GenasoftException;
 import com.dina.genasoft.utils.Utils;
-import com.dina.genasoft.utils.enums.MaterialEnum;
 import com.dina.genasoft.vistas.Menu;
 import com.dina.genasoft.vistas.VistaInicioSesion;
 import com.vaadin.annotations.Theme;
@@ -49,30 +43,26 @@ import com.vaadin.ui.VerticalLayout;
 
 /**
  * @author Daniel Carmona Romero
- * Vista para mostrar/visualizar un material.
+ * Vista para crear un nuevo operador.
  */
 @SuppressWarnings("serial")
 @Theme("Genal")
 @UIScope
-@SpringView(name = VistaMaterial.NAME)
-public class VistaMaterial extends CustomComponent implements View ,Button.ClickListener {
+@SpringView(name = VistaNuevoOperador.NAME)
+public class VistaNuevoOperador extends CustomComponent implements View ,Button.ClickListener {
     /** El controlador de las vistas. */
     @Autowired
     private ControladorVistas             contrVista;
     /** El nombre de la vista.*/
-    public static final String            NAME     = "vMaterial";
-    /** Para los campos que componen un material.*/
-    private BeanFieldGroup<TMateriales>   binder;
-    /** El boton para crear el material.*/
-    private Button                        modificarButton;
-    /** El boton para volver al listado de materiales.*/
-    private Button                        listadoButton;
+    public static final String            NAME     = "nuevoOperador";
+    /** Para los campos que componen un operador.*/
+    private BeanFieldGroup<TOperadores>   binder;
+    /** El boton para crear el operador.*/
+    private Button                        crearButton;
     /** Combobox para los estados.*/
     private ComboBox                      cbEstado;
-    /** Combobox para los roles. */
-    private ComboBox                      cbIva;
-    /** El material a modificar.*/
-    private TMateriales                   nMaterial;
+    /** El operador a crear.*/
+    private TOperadores                   operador;
     /** Contendrá el nombre de la aplicación.*/
     @Value("${app.name}")
     private String                        appName;
@@ -80,34 +70,35 @@ public class VistaMaterial extends CustomComponent implements View ,Button.Click
     @Value("${app.width}")
     private Integer                       appWidth;
     /** El log de la aplicación.*/
-    private static final org.slf4j.Logger log      = org.slf4j.LoggerFactory.getLogger(VistaMaterial.class);
+    private static final org.slf4j.Logger log      = org.slf4j.LoggerFactory.getLogger(VistaNuevoOperador.class);
     // Los campos obligatorios
     /** La caja de texto para la referencia .*/
-    private TextField                     txtReferencia;
+    private TextField                     txtRazonSocial;
     /** La caja de texto para el nombre.*/
-    private TextField                     txtNombre;
+    private TextField                     txtCif;
     /** La caja de texto para el LER.*/
-    private TextField                     txtLer;
+    private TextField                     txtDireccion;
     /** La caja de texto para el precio.*/
-    private TextField                     txtPrecio;
+    private TextField                     txtCiudad;
+    /** La caja de texto para el precio.*/
+    private TextField                     txtCp;
+    /** La caja de texto para el precio.*/
+    private TextField                     txtProvincia;
     /** Los permisos del empleado actual. */
     private TPermisos                     permisos = null;
     /** El usuario que está logado. */
     private Integer                       user     = null;
     /** La fecha en que se inició sesión. */
     private Long                          time     = null;
-    /** Contendrá los cambios que se aplican al material. */
-    private String                        cambios;
     private TEmpleados                    empleado;
-    private List<TIva>                    lIvas;
 
     @Override
     public void buttonClick(ClickEvent event) {
-        if (event.getButton().equals(modificarButton)) {
-            // Creamos el evento para modificar un nuevo material con los datos introducidos en el formulario
+        if (event.getButton().equals(crearButton)) {
+            // Creamos el evento para crear un nuevo material con los datos introducidos en el formulario
             try {
                 if (validarCamposObligatorios()) {
-                    Notification aviso = new Notification("Se debe informar los campos marcados con '*'", Notification.Type.ASSISTIVE_NOTIFICATION);
+                    Notification aviso = new Notification("Se debe informar los campos marcados con '*'", Notification.Type.WARNING_MESSAGE);
                     aviso.setPosition(Position.MIDDLE_CENTER);
                     aviso.show(Page.getCurrent());
                     return;
@@ -115,30 +106,20 @@ public class VistaMaterial extends CustomComponent implements View ,Button.Click
 
                 // Construimos el objeto material a partir de los datos introducidos en el formulario.
                 construirBean();
-                String result = contrVista.modificarMaterial(nMaterial, user, time);
+                String result = contrVista.crearOperador(operador, user, time);
                 if (result.equals(Constants.OPERACION_OK)) {
-
-                    // Si hay cambios, guardamos los cambios en el registro de cambios
-                    if (!cambios.isEmpty()) {
-
-                        TRegistrosCambiosMateriales record = new TRegistrosCambiosMateriales();
-                        record.setCambio(cambios);
-                        record.setFechaCambio(Utils.generarFecha());
-                        record.setIdMaterial(nMaterial.getId());
-                        record.setUsuCrea(user);
-
-                        contrVista.crearRegistroCambioMaterial(record, user, time);
-                    }
                     result = contrVista.obtenerDescripcionCodigo(result);
-                    Notification aviso = new Notification(result, Notification.Type.ASSISTIVE_NOTIFICATION);
+                    Notification aviso = new Notification(result, Notification.Type.HUMANIZED_MESSAGE);
                     aviso.setPosition(Position.MIDDLE_CENTER);
                     aviso.show(Page.getCurrent());
+                    inicializarCampos();
                 } else {
                     result = contrVista.obtenerDescripcionCodigo(result);
                     Notification aviso = new Notification(result, Notification.Type.WARNING_MESSAGE);
                     aviso.setPosition(Position.MIDDLE_CENTER);
                     aviso.show(Page.getCurrent());
                 }
+
                 // Si la operación se ha completado con éxito, inicializamos los componentes de la pantalla.                
             } catch (GenasoftException te) {
                 if (te.getMessage().equals(Constants.SESION_INVALIDA)) {
@@ -166,8 +147,6 @@ public class VistaMaterial extends CustomComponent implements View ,Button.Click
                 aviso.show(Page.getCurrent());
             }
 
-        } else if (event.getButton().equals(listadoButton)) {
-            getUI().getNavigator().navigateTo(VistaListadoMateriales.NAME);
         }
     }
 
@@ -187,7 +166,6 @@ public class VistaMaterial extends CustomComponent implements View ,Button.Click
     public void enter(ViewChangeEvent event) {
         user = null;
         time = null;
-
         user = (Integer) getSession().getAttribute("user");
         if ((String) getSession().getAttribute("fecha") != null) {
             time = Long.parseLong((String) getSession().getAttribute("fecha"));
@@ -195,7 +173,8 @@ public class VistaMaterial extends CustomComponent implements View ,Button.Click
 
         if (time != null) {
             try {
-                binder = new BeanFieldGroup<>(TMateriales.class);
+
+                binder = new BeanFieldGroup<>(TOperadores.class);
 
                 empleado = contrVista.obtenerEmpleadoPorId(user, user, time);
 
@@ -222,41 +201,20 @@ public class VistaMaterial extends CustomComponent implements View ,Button.Click
 
                 // Creamos los botones de la pantalla.
                 crearBotones();
+
+                //El fieldgroup no es un componente
+                binder.setItemDataSource(new TOperadores());
+
                 // Creamos los combos de la pantalla.
                 crearCombos();
-                //El fieldgroup no es un componente
-
-                // Obtenemos los iva activos.
-                lIvas = Utils.generarListaGenerica();
-
-                String parametros = event.getParameters();
-
-                if (parametros != null && !parametros.isEmpty()) {
-                    nMaterial = contrVista.obtenerMaterialPorId(Integer.valueOf(parametros), user, time);
-                } else {
-                    parametros = null;
-                }
-
-                if (nMaterial == null) {
-                    Notification aviso = new Notification("No se ha encontrado el material.", Notification.Type.ERROR_MESSAGE);
-                    aviso.setPosition(Position.MIDDLE_CENTER);
-                    aviso.show(Page.getCurrent());
-                    getUI().getNavigator().navigateTo(VistaListadoMateriales.NAME);
-                    return;
-                }
-
-                binder.setItemDataSource(nMaterial);
-
-                // Obtenemos los ivas activos.
-                lIvas = contrVista.obtenerTiposIvaActivos(user, time);
 
                 // Creamos los botones de la pantalla.
                 crearBotones();
 
                 // Creamos los componetes que conforman la pantalla.
-                crearComponentes(parametros);
+                crearComponentes();
 
-                Label texto = new Label(nMaterial.getDescripcion());
+                Label texto = new Label("Nuevo operador");
                 texto.setStyleName("tituloTamano18");
                 texto.setHeight(4, Sizeable.Unit.EM);
                 Label texto2 = new Label(" ");
@@ -280,44 +238,39 @@ public class VistaMaterial extends CustomComponent implements View ,Button.Click
                 body.setSpacing(true);
                 body.setMargin(true);
 
-                // Formulario con los campos que componen el material.
+                // Formulario con los campos que componen el empleado.
                 VerticalLayout formulario1 = new VerticalLayout();
                 formulario1.setSpacing(true);
-                // Formulario con los campos que componen el material.
-                VerticalLayout formulario2 = new VerticalLayout();
-                formulario2.setSpacing(true);
 
-                Label lblSpace = new Label(" ");
-                lblSpace.setHeight(5, Sizeable.Unit.EM);
-
-                formulario1.addComponent(txtReferencia);
-                formulario1.setComponentAlignment(txtReferencia, Alignment.MIDDLE_CENTER);
-                formulario1.addComponent(txtNombre);
-                formulario1.setComponentAlignment(txtNombre, Alignment.MIDDLE_CENTER);
-                formulario1.addComponent(txtLer);
-                formulario1.setComponentAlignment(txtLer, Alignment.MIDDLE_CENTER);
-                formulario1.addComponent(txtPrecio);
-                formulario1.setComponentAlignment(txtPrecio, Alignment.MIDDLE_CENTER);
-                formulario1.addComponent(cbIva);
-                formulario1.setComponentAlignment(cbIva, Alignment.MIDDLE_CENTER);
+                formulario1.addComponent(txtRazonSocial);
+                formulario1.setComponentAlignment(txtRazonSocial, Alignment.MIDDLE_CENTER);
+                formulario1.addComponent(txtCif);
+                formulario1.setComponentAlignment(txtCif, Alignment.MIDDLE_CENTER);
+                formulario1.addComponent(txtDireccion);
+                formulario1.setComponentAlignment(txtDireccion, Alignment.MIDDLE_CENTER);
+                formulario1.addComponent(txtCp);
+                formulario1.setComponentAlignment(txtCp, Alignment.MIDDLE_CENTER);
+                formulario1.addComponent(txtCiudad);
+                formulario1.setComponentAlignment(txtCiudad, Alignment.MIDDLE_CENTER);
+                formulario1.addComponent(txtProvincia);
+                formulario1.setComponentAlignment(txtProvincia, Alignment.MIDDLE_CENTER);
                 formulario1.addComponent(cbEstado);
                 formulario1.setComponentAlignment(cbEstado, Alignment.MIDDLE_CENTER);
                 body.addComponent(formulario1);
                 body.setComponentAlignment(formulario1, Alignment.MIDDLE_CENTER);
-                viewLayout.addComponent(listadoButton);
                 viewLayout.addComponent(body);
                 viewLayout.setComponentAlignment(body, Alignment.MIDDLE_CENTER);
-                viewLayout.addComponent(lblSpace);
-                viewLayout.addComponent(modificarButton);
-                viewLayout.setComponentAlignment(modificarButton, Alignment.MIDDLE_CENTER);
+                viewLayout.addComponent(crearButton);
+                viewLayout.setComponentAlignment(crearButton, Alignment.MIDDLE_CENTER);
 
-                // Añadimos el logo del cliente
+                // Añadimos el logo de GenalSoft
                 viewLayout.addComponent(contrVista.logoCliente());
                 setCompositionRoot(viewLayout);
                 // Establecemos el porcentaje de ratio para los layouts
                 viewLayout.setExpandRatio(titulo, 0.1f);
                 viewLayout.setMargin(true);
                 viewLayout.setSpacing(true);
+
             } catch (MyBatisSystemException e) {
                 Notification aviso = new Notification("No se ha podido establecer conexión con la base de datos.", Notification.Type.ERROR_MESSAGE);
                 aviso.setPosition(Position.MIDDLE_CENTER);
@@ -351,10 +304,9 @@ public class VistaMaterial extends CustomComponent implements View ,Button.Click
      */
     private void crearBotones() {
         // Creamos los botones.
-        modificarButton = new Button("Aplicar cambios", this);
-        modificarButton.addStyleName("big");
-        listadoButton = new Button("Volver al listado", this);
-        listadoButton.addStyleName("big");
+        crearButton = new Button("Crear operador", this);
+        crearButton.addStyleName("big");
+
     }
 
     /**
@@ -363,66 +315,62 @@ public class VistaMaterial extends CustomComponent implements View ,Button.Click
     private void crearCombos() {
         // Combo box para el estado.
         cbEstado = new ComboBox();
-        cbIva = new ComboBox();
-
+        cbEstado.addStyleName("big");
     }
 
     /**
      * Método que nos crea los componetes que conforman la pantalla.
      */
-    private void crearComponentes(String nombre) {
-        DecimalFormat df = new DecimalFormat("#,##0.00");
-        //Los campos que componen un material.
+    private void crearComponentes() {
+        //Los campos que componen un empleado.
 
-        // El código de material.
-        txtReferencia = (TextField) binder.buildAndBind("Referencia:", "referencia");
-        txtReferencia.setNullRepresentation("");
-        txtReferencia.setWidth(appWidth, Sizeable.Unit.EM);
-        txtReferencia.setMaxLength(1000);
-        txtReferencia.setRequired(true);
+        // La razón social.
+        txtRazonSocial = (TextField) binder.buildAndBind("Razón social:", "nombre");
+        txtRazonSocial.setNullRepresentation("");
+        txtRazonSocial.setWidth(appWidth, Sizeable.Unit.EM);
+        txtRazonSocial.setMaxLength(445);
+        txtRazonSocial.setRequired(true);
 
-        // El nombre
-        txtNombre = (TextField) binder.buildAndBind("Nombre", "descripcion");
-        txtNombre.setNullRepresentation("");
-        txtNombre.setRequired(true);
-        txtNombre.setWidth(appWidth, Sizeable.Unit.EM);
-        txtNombre.setMaxLength(1000);
+        // El CIF
+        txtCif = (TextField) binder.buildAndBind("CIF:", "cif");
+        txtCif.setNullRepresentation("");
+        txtCif.setRequired(true);
+        txtCif.setWidth(appWidth, Sizeable.Unit.EM);
+        txtCif.setMaxLength(45);
 
-        // LER
-        txtLer = (TextField) binder.buildAndBind("LER:", "ler");
-        txtLer.setNullRepresentation("");
-        txtLer.setRequired(true);
-        txtLer.setWidth(appWidth, Sizeable.Unit.EM);
-        txtLer.setMaxLength(445);
+        // Dirección
+        txtDireccion = (TextField) binder.buildAndBind("Dirección:", "direccion");
+        txtDireccion.setNullRepresentation("");
+        txtDireccion.setRequired(true);
+        txtDireccion.setWidth(appWidth, Sizeable.Unit.EM);
+        txtDireccion.setMaxLength(445);
 
-        // El Precio.
-        txtPrecio = new TextField("Precio Kg:");
-        txtPrecio.setNullRepresentation("0");
-        txtPrecio.setWidth(appWidth, Sizeable.Unit.EM);
-        txtPrecio.setRequired(true);
-        txtPrecio.setValue(df.format(nMaterial.getPrecio()));
+        // El código postal.
+        txtCp = (TextField) binder.buildAndBind("Código postal: ", "codigoPostal");
+        txtCp.setNullRepresentation("");
+        txtCp.setWidth(appWidth, Sizeable.Unit.EM);
+        txtCp.setRequired(true);
+        txtCp.setMaxLength(245);
 
-        // Los roles        
-        cbIva.addItems(lIvas);
-        cbIva.setCaption("IVA:");
-        cbIva.setFilteringMode(FilteringMode.CONTAINS);
-        cbIva.setRequired(true);
-        cbIva.setNullSelectionAllowed(false);
-        cbIva.setNewItemsAllowed(false);
-        cbIva.setNullSelectionAllowed(false);
-        cbIva.setWidth(appWidth, Sizeable.Unit.EM);
-        for (TIva iva : lIvas) {
-            if (iva.getId().equals(nMaterial.getIva())) {
-                cbIva.setValue(iva);
-                break;
-            }
-        }
+        // Ciudad.
+        txtCiudad = (TextField) binder.buildAndBind("Ciudad: ", "ciudad");
+        txtCiudad.setNullRepresentation("");
+        txtCiudad.setWidth(appWidth, Sizeable.Unit.EM);
+        txtCiudad.setRequired(true);
+        txtCiudad.setMaxLength(445);
+
+        // Provincia.
+        txtProvincia = (TextField) binder.buildAndBind("Provincia: ", "provincia");
+        txtProvincia.setNullRepresentation("");
+        txtProvincia.setWidth(appWidth, Sizeable.Unit.EM);
+        txtProvincia.setRequired(true);
+        txtProvincia.setMaxLength(445);
 
         // Los estados.
         cbEstado.setCaption("Estado:");
         cbEstado.addItem(Constants.ACTIVO);
         cbEstado.addItem(Constants.DESACTIVADO);
-        cbEstado.setValue(nMaterial.getEstado().equals(MaterialEnum.ACTIVO.getValue()) ? Constants.ACTIVO : Constants.DESACTIVADO);
+        cbEstado.setValue(Constants.ACTIVO);
         cbEstado.setFilteringMode(FilteringMode.CONTAINS);
         cbEstado.setRequired(true);
         cbEstado.setNullSelectionAllowed(false);
@@ -434,74 +382,32 @@ public class VistaMaterial extends CustomComponent implements View ,Button.Click
      * Método que es llamado para crear el objeto bean para la creación.
      */
     private void construirBean() throws GenasoftException {
-        cambios = "";
-        Integer estado = cbEstado.getValue().equals(Constants.ACTIVO) ? 1 : 0;
-        if (!nMaterial.getEstado().equals(estado)) {
-            cambios = "Se cambia el estado del material, pasa de " + nMaterial.getEstado() + " a " + estado;
-        }
-        nMaterial.setEstado(cbEstado.getValue().equals(Constants.ACTIVO) ? 1 : 0);
-        String value = txtReferencia.getValue();
+        operador = new TOperadores();
+        operador.setDireccion(txtDireccion.getValue().trim().toUpperCase());
+        operador.setEstado(cbEstado.getValue().equals(Constants.ACTIVO) ? 1 : 0);
+        operador.setNombre(txtRazonSocial.getValue().trim().toUpperCase());
+        operador.setCif(txtCif.getValue().trim().toUpperCase());
+        operador.setCodigoPostal(txtCp.getValue().trim().toUpperCase());
+        operador.setCiudad(txtCiudad.getValue().trim().toUpperCase());
+        operador.setProvincia(txtProvincia.getValue().trim().toUpperCase());
+        operador.setRazonSocial(txtRazonSocial.getValue().trim().toUpperCase());
+        operador.setFechaCrea(Utils.generarFecha());
+        operador.setUsuCrea(user);
+        operador.setPais("ES");
+        operador.setFechaCrea(Utils.generarFecha());
+    }
 
-        if (value != null) {
-            value = value.trim().toUpperCase();
-        }
-        if (value == null && nMaterial.getReferencia() != null) {
-            cambios = cambios + "\n Se le quita la referencia, antes tenia: " + nMaterial.getReferencia();
-        } else if (value != null && nMaterial.getReferencia() == null) {
-            value = value.trim().toUpperCase();
-            cambios = cambios + "\n Se le asigna una nueva referencia, antes no tenía tenia, ahora tiene:  " + value;
-        } else if (value != null && !value.equals(nMaterial.getReferencia())) {
-            value = value.trim().toUpperCase();
-            cambios = cambios + "\n Se le cambia la referencia, antes tenia: " + nMaterial.getReferencia() + " y ahora tiene: " + value;
-        }
-
-        value = txtNombre.getValue().trim().toUpperCase();
-
-        if (value != null) {
-            value = value.trim().toUpperCase();
-        }
-
-        if (value == null && nMaterial.getDescripcion() != null) {
-            cambios = cambios + "\n Se le quita la descripción, antes tenia: " + nMaterial.getDescripcion();
-        } else if (value != null && nMaterial.getDescripcion() == null) {
-            cambios = cambios + "\n Se le asigna una nueva descripción,  antes no tenía tenia, ahora tiene:  " + value;
-        } else if (value != null && !value.equals(nMaterial.getDescripcion())) {
-            cambios = cambios + "\n Se le cambia la descripción, antes tenia: " + nMaterial.getDescripcion() + " y ahora tiene: " + value;
-        }
-
-        nMaterial.setDescripcion(value);
-
-        value = txtLer.getValue();
-
-        if (value == null && nMaterial.getLer() != null) {
-            cambios = cambios + "\n Se le quita el LER, antes tenia: " + nMaterial.getLer();
-        } else if (value != null && nMaterial.getLer() == null) {
-            value = value.trim().toUpperCase();
-            cambios = cambios + "\n Se le asigna un nuevo LER, antes no tenía tenia, ahora tiene:  " + value;
-        } else if (value != null && !value.equals(nMaterial.getLer())) {
-            value = value.trim().toUpperCase();
-            cambios = cambios + "\n Se le cambia el LER, antes tenia: " + nMaterial.getLer() + " y ahora tiene: " + value;
-        }
-
-        nMaterial.setLer(value);
-
-        if (!((TIva) cbIva.getValue()).getId().equals(nMaterial.getIva())) {
-            cambios = cambios + "\n Se le cambia el IVA, antes tenia: " + nMaterial.getIva() + " ahora tiene: " + ((TIva) cbIva.getValue()).getId();
-        }
-
-        nMaterial.setIva(((TIva) cbIva.getValue()).getId());
-
-        Double prec = Utils.formatearValorDouble(txtPrecio.getValue().trim());
-
-        if (!prec.equals(nMaterial.getPrecio())) {
-            cambios = cambios + "\n Se le cambia el precio, antes tenia: " + nMaterial.getPrecio() + " ahora tiene: " + prec;
-        }
-
-        if (!cambios.isEmpty()) {
-            nMaterial.setFechaModifica(Utils.generarFecha());
-            nMaterial.setUsuModifica(user);
-        }
-
+    /**
+     * Método que es llamado para inicializar los valores de los componentes.
+     */
+    private void inicializarCampos() {
+        txtDireccion.setValue(null);
+        txtCif.setValue(null);
+        txtCp.setValue(null);
+        txtRazonSocial.setValue(null);
+        cbEstado.setValue(Constants.ACTIVO);
+        txtCiudad.setValue(null);
+        txtProvincia.setValue(null);
     }
 
     /**
@@ -509,7 +415,6 @@ public class VistaMaterial extends CustomComponent implements View ,Button.Click
      * @return true si no se cumple la validación
      */
     private boolean validarCamposObligatorios() {
-        return !cbEstado.isValid() || !txtNombre.isValid() || !txtReferencia.isValid() || !txtLer.isValid() || !txtPrecio.isValid() || !cbIva.isValid();
+        return !cbEstado.isValid() || !txtCif.isValid() || !txtRazonSocial.isValid() || !txtDireccion.isValid() || !txtCp.isValid() || !txtProvincia.isValid() || !txtCiudad.isValid();
     }
-
 }
