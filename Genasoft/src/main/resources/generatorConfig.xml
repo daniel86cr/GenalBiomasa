@@ -1,0 +1,257 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE generatorConfiguration PUBLIC "-//mybatis.org//DTD MyBatis Generator Configuration 1.0//EN" "src/main/resources/dtd/mybatis-generator-config_1_0.dtd" >
+<generatorConfiguration>
+	<!-- URI donde se encuentra la libreria de oracle para generar los mapeos -->
+	<!-- URI donde se encuentra la libreria de oracle para generar los mapeos -->
+	<!-- <classPathEntry location="/Users/daniel/.m2/repository/mysql/mysql-connector-java/5.1.37/mysql-connector-java-5.1.37.jar"/> -->
+		<classPathEntry location="/Users/danielcarmona/.m2/repository/mysql/mysql-connector-java/5.1.37/mysql-connector-java-5.1.37.jar"/>
+	<!--  <classPathEntry location="C:/Users/Casa/.m2/repository/mysql/mysql-connector-java/5.1.37/mysql-connector-java-5.1.37.jar"/> -->
+	<context id="oracleContext">
+		<plugin type="org.mybatis.generator.plugins.SerializablePlugin" />
+		<!--  -->
+		<!--  
+		<jdbcConnection driverClass="com.mysql.jdbc.Driver"
+			connectionURL="jdbc:mysql://212.227.137.44:3306/transportes_desa"
+			userId="lineaverde" password="l1n14v3rd3" />
+			-->
+		 
+		<jdbcConnection driverClass="com.mysql.jdbc.Driver"
+			connectionURL="jdbc:mysql://127.0.0.1:3306/genalBiomasa?useSSL=false"
+			userId="root" password="root" />
+ 		 	
+		<!--  
+		<javaModelGenerator targetPackage="com.dina.genasoft.db.entity" targetProject="LineaVerde/src/main/java" />
+		<sqlMapGenerator targetPackage="SqlMaps" targetProject="LineaVerde/src/main/resources" />
+		<javaClientGenerator targetPackage="com.dina.genasoft.db.mapper" targetProject="LineaVerde/src/main/java" type="XMLMAPPER" />																																																																																																															
+		-->	
+			
+		<javaModelGenerator targetPackage="com.dina.genasoft.db.entity" targetProject="Genasoft/src/main/java" />
+		<sqlMapGenerator targetPackage="SqlMaps" targetProject="Genasoft/src/main/resources" />
+		<javaClientGenerator targetPackage="com.dina.genasoft.db.mapper" targetProject="Genasoft/src/main/java" type="XMLMAPPER" />
+		
+		<table tableName="t_acceso" enableCountByExample="false"
+			enableDeleteByExample="false" enableUpdateByExample="false"
+			selectByPrimaryKeyQueryId="false" enableInsert="true"
+			selectByExampleQueryId="false" enableSelectByExample="false"
+			modelType="flat">
+		</table>
+		
+		<table tableName="t_acceso_his" enableCountByExample="false"
+			enableDeleteByExample="false" enableUpdateByExample="false"
+			selectByPrimaryKeyQueryId="false" enableInsert="true"
+			selectByExampleQueryId="false" enableSelectByExample="false"
+			modelType="flat">
+		</table>
+		
+		<table tableName="t_clientes" enableCountByExample="false"
+			enableDeleteByExample="false" enableUpdateByExample="false"
+			selectByPrimaryKeyQueryId="false" enableInsert="true"
+			selectByExampleQueryId="false" enableSelectByExample="false"
+			modelType="flat">
+		</table>
+		
+		<table tableName="t_clientes_materiales" enableCountByExample="false"
+			enableDeleteByExample="false" enableUpdateByExample="false"
+			selectByPrimaryKeyQueryId="false" enableInsert="true"
+			selectByExampleQueryId="false" enableSelectByExample="false"
+			modelType="flat">
+		</table>
+		
+		<table tableName="t_clientes_operadores" enableCountByExample="false"
+			enableDeleteByExample="false" enableUpdateByExample="false"
+			selectByPrimaryKeyQueryId="false" enableInsert="true"
+			selectByExampleQueryId="false" enableSelectByExample="false"
+			modelType="flat">
+		</table>
+		
+		<table tableName="t_clientes_transportistas" enableCountByExample="false"
+			enableDeleteByExample="false" enableUpdateByExample="false"
+			selectByPrimaryKeyQueryId="false" enableInsert="true"
+			selectByExampleQueryId="false" enableSelectByExample="false"
+			modelType="flat">
+		</table>
+		
+		<table tableName="t_empleado_empresa" enableCountByExample="false"
+			enableDeleteByExample="false" enableUpdateByExample="false"
+			selectByPrimaryKeyQueryId="false" enableInsert="true"
+			selectByExampleQueryId="false" enableSelectByExample="false"
+			modelType="flat">
+		</table>
+		
+		<table tableName="t_empleados" enableCountByExample="false"
+			enableDeleteByExample="false" enableUpdateByExample="false"
+			selectByPrimaryKeyQueryId="false" enableInsert="true"
+			selectByExampleQueryId="false" enableSelectByExample="false"
+			modelType="flat">
+		</table>
+		
+		<table tableName="t_empresas" enableCountByExample="false"
+			enableDeleteByExample="false" enableUpdateByExample="false"
+			selectByPrimaryKeyQueryId="false" enableInsert="true"
+			selectByExampleQueryId="false" enableSelectByExample="false"
+			modelType="flat">
+		</table>
+		
+		<table tableName="t_factura_pesaje" enableCountByExample="false"
+			enableDeleteByExample="false" enableUpdateByExample="false"
+			selectByPrimaryKeyQueryId="false" enableInsert="true"
+			selectByExampleQueryId="false" enableSelectByExample="false"
+			modelType="flat">
+		</table>
+		
+		<table tableName="t_facturas" enableCountByExample="false"
+			enableDeleteByExample="false" enableUpdateByExample="false"
+			selectByPrimaryKeyQueryId="false" enableInsert="true"
+			selectByExampleQueryId="false" enableSelectByExample="false"
+			modelType="flat">
+		</table>
+		
+		<table tableName="t_iva" enableCountByExample="false"
+			enableDeleteByExample="false" enableUpdateByExample="false"
+			selectByPrimaryKeyQueryId="false" enableInsert="true"
+			selectByExampleQueryId="false" enableSelectByExample="false"
+			modelType="flat">
+		</table>
+		
+		<table tableName="t_materiales" enableCountByExample="false"
+			enableDeleteByExample="false" enableUpdateByExample="false"
+			selectByPrimaryKeyQueryId="false" enableInsert="true"
+			selectByExampleQueryId="false" enableSelectByExample="false"
+			modelType="flat">
+		</table>
+		
+		<table tableName="t_operadores" enableCountByExample="false"
+			enableDeleteByExample="false" enableUpdateByExample="false"
+			selectByPrimaryKeyQueryId="false" enableInsert="true"
+			selectByExampleQueryId="false" enableSelectByExample="false"
+			modelType="flat">
+		</table>
+		
+		<table tableName="t_permisos" enableCountByExample="false"
+			enableDeleteByExample="false" enableUpdateByExample="false"
+			selectByPrimaryKeyQueryId="false" enableInsert="true"
+			selectByExampleQueryId="false" enableSelectByExample="false"
+			modelType="flat">
+		</table>
+		
+		<table tableName="t_pesajes" enableCountByExample="false"
+			enableDeleteByExample="false" enableUpdateByExample="false"
+			selectByPrimaryKeyQueryId="false" enableInsert="true"
+			selectByExampleQueryId="false" enableSelectByExample="false"
+			modelType="flat">
+		</table>
+		
+		<table tableName="t_pesajes_his" enableCountByExample="false"
+			enableDeleteByExample="false" enableUpdateByExample="false"
+			selectByPrimaryKeyQueryId="false" enableInsert="true"
+			selectByExampleQueryId="false" enableSelectByExample="false"
+			modelType="flat">
+		</table>
+		
+		<table tableName="t_registros_cambios_clientes" enableCountByExample="false"
+			enableDeleteByExample="false" enableUpdateByExample="false"
+			selectByPrimaryKeyQueryId="false" enableInsert="true"
+			selectByExampleQueryId="false" enableSelectByExample="false"
+			modelType="flat">
+		</table>
+		
+		<table tableName="t_registros_cambios_direccion_cliente" enableCountByExample="false"
+			enableDeleteByExample="false" enableUpdateByExample="false"
+			selectByPrimaryKeyQueryId="false" enableInsert="true"
+			selectByExampleQueryId="false" enableSelectByExample="false"
+			modelType="flat">
+		</table>
+		
+		<table tableName="t_registros_cambios_empleados" enableCountByExample="false"
+			enableDeleteByExample="false" enableUpdateByExample="false"
+			selectByPrimaryKeyQueryId="false" enableInsert="true"
+			selectByExampleQueryId="false" enableSelectByExample="false"
+			modelType="flat">
+		</table>
+		
+		<table tableName="t_registros_cambios_empresas" enableCountByExample="false"
+			enableDeleteByExample="false" enableUpdateByExample="false"
+			selectByPrimaryKeyQueryId="false" enableInsert="true"
+			selectByExampleQueryId="false" enableSelectByExample="false"
+			modelType="flat">
+		</table>
+		
+		<table tableName="t_registros_cambios_facturas" enableCountByExample="false"
+			enableDeleteByExample="false" enableUpdateByExample="false"
+			selectByPrimaryKeyQueryId="false" enableInsert="true"
+			selectByExampleQueryId="false" enableSelectByExample="false"
+			modelType="flat">
+		</table>
+		
+		<table tableName="t_registros_cambios_materiales" enableCountByExample="false"
+			enableDeleteByExample="false" enableUpdateByExample="false"
+			selectByPrimaryKeyQueryId="false" enableInsert="true"
+			selectByExampleQueryId="false" enableSelectByExample="false"
+			modelType="flat">
+		</table>
+		
+		<table tableName="t_registros_cambios_operadores" enableCountByExample="false"
+			enableDeleteByExample="false" enableUpdateByExample="false"
+			selectByPrimaryKeyQueryId="false" enableInsert="true"
+			selectByExampleQueryId="false" enableSelectByExample="false"
+			modelType="flat">
+		</table>
+		
+		<table tableName="t_registros_cambios_pesajes" enableCountByExample="false"
+			enableDeleteByExample="false" enableUpdateByExample="false"
+			selectByPrimaryKeyQueryId="false" enableInsert="true"
+			selectByExampleQueryId="false" enableSelectByExample="false"
+			modelType="flat">
+		</table>
+		
+		<table tableName="t_registros_cambios_transportistas" enableCountByExample="false"
+			enableDeleteByExample="false" enableUpdateByExample="false"
+			selectByPrimaryKeyQueryId="false" enableInsert="true"
+			selectByExampleQueryId="false" enableSelectByExample="false"
+			modelType="flat">
+		</table>
+		
+		<table tableName="t_roles" enableCountByExample="false"
+			enableDeleteByExample="false" enableUpdateByExample="false"
+			selectByPrimaryKeyQueryId="false" enableInsert="true"
+			selectByExampleQueryId="false" enableSelectByExample="false"
+			modelType="flat">
+		</table>
+		
+		<table tableName="t_transportistas" enableCountByExample="false"
+			enableDeleteByExample="false" enableUpdateByExample="false"
+			selectByPrimaryKeyQueryId="false" enableInsert="true"
+			selectByExampleQueryId="false" enableSelectByExample="false"
+			modelType="flat">
+		</table>
+		
+		<table tableName="t_pais" enableCountByExample="false"
+			enableDeleteByExample="false" enableUpdateByExample="false"
+			selectByPrimaryKeyQueryId="false" enableInsert="true"
+			selectByExampleQueryId="false" enableSelectByExample="false"
+			modelType="flat">
+		</table>
+		
+		<table tableName="t_direccion_cliente" enableCountByExample="false"
+			enableDeleteByExample="false" enableUpdateByExample="false"
+			selectByPrimaryKeyQueryId="false" enableInsert="true"
+			selectByExampleQueryId="false" enableSelectByExample="false"
+			modelType="flat">
+		</table>
+		
+		<table tableName="t_errores" enableCountByExample="false"
+			enableDeleteByExample="false" enableUpdateByExample="false"
+			selectByPrimaryKeyQueryId="false" enableInsert="true"
+			selectByExampleQueryId="false" enableSelectByExample="false"
+			modelType="flat">
+		</table>
+		
+		<table tableName="t_trace_2" enableCountByExample="false"
+			enableDeleteByExample="false" enableUpdateByExample="false"
+			selectByPrimaryKeyQueryId="false" enableInsert="true"
+			selectByExampleQueryId="false" enableSelectByExample="false"
+			modelType="flat">
+		</table>
+		
+	</context>
+</generatorConfiguration>

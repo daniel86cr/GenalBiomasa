@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE configuration
+    PUBLIC "-//mybatis.org//DTD Config 3.0//EN"
+    "http://mybatis.org/dtd/mybatis-3-config.dtd">
+	<configuration>
+        <settings>
+                <setting name="lazyLoadingEnabled" value="true" />
+                <!-- <setting name="cacheEnabled" value="true"/>
+                <setting name="localCacheScope" value="SESSION" />
+                -->
+        </settings>
+        <!-- Especificamos los alias de las entidades (paquete com.dina.genasoft.db.entity) -->
+        <typeAliases>       		 	              
+        		<typeAlias alias="TAcceso" type="com.dina.genasoft.db.entity.TAcceso" />
+        		<typeAlias alias="TAccesoHis" type="com.dina.genasoft.db.entity.TAccesoHis" />
+        		<typeAlias alias="TClientes" type="com.dina.genasoft.db.entity.TClientes" />
+        		<typeAlias alias="TClientesMateriales" type="com.dina.genasoft.db.entity.TClientesMateriales" />
+        		<typeAlias alias="TClientesOperadores" type="com.dina.genasoft.db.entity.TClientesOperadores" />
+        		<typeAlias alias="TClientesTransportistas" type="com.dina.genasoft.db.entity.TClientesTransportistas" />
+        		<typeAlias alias="TDireccionCliente" type="com.dina.genasoft.db.entity.TDireccionCliente" />
+        		<typeAlias alias="TEmpleadoEmpresa" type="com.dina.genasoft.db.entity.TEmpleadoEmpresa" />
+        		<typeAlias alias="TEmpleados" type="com.dina.genasoft.db.entity.TEmpleados" />
+        		<typeAlias alias="TEmpresas" type="com.dina.genasoft.db.entity.TEmpresas" />
+        		<typeAlias alias="TErrores" type="com.dina.genasoft.db.entity.TErrores" />
+        		<typeAlias alias="TFacturaPesaje" type="com.dina.genasoft.db.entity.TFacturaPesaje" />
+        		<typeAlias alias="TFacturas" type="com.dina.genasoft.db.entity.TFacturas" />
+        		<typeAlias alias="TIva" type="com.dina.genasoft.db.entity.TIva" />
+        		<typeAlias alias="TMateriales" type="com.dina.genasoft.db.entity.TMateriales" />
+        		<typeAlias alias="TOperadores" type="com.dina.genasoft.db.entity.TOperadores" />
+        		<typeAlias alias="TPais" type="com.dina.genasoft.db.entity.TPais" />
+        		<typeAlias alias="TPermisos" type="com.dina.genasoft.db.entity.TPermisos" />
+        		<typeAlias alias="TPesajes" type="com.dina.genasoft.db.entity.TPesajes" />
+        		<typeAlias alias="TPesajesHis" type="com.dina.genasoft.db.entity.TPesajesHis" />        		
+        		<typeAlias alias="TRegistrosCambiosClientes" type="com.dina.genasoft.db.entity.TRegistrosCambiosClientes" />
+        		<typeAlias alias="TRegistrosCambiosDireccionCliente" type="com.dina.genasoft.db.entity.TRegistrosCambiosDireccionCliente" />
+        		<typeAlias alias="TRegistrosCambiosEmpleados" type="com.dina.genasoft.db.entity.TRegistrosCambiosEmpleados" />
+        		<typeAlias alias="TRegistrosCambiosEmpresas" type="com.dina.genasoft.db.entity.TRegistrosCambiosEmpresas" />
+        		<typeAlias alias="TRegistrosCambiosFacturas" type="com.dina.genasoft.db.entity.TRegistrosCambiosFacturas" />
+        		<typeAlias alias="TRegistrosCambiosMateriales" type="com.dina.genasoft.db.entity.TRegistrosCambiosMateriales" />
+        		<typeAlias alias="TRegistrosCambiosOperadores" type="com.dina.genasoft.db.entity.TRegistrosCambiosOperadores" />
+        		<typeAlias alias="TRegistrosCambiosPesajes" type="com.dina.genasoft.db.entity.TRegistrosCambiosPesajes" />
+        		<typeAlias alias="TRegistrosCambiosTransportistas" type="com.dina.genasoft.db.entity.TRegistrosCambiosTransportistas" />
+        		<typeAlias alias="TRoles" type="com.dina.genasoft.db.entity.TRoles" />
+        		<typeAlias alias="TTrace2" type="com.dina.genasoft.db.entity.TTrace2" />
+        		<typeAlias alias="TTransportistas" type="com.dina.genasoft.db.entity.TTransportistas" />        		
+        </typeAliases>
+         <!-- Especificamos los mappers para cada archivo .xml dentro de resources/SqlMaps -->
+        <mappers>
+        		<mapper resource="SqlMaps/TAccesoMapper.xml"></mapper>
+        		<mapper resource="SqlMaps/TAccesoHisMapper.xml"></mapper>
+        		<mapper resource="SqlMaps/TClientesMapper.xml"></mapper>
+        		<mapper resource="SqlMaps/TClientesMaterialesMapper.xml"></mapper>
+        		<mapper resource="SqlMaps/TClientesOperadoresMapper.xml"></mapper>
+        		<mapper resource="SqlMaps/TClientesTransportistasMapper.xml"></mapper>
+        		<mapper resource="SqlMaps/TDireccionClienteMapper.xml"></mapper>
+        		<mapper resource="SqlMaps/TEmpleadoEmpresaMapper.xml"></mapper>
+        		<mapper resource="SqlMaps/TEmpleadosMapper.xml"></mapper>
+        		<mapper resource="SqlMaps/TEmpresasMapper.xml"></mapper>
+        		<mapper resource="SqlMaps/TErroresMapper.xml"></mapper>
+        		<mapper resource="SqlMaps/TFacturaPesajeMapper.xml"></mapper>
+        		<mapper resource="SqlMaps/TFacturasMapper.xml"></mapper>
+        		<mapper resource="SqlMaps/TIvaMapper.xml"></mapper>
+        		<mapper resource="SqlMaps/TMaterialesMapper.xml"></mapper>
+        		<mapper resource="SqlMaps/TOperadoresMapper.xml"></mapper>
+        		<mapper resource="SqlMaps/TPaisMapper.xml"></mapper>
+        		<mapper resource="SqlMaps/TPermisosMapper.xml"></mapper>
+        		<mapper resource="SqlMaps/TPesajesMapper.xml"></mapper>
+        		<mapper resource="SqlMaps/TPesajesHisMapper.xml"></mapper>
+        		<mapper resource="SqlMaps/TRegistrosCambiosClientesMapper.xml"></mapper>
+        		<mapper resource="SqlMaps/TRegistrosCambiosDireccionClienteMapper.xml"></mapper>
+        		<mapper resource="SqlMaps/TRegistrosCambiosEmpleadosMapper.xml"></mapper>
+        		<mapper resource="SqlMaps/TRegistrosCambiosEmpresasMapper.xml"></mapper>
+        		<mapper resource="SqlMaps/TRegistrosCambiosFacturasMapper.xml"></mapper>
+        		<mapper resource="SqlMaps/TRegistrosCambiosMaterialesMapper.xml"></mapper>
+        		<mapper resource="SqlMaps/TRegistrosCambiosOperadoresMapper.xml"></mapper>
+        		<mapper resource="SqlMaps/TRegistrosCambiosPesajesMapper.xml"></mapper>
+        		<mapper resource="SqlMaps/TRegistrosCambiosTransportistasMapper.xml"></mapper>
+        		<mapper resource="SqlMaps/TRolesMapper.xml"></mapper>
+        		<mapper resource="SqlMaps/TTrace2Mapper.xml"></mapper>
+        		<mapper resource="SqlMaps/TTransportistasMapper.xml"></mapper>
+        </mappers>
+</configuration>
