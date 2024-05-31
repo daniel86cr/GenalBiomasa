@@ -133,6 +133,15 @@ public class Menu extends CustomComponent {
 
         };
 
+        entornoMaestros = new MenuBar.Command() {
+
+            public void menuSelected(MenuItem selectedItem) {
+
+                getUI().getNavigator().navigateTo(VistaMenuPrincipalMaestros.NAME + "/" + idEmpleado);
+            }
+
+        };
+
         acercaDe = new MenuBar.Command() {
 
             public void menuSelected(MenuItem selectedItem) {
@@ -145,7 +154,7 @@ public class Menu extends CustomComponent {
                 window.setPositionY(60);
 
                 // Obtenemos las imágenes del contenedor
-                Resource resource1 = new ThemeResource("logo/logo_genasoft.png");
+                Resource resource1 = new ThemeResource("logo/appLogo3.png");
                 // Cargamos las imágenes desde el objeto Image.
                 Image image1 = new Image(null, resource1);
                 // Logo de TRAZABILIDADES[Natural TROPIC]

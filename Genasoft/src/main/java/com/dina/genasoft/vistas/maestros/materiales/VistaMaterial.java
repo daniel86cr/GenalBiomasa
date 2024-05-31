@@ -269,10 +269,10 @@ public class VistaMaterial extends CustomComponent implements View ,Button.Click
                 VerticalLayout viewLayout = new VerticalLayout(new Menu(permisos, empleado.getId()));
                 viewLayout.setSizeFull();
                 // Creamos y añadimos el logo de Genasoft a la pantalla
-                HorizontalLayout imgNaturSoft = contrVista.logoGenaSoft();
+                HorizontalLayout imgGenaSoft = contrVista.logoGenaSoft();
 
-                viewLayout.addComponent(imgNaturSoft);
-                viewLayout.setComponentAlignment(imgNaturSoft, Alignment.TOP_RIGHT);
+                viewLayout.addComponent(imgGenaSoft);
+                viewLayout.setComponentAlignment(imgGenaSoft, Alignment.TOP_RIGHT);
                 viewLayout.addComponent(titulo);
                 viewLayout.setComponentAlignment(titulo, Alignment.TOP_CENTER);
 
@@ -454,6 +454,8 @@ public class VistaMaterial extends CustomComponent implements View ,Button.Click
             value = value.trim().toUpperCase();
             cambios = cambios + "\n Se le cambia la referencia, antes tenia: " + nMaterial.getReferencia() + " y ahora tiene: " + value;
         }
+
+        nMaterial.setReferencia(value);
 
         value = txtNombre.getValue().trim().toUpperCase();
 

@@ -30,6 +30,7 @@ import com.dina.genasoft.common.RolesSetup;
 import com.dina.genasoft.common.TransportistasSetup;
 import com.dina.genasoft.configuration.Constants;
 import com.dina.genasoft.db.entity.TClientes;
+import com.dina.genasoft.db.entity.TClientesVista;
 import com.dina.genasoft.db.entity.TEmpleados;
 import com.dina.genasoft.db.entity.TEmpleadosVista;
 import com.dina.genasoft.db.entity.TEmpresas;
@@ -931,6 +932,30 @@ public class ControladorVistas implements Serializable {
         Timestamp t = new Timestamp(time);
         if (commonSetup.conexionValida(userId, t, estadoAplicacion)) {
             lResult = clientesSetup.obtenerTodosClientes();
+        } else {
+            if (estadoAplicacion == null || estadoAplicacion.equals(-1)) {
+                throw new GenasoftException(Constants.LICENCIA_NO_VALIDA);
+            } else {
+                throw new GenasoftException(Constants.SESION_INVALIDA);
+            }
+        }
+        // Retornamos los clientes encontrados.
+        return lResult;
+    }
+
+    /**
+     * Método que nos retorna los clientes existentes en el sistema
+     * @param userId El usuario que está activo.
+     * @param time El tiempo en milisegundos.
+     * @return Los clientes encontrados.
+     * @throws GenasoftException Si se ha iniciado sesión en otro dispositivo.
+     */
+    public List<TClientesVista> obtenerTodosClientesVista(Integer userId, long time) throws GenasoftException {
+        List<TClientesVista> lResult = Utils.generarListaGenerica();
+
+        Timestamp t = new Timestamp(time);
+        if (commonSetup.conexionValida(userId, t, estadoAplicacion)) {
+            lResult = clientesSetup.obtenerTodosClientesVista();
         } else {
             if (estadoAplicacion == null || estadoAplicacion.equals(-1)) {
                 throw new GenasoftException(Constants.LICENCIA_NO_VALIDA);
@@ -2283,17 +2308,17 @@ public class ControladorVistas implements Serializable {
                     result = transportistasSetup.modificarTransportista(transportista);
 
                     // Creamos el registro de cambios sobre el material.
-                    TRegistrosCambiosPesajes cambio = new TRegistrosCambiosPesajes();
-                    cambio.setIdPesaje(transportista.getId());
-                    cambio.setCambio("Se anula el pesaje.");
+                    TRegistrosCambiosTransportistas cambio = new TRegistrosCambiosTransportistas();
+                    cambio.setIdTransportista(transportista.getId());
+                    cambio.setCambio("Se anula el transportista.");
                     cambio.setUsuCrea(userId);
                     cambio.setFechaCambio(Utils.generarFecha());
-                    pesajesSetup.crearRegistroCambioPesaje(cambio);
+                    transportistasSetup.crearRegistroCambioTransportista(cambio);
                 } else {
-                    result = Constants.PESAJE_DESACTIVADO;
+                    result = Constants.TRANSPORTISTA_DESACTIVADO;
                 }
             } else {
-                result = Constants.PESAJE_NO_EXISTE;
+                result = Constants.TRANSPORTISTA_NO_EXISTE;
             }
         } else {
             if (estadoAplicacion == null || estadoAplicacion.equals(-1)) {

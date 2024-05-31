@@ -95,7 +95,7 @@ public class VistaNuevoOperador extends CustomComponent implements View ,Button.
     @Override
     public void buttonClick(ClickEvent event) {
         if (event.getButton().equals(crearButton)) {
-            // Creamos el evento para crear un nuevo material con los datos introducidos en el formulario
+            // Creamos el evento para crear un nuevo operador con los datos introducidos en el formulario
             try {
                 if (validarCamposObligatorios()) {
                     Notification aviso = new Notification("Se debe informar los campos marcados con '*'", Notification.Type.WARNING_MESSAGE);
@@ -104,7 +104,7 @@ public class VistaNuevoOperador extends CustomComponent implements View ,Button.
                     return;
                 }
 
-                // Construimos el objeto material a partir de los datos introducidos en el formulario.
+                // Construimos el objeto operador a partir de los datos introducidos en el formulario.
                 construirBean();
                 String result = contrVista.crearOperador(operador, user, time);
                 if (result.equals(Constants.OPERACION_OK)) {
@@ -227,10 +227,10 @@ public class VistaNuevoOperador extends CustomComponent implements View ,Button.
                 VerticalLayout viewLayout = new VerticalLayout(new Menu(permisos, empleado.getId()));
                 viewLayout.setSizeFull();
                 // Creamos y añadimos el logo de Genasoft a la pantalla
-                HorizontalLayout imgNaturSoft = contrVista.logoGenaSoft();
+                HorizontalLayout imgGenaSoft = contrVista.logoGenaSoft();
 
-                viewLayout.addComponent(imgNaturSoft);
-                viewLayout.setComponentAlignment(imgNaturSoft, Alignment.TOP_RIGHT);
+                viewLayout.addComponent(imgGenaSoft);
+                viewLayout.setComponentAlignment(imgGenaSoft, Alignment.TOP_RIGHT);
                 viewLayout.addComponent(titulo);
                 viewLayout.setComponentAlignment(titulo, Alignment.TOP_CENTER);
 

@@ -210,7 +210,7 @@ public class TransportistasSetup implements Serializable {
         TTransportistas aux = obtenerTransportistaPorNombre(op.getNombre());
         if (aux == null || (op.getId() != null && op.getId().equals(aux.getId()))) {
             aux = obtenerTransportistaPorCif(op.getCif());
-            if (aux != null && (op.getId() != null && op.getId().equals(aux.getId()))) {
+            if (aux != null && (op.getId() != null && !op.getId().equals(aux.getId()))) {
                 result = Constants.TRANSPORTISTA_EXISTE_CIF;
             }
         } else {

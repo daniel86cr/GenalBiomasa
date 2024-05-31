@@ -18,6 +18,8 @@ import com.dina.genasoft.exception.GenasoftException;
 import com.dina.genasoft.utils.Utils;
 import com.dina.genasoft.vistas.maestros.empleados.VistaListadoEmpleados;
 import com.dina.genasoft.vistas.maestros.materiales.VistaListadoMateriales;
+import com.dina.genasoft.vistas.maestros.operadores.VistaListadoOperadores;
+import com.dina.genasoft.vistas.maestros.transportistas.VistaListadoTransportistas;
 import com.vaadin.annotations.Theme;
 import com.vaadin.navigator.View;
 import com.vaadin.navigator.ViewChangeListener.ViewChangeEvent;
@@ -201,22 +203,43 @@ public class VistaMenuPrincipalMaestros extends CustomComponent implements View 
 
             public void buttonClick(ClickEvent event) {
 
-                try {
-
-                    Thread.sleep(7 * 1000);
-
-                    new ProcessBuilder("C:\\Trazabilidades\\MySQLBackups\\mysqlbackup.bat").start();
-
-                    Notification aviso = new Notification("Copia realizada correctamente", Notification.Type.HUMANIZED_MESSAGE);
-                    aviso.setPosition(Position.MIDDLE_CENTER);
-                    aviso.show(Page.getCurrent());
-                } catch (Exception e) {
-
-                }
+                getUI().getNavigator().navigateTo(VistaListadoOperadores.NAME + "/" + empleado.getId());
 
             }
         });
 
+        // Evento para crear un nuevo empleado.
+        bTransportistas.addClickListener(new ClickListener() {
+
+            public void buttonClick(ClickEvent event) {
+
+                getUI().getNavigator().navigateTo(VistaListadoTransportistas.NAME + "/" + empleado.getId());
+
+            }
+        });
+
+        /**
+        // Evento para crear un nuevo empleado.
+        bOperadores.addClickListener(new ClickListener() {
+        
+            public void buttonClick(ClickEvent event) {
+        
+                try {
+        
+                    Thread.sleep(7 * 1000);
+        
+                    new ProcessBuilder("C:\\Trazabilidades\\MySQLBackups\\mysqlbackup.bat").start();
+        
+                    Notification aviso = new Notification("Copia realizada correctamente", Notification.Type.HUMANIZED_MESSAGE);
+                    aviso.setPosition(Position.MIDDLE_CENTER);
+                    aviso.show(Page.getCurrent());
+                } catch (Exception e) {
+        
+                }
+        
+            }
+        });
+        */
     }
 
     /**

@@ -210,7 +210,7 @@ public class OperadoresSetup implements Serializable {
         TOperadores aux = obtenerOperadorPorNombre(op.getNombre());
         if (aux == null || (op.getId() != null && op.getId().equals(aux.getId()))) {
             aux = obtenerOperadorPorCif(op.getCif());
-            if (aux != null && (op.getId() != null && op.getId().equals(aux.getId()))) {
+            if (aux != null && (op.getId() != null && !op.getId().equals(aux.getId()))) {
                 result = Constants.OPERADOR_EXISTE_CIF;
             }
         } else {

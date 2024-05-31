@@ -5,9 +5,6 @@
  */
 package com.dina.genasoft.vistas.maestros.operadores;
 
-import java.text.DecimalFormat;
-import java.util.List;
-
 import javax.annotation.PostConstruct;
 
 import org.mybatis.spring.MyBatisSystemException;
@@ -17,13 +14,12 @@ import org.springframework.beans.factory.annotation.Value;
 import com.dina.genasoft.configuration.Constants;
 import com.dina.genasoft.controller.ControladorVistas;
 import com.dina.genasoft.db.entity.TEmpleados;
-import com.dina.genasoft.db.entity.TIva;
 import com.dina.genasoft.db.entity.TOperadores;
 import com.dina.genasoft.db.entity.TPermisos;
 import com.dina.genasoft.db.entity.TRegistrosCambiosOperadores;
 import com.dina.genasoft.exception.GenasoftException;
 import com.dina.genasoft.utils.Utils;
-import com.dina.genasoft.utils.enums.MaterialEnum;
+import com.dina.genasoft.utils.enums.OperadorEnum;
 import com.dina.genasoft.vistas.Menu;
 import com.dina.genasoft.vistas.VistaInicioSesion;
 import com.vaadin.annotations.Theme;
@@ -49,7 +45,7 @@ import com.vaadin.ui.VerticalLayout;
 
 /**
  * @author Daniel Carmona Romero
- * Vista para mostrar/visualizar un material.
+ * Vista para mostrar/visualizar un operador.
  */
 @SuppressWarnings("serial")
 @Theme("Genal")
@@ -63,14 +59,12 @@ public class VistaOperador extends CustomComponent implements View ,Button.Click
     public static final String            NAME     = "vOperador";
     /** Para los campos que componen un operador.*/
     private BeanFieldGroup<TOperadores>   binder;
-    /** El boton para crear el material.*/
+    /** El boton para crear el operador.*/
     private Button                        modificarButton;
     /** El boton para volver al listado de operadores.*/
     private Button                        listadoButton;
     /** Combobox para los estados.*/
     private ComboBox                      cbEstado;
-    /** Combobox para los roles. */
-    private ComboBox                      cbIva;
     /** El operador a modificar.*/
     private TOperadores                   nOperador;
     /** Contendrá el nombre de la aplicación.*/
@@ -103,12 +97,11 @@ public class VistaOperador extends CustomComponent implements View ,Button.Click
     /** Contendrá los cambios que se aplican al operador. */
     private String                        cambios;
     private TEmpleados                    empleado;
-    private List<TIva>                    lIvas;
 
     @Override
     public void buttonClick(ClickEvent event) {
         if (event.getButton().equals(modificarButton)) {
-            // Creamos el evento para modificar un nuevo material con los datos introducidos en el formulario
+            // Creamos el evento para modificar un nuevo operador con los datos introducidos en el formulario
             try {
                 if (validarCamposObligatorios()) {
                     Notification aviso = new Notification("Se debe informar los campos marcados con '*'", Notification.Type.ASSISTIVE_NOTIFICATION);
@@ -230,9 +223,6 @@ public class VistaOperador extends CustomComponent implements View ,Button.Click
                 crearCombos();
                 //El fieldgroup no es un componente
 
-                // Obtenemos los iva activos.
-                lIvas = Utils.generarListaGenerica();
-
                 String parametros = event.getParameters();
 
                 if (parametros != null && !parametros.isEmpty()) {
@@ -250,9 +240,6 @@ public class VistaOperador extends CustomComponent implements View ,Button.Click
                 }
 
                 binder.setItemDataSource(nOperador);
-
-                // Obtenemos los ivas activos.
-                lIvas = contrVista.obtenerTiposIvaActivos(user, time);
 
                 // Creamos los botones de la pantalla.
                 crearBotones();
@@ -273,10 +260,10 @@ public class VistaOperador extends CustomComponent implements View ,Button.Click
                 VerticalLayout viewLayout = new VerticalLayout(new Menu(permisos, empleado.getId()));
                 viewLayout.setSizeFull();
                 // Creamos y añadimos el logo de Genasoft a la pantalla
-                HorizontalLayout imgNaturSoft = contrVista.logoGenaSoft();
+                HorizontalLayout imgGenaSoft = contrVista.logoGenaSoft();
 
-                viewLayout.addComponent(imgNaturSoft);
-                viewLayout.setComponentAlignment(imgNaturSoft, Alignment.TOP_RIGHT);
+                viewLayout.addComponent(imgGenaSoft);
+                viewLayout.setComponentAlignment(imgGenaSoft, Alignment.TOP_RIGHT);
                 viewLayout.addComponent(titulo);
                 viewLayout.setComponentAlignment(titulo, Alignment.TOP_CENTER);
 
@@ -284,10 +271,10 @@ public class VistaOperador extends CustomComponent implements View ,Button.Click
                 body.setSpacing(true);
                 body.setMargin(true);
 
-                // Formulario con los campos que componen el material.
+                // Formulario con los campos que componen el operador.
                 VerticalLayout formulario1 = new VerticalLayout();
                 formulario1.setSpacing(true);
-                // Formulario con los campos que componen el material.
+                // Formulario con los campos que componen el operador.
                 VerticalLayout formulario2 = new VerticalLayout();
                 formulario2.setSpacing(true);
 
@@ -369,16 +356,13 @@ public class VistaOperador extends CustomComponent implements View ,Button.Click
     private void crearCombos() {
         // Combo box para el estado.
         cbEstado = new ComboBox();
-        cbIva = new ComboBox();
-
     }
 
     /**
      * Método que nos crea los componetes que conforman la pantalla.
      */
     private void crearComponentes(String nombre) {
-        DecimalFormat df = new DecimalFormat("#,##0.00");
-        //Los campos que componen un material.
+        //Los campos que componen un operador.
 
         // La razón social.
         txtRazonSocial = (TextField) binder.buildAndBind("Razón social:", "nombre");
@@ -426,7 +410,7 @@ public class VistaOperador extends CustomComponent implements View ,Button.Click
         cbEstado.setCaption("Estado:");
         cbEstado.addItem(Constants.ACTIVO);
         cbEstado.addItem(Constants.DESACTIVADO);
-        cbEstado.setValue(nOperador.getEstado().equals(MaterialEnum.ACTIVO.getValue()) ? Constants.ACTIVO : Constants.DESACTIVADO);
+        cbEstado.setValue(nOperador.getEstado().equals(OperadorEnum.ACTIVO.getValue()) ? Constants.ACTIVO : Constants.DESACTIVADO);
         cbEstado.setFilteringMode(FilteringMode.CONTAINS);
         cbEstado.setRequired(true);
         cbEstado.setNullSelectionAllowed(false);
@@ -441,65 +425,98 @@ public class VistaOperador extends CustomComponent implements View ,Button.Click
         cambios = "";
         Integer estado = cbEstado.getValue().equals(Constants.ACTIVO) ? 1 : 0;
         if (!nOperador.getEstado().equals(estado)) {
-            cambios = "Se cambia el estado del material, pasa de " + nOperador.getEstado() + " a " + estado;
+            cambios = "Se cambia el estado del operador, pasa de " + nOperador.getEstado() + " a " + estado;
         }
         nOperador.setEstado(cbEstado.getValue().equals(Constants.ACTIVO) ? 1 : 0);
-        String value = txtReferencia.getValue();
+        String value = txtRazonSocial.getValue();
 
         if (value != null) {
             value = value.trim().toUpperCase();
         }
-        if (value == null && nOperador.getReferencia() != null) {
-            cambios = cambios + "\n Se le quita la referencia, antes tenia: " + nOperador.getReferencia();
-        } else if (value != null && nOperador.getReferencia() == null) {
+        if (value == null && nOperador.getNombre() != null) {
+            cambios = cambios + "\n Se le quita el nombre, antes tenia: " + nOperador.getNombre();
+        } else if (value != null && nOperador.getNombre() == null) {
             value = value.trim().toUpperCase();
-            cambios = cambios + "\n Se le asigna una nueva referencia, antes no tenía tenia, ahora tiene:  " + value;
-        } else if (value != null && !value.equals(nOperador.getReferencia())) {
+            cambios = cambios + "\n Se le asigna una nuevo nombre, antes no tenía tenia, ahora tiene:  " + value;
+        } else if (value != null && !value.equals(nOperador.getNombre())) {
             value = value.trim().toUpperCase();
-            cambios = cambios + "\n Se le cambia la referencia, antes tenia: " + nOperador.getReferencia() + " y ahora tiene: " + value;
+            cambios = cambios + "\n Se le cambia el nombre, antes tenia: " + nOperador.getNombre() + " y ahora tiene: " + value;
         }
 
-        value = txtNombre.getValue().trim().toUpperCase();
+        nOperador.setNombre(value);
+        nOperador.setRazonSocial(value);
+
+        value = txtCif.getValue().trim().toUpperCase();
 
         if (value != null) {
             value = value.trim().toUpperCase();
         }
 
-        if (value == null && nOperador.getDescripcion() != null) {
-            cambios = cambios + "\n Se le quita la descripción, antes tenia: " + nOperador.getDescripcion();
-        } else if (value != null && nOperador.getDescripcion() == null) {
-            cambios = cambios + "\n Se le asigna una nueva descripción,  antes no tenía tenia, ahora tiene:  " + value;
-        } else if (value != null && !value.equals(nOperador.getDescripcion())) {
-            cambios = cambios + "\n Se le cambia la descripción, antes tenia: " + nOperador.getDescripcion() + " y ahora tiene: " + value;
+        if (value == null && nOperador.getCif() != null) {
+            cambios = cambios + "\n Se le quita el CIF, antes tenia: " + nOperador.getCif();
+        } else if (value != null && nOperador.getCif() == null) {
+            cambios = cambios + "\n Se le asigna un nuevo CIF,  antes no tenía tenia, ahora tiene:  " + value;
+        } else if (value != null && !value.equals(nOperador.getCif())) {
+            cambios = cambios + "\n Se le cambia el CIF, antes tenia: " + nOperador.getCif() + " y ahora tiene: " + value;
         }
 
-        nOperador.setDescripcion(value);
+        nOperador.setCif(value);
 
-        value = txtLer.getValue();
+        value = txtCiudad.getValue();
 
-        if (value == null && nOperador.getLer() != null) {
-            cambios = cambios + "\n Se le quita el LER, antes tenia: " + nOperador.getLer();
-        } else if (value != null && nOperador.getLer() == null) {
+        if (value == null && nOperador.getCiudad() != null) {
+            cambios = cambios + "\n Se le quita la ciudad, antes tenia: " + nOperador.getCiudad();
+        } else if (value != null && nOperador.getCiudad() == null) {
             value = value.trim().toUpperCase();
-            cambios = cambios + "\n Se le asigna un nuevo LER, antes no tenía tenia, ahora tiene:  " + value;
-        } else if (value != null && !value.equals(nOperador.getLer())) {
+            cambios = cambios + "\n Se le asigna una nueva ciudad, antes no tenía tenia, ahora tiene:  " + value;
+        } else if (value != null && !value.equals(nOperador.getCiudad())) {
             value = value.trim().toUpperCase();
-            cambios = cambios + "\n Se le cambia el LER, antes tenia: " + nOperador.getLer() + " y ahora tiene: " + value;
+            cambios = cambios + "\n Se le cambia la ciudad, antes tenia: " + nOperador.getCiudad() + " y ahora tiene: " + value;
         }
 
-        nOperador.setLer(value);
+        nOperador.setCiudad(value);
 
-        if (!((TIva) cbIva.getValue()).getId().equals(nOperador.getIva())) {
-            cambios = cambios + "\n Se le cambia el IVA, antes tenia: " + nOperador.getIva() + " ahora tiene: " + ((TIva) cbIva.getValue()).getId();
+        value = txtCp.getValue();
+
+        if (value == null && nOperador.getCodigoPostal() != null) {
+            cambios = cambios + "\n Se le quita el codigo postal, antes tenia: " + nOperador.getCodigoPostal();
+        } else if (value != null && nOperador.getCodigoPostal() == null) {
+            value = value.trim().toUpperCase();
+            cambios = cambios + "\n Se le asigna un nuevo codigo postal, antes no tenía tenia, ahora tiene:  " + value;
+        } else if (value != null && !value.equals(nOperador.getCodigoPostal())) {
+            value = value.trim().toUpperCase();
+            cambios = cambios + "\n Se le cambia el codigo postal, antes tenia: " + nOperador.getCodigoPostal() + " y ahora tiene: " + value;
         }
 
-        nOperador.setIva(((TIva) cbIva.getValue()).getId());
+        nOperador.setCodigoPostal(value);
 
-        Double prec = Utils.formatearValorDouble(txtPrecio.getValue().trim());
+        value = txtProvincia.getValue();
 
-        if (!prec.equals(nOperador.getPrecio())) {
-            cambios = cambios + "\n Se le cambia el precio, antes tenia: " + nOperador.getPrecio() + " ahora tiene: " + prec;
+        if (value == null && nOperador.getProvincia() != null) {
+            cambios = cambios + "\n Se le quita la provincia, antes tenia: " + nOperador.getProvincia();
+        } else if (value != null && nOperador.getProvincia() == null) {
+            value = value.trim().toUpperCase();
+            cambios = cambios + "\n Se le asigna una nueva provincia, antes no tenía tenia, ahora tiene:  " + value;
+        } else if (value != null && !value.equals(nOperador.getProvincia())) {
+            value = value.trim().toUpperCase();
+            cambios = cambios + "\n Se le cambia la provincia, antes tenia: " + nOperador.getProvincia() + " y ahora tiene: " + value;
         }
+
+        nOperador.setProvincia(value);
+
+        value = txtDireccion.getValue();
+
+        if (value == null && nOperador.getDireccion() != null) {
+            cambios = cambios + "\n Se le quita la dirección, antes tenia: " + nOperador.getDireccion();
+        } else if (value != null && nOperador.getDireccion() == null) {
+            value = value.trim().toUpperCase();
+            cambios = cambios + "\n Se le asigna una nueva dirección, antes no tenía tenia, ahora tiene:  " + value;
+        } else if (value != null && !value.equals(nOperador.getDireccion())) {
+            value = value.trim().toUpperCase();
+            cambios = cambios + "\n Se le cambia la dirección, antes tenia: " + nOperador.getDireccion() + " y ahora tiene: " + value;
+        }
+
+        nOperador.setDireccion(value);
 
         if (!cambios.isEmpty()) {
             nOperador.setFechaModifica(Utils.generarFecha());
@@ -513,7 +530,7 @@ public class VistaOperador extends CustomComponent implements View ,Button.Click
      * @return true si no se cumple la validación
      */
     private boolean validarCamposObligatorios() {
-        return !cbEstado.isValid() || !txtNombre.isValid() || !txtReferencia.isValid() || !txtLer.isValid() || !txtPrecio.isValid() || !cbIva.isValid();
+        return !cbEstado.isValid() || !txtCif.isValid() || !txtRazonSocial.isValid() || !txtDireccion.isValid() || !txtCp.isValid() || !txtProvincia.isValid() || !txtCiudad.isValid();
     }
 
 }

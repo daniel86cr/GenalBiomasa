@@ -176,10 +176,10 @@ public class VistaListadoMateriales extends CustomComponent implements View ,But
                 viewLayout.setSizeFull();
 
                 // Creamos y añadimos el logo de Brostel a la pantalla
-                HorizontalLayout imgNaturSoft = contrVista.logoGenaSoft();
+                HorizontalLayout imgGenaSoft = contrVista.logoGenaSoft();
 
-                viewLayout.addComponent(imgNaturSoft);
-                viewLayout.setComponentAlignment(imgNaturSoft, Alignment.TOP_RIGHT);
+                viewLayout.addComponent(imgGenaSoft);
+                viewLayout.setComponentAlignment(imgGenaSoft, Alignment.TOP_RIGHT);
                 viewLayout.addComponent(titulo);
                 viewLayout.setComponentAlignment(titulo, Alignment.TOP_CENTER);
 

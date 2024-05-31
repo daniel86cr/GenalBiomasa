@@ -144,6 +144,14 @@ public class ClientesSetup implements Serializable {
     }
 
     /**
+     * Método que nos retorna los clientes existentes en el sistema.
+     * @return Los clientes encontrados
+     */
+    public List<TClientesVista> obtenerTodosClientesVista() {
+        return convertirClientesVista(tClientesMapper.obtenerTodosClientes());
+    }
+
+    /**
      * Método que nos retorna los clientes activos en el sistema.
      * @return Los clientes activos encontrados
      */
@@ -274,7 +282,7 @@ public class ClientesSetup implements Serializable {
         TClientes aux = obtenerClientePorNombre(cl.getNombre());
         if (aux == null || (cl.getId() != null && cl.getId().equals(aux.getId()))) {
             aux = obtenerClientePorCif(cl.getCif());
-            if (aux != null && (cl.getId() != null && cl.getId().equals(aux.getId()))) {
+            if (aux != null && (cl.getId() != null && !cl.getId().equals(aux.getId()))) {
                 result = Constants.CLIENTE_EXISTE_CIF;
             }
         } else {

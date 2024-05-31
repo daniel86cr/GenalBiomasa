@@ -260,10 +260,10 @@ public class VistaNuevoEmpleado extends CustomComponent implements View ,Button.
                 VerticalLayout viewLayout = new VerticalLayout(new Menu(permisos, empleado.getId()));
                 viewLayout.setSizeFull();
                 // Creamos y añadimos el logo de Genasoft a la pantalla
-                HorizontalLayout imgNaturSoft = contrVista.logoGenaSoft();
+                HorizontalLayout imgGenaSoft = contrVista.logoGenaSoft();
 
-                viewLayout.addComponent(imgNaturSoft);
-                viewLayout.setComponentAlignment(imgNaturSoft, Alignment.TOP_RIGHT);
+                viewLayout.addComponent(imgGenaSoft);
+                viewLayout.setComponentAlignment(imgGenaSoft, Alignment.TOP_RIGHT);
                 viewLayout.addComponent(titulo);
                 viewLayout.setComponentAlignment(titulo, Alignment.TOP_CENTER);
 

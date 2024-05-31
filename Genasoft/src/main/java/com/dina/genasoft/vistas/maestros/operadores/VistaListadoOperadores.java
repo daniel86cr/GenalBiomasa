@@ -184,14 +184,14 @@ public class VistaListadoOperadores extends CustomComponent implements View ,But
                 viewLayout.setSizeFull();
 
                 // Creamos y añadimos el logo de Brostel a la pantalla
-                HorizontalLayout imgNaturSoft = contrVista.logoGenaSoft();
+                HorizontalLayout imgGenaSoft = contrVista.logoGenaSoft();
 
-                viewLayout.addComponent(imgNaturSoft);
-                viewLayout.setComponentAlignment(imgNaturSoft, Alignment.TOP_RIGHT);
+                viewLayout.addComponent(imgGenaSoft);
+                viewLayout.setComponentAlignment(imgGenaSoft, Alignment.TOP_RIGHT);
                 viewLayout.addComponent(titulo);
                 viewLayout.setComponentAlignment(titulo, Alignment.TOP_CENTER);
 
-                crearTablaMateriales(permisos);
+                crearTablaTransportistas(permisos);
 
                 lOperadores = contrVista.obtenerTodosOperadoresVista(user, time);
 
@@ -369,8 +369,8 @@ public class VistaListadoOperadores extends CustomComponent implements View ,But
      * Método que se encaerga de crear y montar el grid.
      * @return El Grid con las columnas.
      */
-    private void crearTablaMateriales(TPermisos permisos) {
-        tablaOperadores = new TablaGenerica(new Object[] { "nombre", "cif", "direccion", "codigoPostal", "provincia", "fechaCrea", "fechaModifica", "estado" }, new String[] { "Razón social", "CIF", "Dirección", "Precio", "CP", "Provincia", "Fecha alta", "Fecha ult. Modificación", "Estado" }, bcOperadores);
+    private void crearTablaTransportistas(TPermisos permisos) {
+        tablaOperadores = new TablaGenerica(new Object[] { "nombre", "cif", "direccion", "codigoPostal", "provincia", "fechaCrea", "fechaModifica", "estado" }, new String[] { "Razón social", "CIF", "Dirección", "CP", "Provincia", "Fecha alta", "Fecha ult. Modificación", "Estado" }, bcOperadores);
         tablaOperadores.addStyleName("big striped");
         tablaOperadores.setPageLength(25);
 
