@@ -5,6 +5,8 @@
  */
 package com.dina.genasoft.vistas.maestros.clientes;
 
+import java.util.List;
+
 import javax.annotation.PostConstruct;
 
 import org.mybatis.spring.MyBatisSystemException;
@@ -13,16 +15,20 @@ import org.springframework.beans.factory.annotation.Value;
 
 import com.dina.genasoft.configuration.Constants;
 import com.dina.genasoft.controller.ControladorVistas;
+import com.dina.genasoft.db.entity.TClientes;
 import com.dina.genasoft.db.entity.TEmpleados;
+import com.dina.genasoft.db.entity.TMateriales;
 import com.dina.genasoft.db.entity.TOperadores;
 import com.dina.genasoft.db.entity.TPermisos;
-import com.dina.genasoft.db.entity.TRegistrosCambiosOperadores;
+import com.dina.genasoft.db.entity.TRegistrosCambiosClientes;
 import com.dina.genasoft.exception.GenasoftException;
 import com.dina.genasoft.utils.Utils;
 import com.dina.genasoft.utils.enums.OperadorEnum;
 import com.dina.genasoft.vistas.Menu;
 import com.dina.genasoft.vistas.VistaInicioSesion;
 import com.vaadin.annotations.Theme;
+import com.vaadin.data.Property.ValueChangeEvent;
+import com.vaadin.data.Property.ValueChangeListener;
 import com.vaadin.data.fieldgroup.BeanFieldGroup;
 import com.vaadin.navigator.View;
 import com.vaadin.navigator.ViewChangeListener.ViewChangeEvent;
@@ -35,17 +41,19 @@ import com.vaadin.spring.annotation.UIScope;
 import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Button.ClickEvent;
+import com.vaadin.ui.Button.ClickListener;
 import com.vaadin.ui.ComboBox;
 import com.vaadin.ui.CustomComponent;
 import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.Label;
+import com.vaadin.ui.ListSelect;
 import com.vaadin.ui.Notification;
 import com.vaadin.ui.TextField;
 import com.vaadin.ui.VerticalLayout;
 
 /**
  * @author Daniel Carmona Romero
- * Vista para mostrar/visualizar un operador.
+ * Vista para mostrar/visualizar un cliente.
  */
 @SuppressWarnings("serial")
 @Theme("Genal")
@@ -56,17 +64,21 @@ public class VistaCliente extends CustomComponent implements View ,Button.ClickL
     @Autowired
     private ControladorVistas             contrVista;
     /** El nombre de la vista.*/
-    public static final String            NAME     = "vOperador";
-    /** Para los campos que componen un operador.*/
-    private BeanFieldGroup<TOperadores>   binder;
+    public static final String            NAME           = "vCliente";
+    /** Para los campos que componen un cliente.*/
+    private BeanFieldGroup<TClientes>     binder;
     /** El boton para crear el operador.*/
     private Button                        modificarButton;
-    /** El boton para volver al listado de operadores.*/
+    /** El boton para volver al listado de clientes.*/
     private Button                        listadoButton;
     /** Combobox para los estados.*/
     private ComboBox                      cbEstado;
-    /** El operador a modificar.*/
-    private TOperadores                   nOperador;
+    /** Combobox para los materiales.*/
+    private ComboBox                      cbMateriales;
+    /** Combobox para los materiales.*/
+    private ComboBox                      cbOperadores;
+    /** El cliente a modificar.*/
+    private TClientes                     nClientes;
     /** Contendrá el nombre de la aplicación.*/
     @Value("${app.name}")
     private String                        appName;
@@ -74,34 +86,52 @@ public class VistaCliente extends CustomComponent implements View ,Button.ClickL
     @Value("${app.width}")
     private Integer                       appWidth;
     /** El log de la aplicación.*/
-    private static final org.slf4j.Logger log      = org.slf4j.LoggerFactory.getLogger(VistaCliente.class);
+    private static final org.slf4j.Logger log            = org.slf4j.LoggerFactory.getLogger(VistaCliente.class);
     // Los campos obligatorios
     /** La caja de texto para la referencia .*/
     private TextField                     txtRazonSocial;
     /** La caja de texto para el nombre.*/
     private TextField                     txtCif;
-    /** La caja de texto para el LER.*/
-    private TextField                     txtDireccion;
-    /** La caja de texto para el precio.*/
-    private TextField                     txtCiudad;
-    /** La caja de texto para el precio.*/
-    private TextField                     txtCp;
-    /** La caja de texto para el precio.*/
-    private TextField                     txtProvincia;
     /** Los permisos del empleado actual. */
-    private TPermisos                     permisos = null;
+    private TPermisos                     permisos       = null;
     /** El usuario que está logado. */
-    private Integer                       user     = null;
+    private Integer                       user           = null;
     /** La fecha en que se inició sesión. */
-    private Long                          time     = null;
-    /** Contendrá los cambios que se aplican al operador. */
-    private String                        cambios;
+    private Long                          time           = null;
     private TEmpleados                    empleado;
+    /** Botones superiores. **/
+    /** El botón principal del segmento. Muestra la información principal del cliente.*/
+    private Button                        principalButton;
+    /** Muestra la información relacionada con los materiales del cliente.*/
+    private Button                        materialesButton;
+    /** Muestra la información relacionada con los operadores del cliente.*/
+    private Button                        operadoresButton;
+    /** El boton para crear la dirección de descarga del cliente.*/
+    private Button                        crearDireccionButton;
+    /** Container que mostrará los campos relacionado con la información principal del cliente. */
+    private VerticalLayout                infoPrincipal  = null;
+    /** Container que mostrará los campos relacionado con la información de materiales del cliente. */
+    private VerticalLayout                infoMateriales = null;
+    /** Container que mostrará los campos relacionado con la información de operadores del cliente. */
+    private VerticalLayout                infoOperadores = null;
+    /** ListSelect para añadir los materiales para los materiales. */
+    private ListSelect                    lsMateriales;
+    /** ListSelect para añadir los materiales para los materiales. */
+    private ListSelect                    lsOperadores;
+    /** Lista con los materiales activos del sistema. */
+    private List<TMateriales>             lMateriales;
+    /** Lista con los operadores activos del sistema. */
+    private List<TOperadores>             lOperadores;
+    /** Lista con los materiales activos del sistema. */
+    private List<TMateriales>             lMaterialesAsignados;
+    /** Lista con los operadores activos del sistema. */
+    private List<TOperadores>             lOperadoresAsignados;
+    private String                        cambios;
 
     @Override
     public void buttonClick(ClickEvent event) {
         if (event.getButton().equals(modificarButton)) {
-            // Creamos el evento para modificar un nuevo operador con los datos introducidos en el formulario
+            // Creamos el evento para modificar un nuevo cliente con los datos introducidos en el formulario
             try {
                 if (validarCamposObligatorios()) {
                     Notification aviso = new Notification("Se debe informar los campos marcados con '*'", Notification.Type.ASSISTIVE_NOTIFICATION);
@@ -112,19 +142,19 @@ public class VistaCliente extends CustomComponent implements View ,Button.ClickL
 
                 // Construimos el objeto operador a partir de los datos introducidos en el formulario.
                 construirBean();
-                String result = contrVista.modificarOperador(nOperador, user, time);
+                String result = contrVista.modificarCliente(nClientes, user, time);
                 if (result.equals(Constants.OPERACION_OK)) {
 
                     // Si hay cambios, guardamos los cambios en el registro de cambios
                     if (!cambios.isEmpty()) {
 
-                        TRegistrosCambiosOperadores record = new TRegistrosCambiosOperadores();
+                        TRegistrosCambiosClientes record = new TRegistrosCambiosClientes();
                         record.setCambio(cambios);
                         record.setFechaCambio(Utils.generarFecha());
-                        record.setIdOperador(nOperador.getId());
+                        record.setIdCliente(nClientes.getId());
                         record.setUsuCrea(user);
 
-                        contrVista.crearRegistroCambioOperador(record, user, time);
+                        contrVista.crearRegistroCambioCliente(record, user, time);
                     }
                     result = contrVista.obtenerDescripcionCodigo(result);
                     Notification aviso = new Notification(result, Notification.Type.ASSISTIVE_NOTIFICATION);
@@ -192,7 +222,7 @@ public class VistaCliente extends CustomComponent implements View ,Button.ClickL
 
         if (time != null) {
             try {
-                binder = new BeanFieldGroup<>(TOperadores.class);
+                binder = new BeanFieldGroup<>(TClientes.class);
 
                 empleado = contrVista.obtenerEmpleadoPorId(user, user, time);
 
@@ -221,33 +251,55 @@ public class VistaCliente extends CustomComponent implements View ,Button.ClickL
                 crearBotones();
                 // Creamos los combos de la pantalla.
                 crearCombos();
+
+                // Creamos los botones superiores
+                crearBotonesMenu();
                 //El fieldgroup no es un componente
+
+                // Obtenemos los materiales activos del sistema.
+                lMateriales = contrVista.obtenerMaterialesActivos(user, time);
+                lMaterialesAsignados = contrVista.obtenerMaterialesAsignadosCliente(nClientes.getId(), user, time);
+                lOperadoresAsignados = contrVista.obtenerOperadoresAsignadosCliente(nClientes.getId(), user, time);
+
+                // Obtenemos los operadores activos del sistema.
+                lOperadores = contrVista.obtenerOperadoresActivos(user, time);
 
                 String parametros = event.getParameters();
 
                 if (parametros != null && !parametros.isEmpty()) {
-                    nOperador = contrVista.obtenerOperadorPorId(Integer.valueOf(parametros), user, time);
+                    nClientes = contrVista.obtenerClientePorId(Integer.valueOf(parametros), user, time);
                 } else {
                     parametros = null;
                 }
 
-                if (nOperador == null) {
-                    Notification aviso = new Notification("No se ha encontrado el operador.", Notification.Type.ERROR_MESSAGE);
+                if (nClientes == null) {
+                    Notification aviso = new Notification("No se ha encontrado el cliente.", Notification.Type.ERROR_MESSAGE);
                     aviso.setPosition(Position.MIDDLE_CENTER);
                     aviso.show(Page.getCurrent());
                     getUI().getNavigator().navigateTo(VistaListadoClientes.NAME);
                     return;
                 }
 
-                binder.setItemDataSource(nOperador);
+                binder.setItemDataSource(nClientes);
+                // Creamos los combos de la pantalla.
+                crearCombos();
 
                 // Creamos los botones de la pantalla.
                 crearBotones();
 
-                // Creamos los componetes que conforman la pantalla.
-                crearComponentes(parametros);
+                // Creamos los botones superiores
+                crearBotonesMenu();
 
-                Label texto = new Label(nOperador.getNombre());
+                // Creamos los componetes que conforman la pantalla.
+                crearComponentes();
+
+                // Generamos las partes de la intefaz.
+
+                generaInformacionPrincipal();
+                generaInformacionMateriales();
+                generaInformacioOperadores();
+
+                Label texto = new Label(nClientes.getNombre());
                 texto.setStyleName("tituloTamano18");
                 texto.setHeight(4, Sizeable.Unit.EM);
                 Label texto2 = new Label(" ");
@@ -348,6 +400,86 @@ public class VistaCliente extends CustomComponent implements View ,Button.ClickL
         modificarButton.addStyleName("big");
         listadoButton = new Button("Volver al listado", this);
         listadoButton.addStyleName("big");
+
+        // Direcciones
+        crearDireccionButton = new Button("Crear dirección", this);
+        crearDireccionButton.addStyleName("big");
+    }
+
+    /**
+     * Método que nos genera el contenedor con los botones que conforma el segmento del menú de cliente. 
+     * @return El contenedor con los botones.
+     */
+    private HorizontalLayout crearBotonesMenu() {
+        HorizontalLayout botonesMenu = new HorizontalLayout();
+        botonesMenu.setStyleName("segment");
+        botonesMenu.addStyleName("segment-alternate");
+
+        // Los botones que componen el menú.
+        principalButton = new Button("Información principal");
+        principalButton.addStyleName("default");
+        principalButton.addStyleName("first");
+        principalButton.addStyleName("down");
+
+        // Infiormación principal
+        principalButton.addClickListener(new ClickListener() {
+
+            public void buttonClick(ClickEvent event) {
+                if (!infoPrincipal.isVisible()) {
+                    infoPrincipal.setVisible(true);
+                    infoOperadores.setVisible(false);
+                    infoMateriales.setVisible(false);
+                    principalButton.addStyleName("down");
+                    materialesButton.setStyleName("default");
+                    operadoresButton.setStyleName("default");
+                    modificarButton.setVisible(true);
+                }
+            }
+        });
+
+        materialesButton = new Button("Materiales");
+        materialesButton.addStyleName("default");
+
+        materialesButton.addClickListener(new ClickListener() {
+
+            public void buttonClick(ClickEvent event) {
+                if (!infoMateriales.isVisible()) {
+                    infoMateriales.setVisible(true);
+                    infoPrincipal.setVisible(false);
+                    infoOperadores.setVisible(false);
+                    principalButton.addStyleName("default");
+                    materialesButton.setStyleName("down");
+                    operadoresButton.setStyleName("default");
+                    modificarButton.setVisible(false);
+                }
+            }
+        });
+
+        operadoresButton = new Button("Operadores");
+        operadoresButton.addStyleName("default");
+
+        operadoresButton.addClickListener(new ClickListener() {
+
+            public void buttonClick(ClickEvent event) {
+                if (!infoOperadores.isVisible()) {
+                    infoOperadores.setVisible(true);
+                    infoMateriales.setVisible(false);
+                    infoPrincipal.setVisible(false);
+                    principalButton.addStyleName("default");
+                    materialesButton.setStyleName("default");
+                    operadoresButton.setStyleName("down");
+                    modificarButton.setVisible(false);
+
+                }
+            }
+        });
+
+        botonesMenu.addComponent(principalButton);
+        botonesMenu.addComponent(materialesButton);
+        botonesMenu.addComponent(operadoresButton);
+
+        // Retornamos el segmento de botones.
+        return botonesMenu;
     }
 
     /**
@@ -356,12 +488,19 @@ public class VistaCliente extends CustomComponent implements View ,Button.ClickL
     private void crearCombos() {
         // Combo box para el estado.
         cbEstado = new ComboBox();
+        cbEstado.addStyleName("big");
+
+        cbMateriales = new ComboBox();
+        cbMateriales.addStyleName("big");
+
+        cbOperadores = new ComboBox();
+        cbOperadores.addStyleName("big");
     }
 
     /**
      * Método que nos crea los componetes que conforman la pantalla.
      */
-    private void crearComponentes(String nombre) {
+    private void crearComponentes() {
         //Los campos que componen un operador.
 
         // La razón social.
@@ -378,39 +517,11 @@ public class VistaCliente extends CustomComponent implements View ,Button.ClickL
         txtCif.setWidth(appWidth, Sizeable.Unit.EM);
         txtCif.setMaxLength(45);
 
-        // Dirección
-        txtDireccion = (TextField) binder.buildAndBind("Dirección:", "direccion");
-        txtDireccion.setNullRepresentation("");
-        txtDireccion.setRequired(true);
-        txtDireccion.setWidth(appWidth, Sizeable.Unit.EM);
-        txtDireccion.setMaxLength(445);
-
-        // El código postal.
-        txtCp = (TextField) binder.buildAndBind("Código postal: ", "codigoPostal");
-        txtCp.setNullRepresentation("");
-        txtCp.setWidth(appWidth, Sizeable.Unit.EM);
-        txtCp.setRequired(true);
-        txtCp.setMaxLength(245);
-
-        // Ciudad.
-        txtCiudad = (TextField) binder.buildAndBind("Ciudad: ", "ciudad");
-        txtCiudad.setNullRepresentation("");
-        txtCiudad.setWidth(appWidth, Sizeable.Unit.EM);
-        txtCiudad.setRequired(true);
-        txtCiudad.setMaxLength(445);
-
-        // Provincia.
-        txtProvincia = (TextField) binder.buildAndBind("Provincia: ", "provincia");
-        txtProvincia.setNullRepresentation("");
-        txtProvincia.setWidth(appWidth, Sizeable.Unit.EM);
-        txtProvincia.setRequired(true);
-        txtProvincia.setMaxLength(445);
-
         // Los estados.
         cbEstado.setCaption("Estado:");
         cbEstado.addItem(Constants.ACTIVO);
         cbEstado.addItem(Constants.DESACTIVADO);
-        cbEstado.setValue(nOperador.getEstado().equals(OperadorEnum.ACTIVO.getValue()) ? Constants.ACTIVO : Constants.DESACTIVADO);
+        cbEstado.setValue(nClientes.getEstado().equals(OperadorEnum.ACTIVO.getValue()) ? Constants.ACTIVO : Constants.DESACTIVADO);
         cbEstado.setFilteringMode(FilteringMode.CONTAINS);
         cbEstado.setRequired(true);
         cbEstado.setNullSelectionAllowed(false);
@@ -424,27 +535,27 @@ public class VistaCliente extends CustomComponent implements View ,Button.ClickL
     private void construirBean() throws GenasoftException {
         cambios = "";
         Integer estado = cbEstado.getValue().equals(Constants.ACTIVO) ? 1 : 0;
-        if (!nOperador.getEstado().equals(estado)) {
-            cambios = "Se cambia el estado del operador, pasa de " + nOperador.getEstado() + " a " + estado;
+        if (!nClientes.getEstado().equals(estado)) {
+            cambios = "Se cambia el estado del operador, pasa de " + nClientes.getEstado() + " a " + estado;
         }
-        nOperador.setEstado(cbEstado.getValue().equals(Constants.ACTIVO) ? 1 : 0);
+        nClientes.setEstado(cbEstado.getValue().equals(Constants.ACTIVO) ? 1 : 0);
         String value = txtRazonSocial.getValue();
 
         if (value != null) {
             value = value.trim().toUpperCase();
         }
-        if (value == null && nOperador.getNombre() != null) {
-            cambios = cambios + "\n Se le quita el nombre, antes tenia: " + nOperador.getNombre();
-        } else if (value != null && nOperador.getNombre() == null) {
+        if (value == null && nClientes.getNombre() != null) {
+            cambios = cambios + "\n Se le quita el nombre, antes tenia: " + nClientes.getNombre();
+        } else if (value != null && nClientes.getNombre() == null) {
             value = value.trim().toUpperCase();
             cambios = cambios + "\n Se le asigna una nuevo nombre, antes no tenía tenia, ahora tiene:  " + value;
-        } else if (value != null && !value.equals(nOperador.getNombre())) {
+        } else if (value != null && !value.equals(nClientes.getNombre())) {
             value = value.trim().toUpperCase();
-            cambios = cambios + "\n Se le cambia el nombre, antes tenia: " + nOperador.getNombre() + " y ahora tiene: " + value;
+            cambios = cambios + "\n Se le cambia el nombre, antes tenia: " + nClientes.getNombre() + " y ahora tiene: " + value;
         }
 
-        nOperador.setNombre(value);
-        nOperador.setRazonSocial(value);
+        nClientes.setNombre(value);
+        nClientes.setRazonSocial(value);
 
         value = txtCif.getValue().trim().toUpperCase();
 
@@ -452,75 +563,75 @@ public class VistaCliente extends CustomComponent implements View ,Button.ClickL
             value = value.trim().toUpperCase();
         }
 
-        if (value == null && nOperador.getCif() != null) {
-            cambios = cambios + "\n Se le quita el CIF, antes tenia: " + nOperador.getCif();
-        } else if (value != null && nOperador.getCif() == null) {
+        if (value == null && nClientes.getCif() != null) {
+            cambios = cambios + "\n Se le quita el CIF, antes tenia: " + nClientes.getCif();
+        } else if (value != null && nClientes.getCif() == null) {
             cambios = cambios + "\n Se le asigna un nuevo CIF,  antes no tenía tenia, ahora tiene:  " + value;
-        } else if (value != null && !value.equals(nOperador.getCif())) {
-            cambios = cambios + "\n Se le cambia el CIF, antes tenia: " + nOperador.getCif() + " y ahora tiene: " + value;
+        } else if (value != null && !value.equals(nClientes.getCif())) {
+            cambios = cambios + "\n Se le cambia el CIF, antes tenia: " + nClientes.getCif() + " y ahora tiene: " + value;
         }
 
-        nOperador.setCif(value);
+        nClientes.setCif(value);
 
         value = txtCiudad.getValue();
 
-        if (value == null && nOperador.getCiudad() != null) {
-            cambios = cambios + "\n Se le quita la ciudad, antes tenia: " + nOperador.getCiudad();
-        } else if (value != null && nOperador.getCiudad() == null) {
+        if (value == null && nClientes.getCiudad() != null) {
+            cambios = cambios + "\n Se le quita la ciudad, antes tenia: " + nClientes.getCiudad();
+        } else if (value != null && nClientes.getCiudad() == null) {
             value = value.trim().toUpperCase();
             cambios = cambios + "\n Se le asigna una nueva ciudad, antes no tenía tenia, ahora tiene:  " + value;
-        } else if (value != null && !value.equals(nOperador.getCiudad())) {
+        } else if (value != null && !value.equals(nClientes.getCiudad())) {
             value = value.trim().toUpperCase();
-            cambios = cambios + "\n Se le cambia la ciudad, antes tenia: " + nOperador.getCiudad() + " y ahora tiene: " + value;
+            cambios = cambios + "\n Se le cambia la ciudad, antes tenia: " + nClientes.getCiudad() + " y ahora tiene: " + value;
         }
 
-        nOperador.setCiudad(value);
+        nClientes.setCiudad(value);
 
         value = txtCp.getValue();
 
-        if (value == null && nOperador.getCodigoPostal() != null) {
-            cambios = cambios + "\n Se le quita el codigo postal, antes tenia: " + nOperador.getCodigoPostal();
-        } else if (value != null && nOperador.getCodigoPostal() == null) {
+        if (value == null && nClientes.getCodigoPostal() != null) {
+            cambios = cambios + "\n Se le quita el codigo postal, antes tenia: " + nClientes.getCodigoPostal();
+        } else if (value != null && nClientes.getCodigoPostal() == null) {
             value = value.trim().toUpperCase();
             cambios = cambios + "\n Se le asigna un nuevo codigo postal, antes no tenía tenia, ahora tiene:  " + value;
-        } else if (value != null && !value.equals(nOperador.getCodigoPostal())) {
+        } else if (value != null && !value.equals(nClientes.getCodigoPostal())) {
             value = value.trim().toUpperCase();
-            cambios = cambios + "\n Se le cambia el codigo postal, antes tenia: " + nOperador.getCodigoPostal() + " y ahora tiene: " + value;
+            cambios = cambios + "\n Se le cambia el codigo postal, antes tenia: " + nClientes.getCodigoPostal() + " y ahora tiene: " + value;
         }
 
-        nOperador.setCodigoPostal(value);
+        nClientes.setCodigoPostal(value);
 
         value = txtProvincia.getValue();
 
-        if (value == null && nOperador.getProvincia() != null) {
-            cambios = cambios + "\n Se le quita la provincia, antes tenia: " + nOperador.getProvincia();
-        } else if (value != null && nOperador.getProvincia() == null) {
+        if (value == null && nClientes.getProvincia() != null) {
+            cambios = cambios + "\n Se le quita la provincia, antes tenia: " + nClientes.getProvincia();
+        } else if (value != null && nClientes.getProvincia() == null) {
             value = value.trim().toUpperCase();
             cambios = cambios + "\n Se le asigna una nueva provincia, antes no tenía tenia, ahora tiene:  " + value;
-        } else if (value != null && !value.equals(nOperador.getProvincia())) {
+        } else if (value != null && !value.equals(nClientes.getProvincia())) {
             value = value.trim().toUpperCase();
-            cambios = cambios + "\n Se le cambia la provincia, antes tenia: " + nOperador.getProvincia() + " y ahora tiene: " + value;
+            cambios = cambios + "\n Se le cambia la provincia, antes tenia: " + nClientes.getProvincia() + " y ahora tiene: " + value;
         }
 
-        nOperador.setProvincia(value);
+        nClientes.setProvincia(value);
 
         value = txtDireccion.getValue();
 
-        if (value == null && nOperador.getDireccion() != null) {
-            cambios = cambios + "\n Se le quita la dirección, antes tenia: " + nOperador.getDireccion();
-        } else if (value != null && nOperador.getDireccion() == null) {
+        if (value == null && nClientes.getDireccion() != null) {
+            cambios = cambios + "\n Se le quita la dirección, antes tenia: " + nClientes.getDireccion();
+        } else if (value != null && nClientes.getDireccion() == null) {
             value = value.trim().toUpperCase();
             cambios = cambios + "\n Se le asigna una nueva dirección, antes no tenía tenia, ahora tiene:  " + value;
-        } else if (value != null && !value.equals(nOperador.getDireccion())) {
+        } else if (value != null && !value.equals(nClientes.getDireccion())) {
             value = value.trim().toUpperCase();
-            cambios = cambios + "\n Se le cambia la dirección, antes tenia: " + nOperador.getDireccion() + " y ahora tiene: " + value;
+            cambios = cambios + "\n Se le cambia la dirección, antes tenia: " + nClientes.getDireccion() + " y ahora tiene: " + value;
         }
 
-        nOperador.setDireccion(value);
+        nClientes.setDireccion(value);
 
         if (!cambios.isEmpty()) {
-            nOperador.setFechaModifica(Utils.generarFecha());
-            nOperador.setUsuModifica(user);
+            nClientes.setFechaModifica(Utils.generarFecha());
+            nClientes.setUsuModifica(user);
         }
 
     }
@@ -531,6 +642,132 @@ public class VistaCliente extends CustomComponent implements View ,Button.ClickL
      */
     private boolean validarCamposObligatorios() {
         return !cbEstado.isValid() || !txtCif.isValid() || !txtRazonSocial.isValid() || !txtDireccion.isValid() || !txtCp.isValid() || !txtProvincia.isValid() || !txtCiudad.isValid();
+    }
+
+    /**
+     * Método que nos crea la parte de la interfaz con la información principal de los clientes
+     */
+    private void generaInformacionPrincipal() {
+        infoPrincipal = new VerticalLayout();
+        infoPrincipal.setSpacing(true);
+        infoPrincipal.setMargin(true);
+
+        HorizontalLayout body = new HorizontalLayout();
+        body.setSpacing(true);
+        body.setMargin(true);
+
+        // Formulario con los campos que componen el empleado.
+        VerticalLayout formulario1 = new VerticalLayout();
+        formulario1.setSpacing(true);
+
+        formulario1.addComponent(txtRazonSocial);
+        formulario1.setComponentAlignment(txtRazonSocial, Alignment.MIDDLE_CENTER);
+        formulario1.addComponent(txtCif);
+        formulario1.setComponentAlignment(txtCif, Alignment.MIDDLE_CENTER);
+        formulario1.addComponent(cbEstado);
+        formulario1.setComponentAlignment(cbEstado, Alignment.MIDDLE_CENTER);
+        body.addComponent(formulario1);
+        body.setComponentAlignment(formulario1, Alignment.MIDDLE_CENTER);
+
+        infoPrincipal.addComponent(body);
+    }
+
+    /**
+     * Método que nos crea la parte de la interfaz con la información principal de los clientes
+     */
+    private void generaInformacionMateriales() {
+        infoMateriales = new VerticalLayout();
+        infoMateriales.setSpacing(true);
+        infoMateriales.setMargin(true);
+
+        HorizontalLayout body = new HorizontalLayout();
+        body.setSpacing(true);
+        body.setMargin(true);
+
+        cbMateriales.setCaption("Material:");
+        cbMateriales.setFilteringMode(FilteringMode.CONTAINS);
+        cbMateriales.setNullSelectionAllowed(false);
+        cbMateriales.setWidth(appWidth, Sizeable.Unit.EM);
+        cbMateriales.addItems(lMateriales);
+
+        cbMateriales.addValueChangeListener(new ValueChangeListener() {
+
+            @Override
+            public void valueChange(ValueChangeEvent event) {
+                if (cbMateriales.getValue() != null) {
+                    lsMateriales.addItem((TMateriales) cbMateriales.getValue());
+                }
+            }
+        });
+
+        lsMateriales = new ListSelect("Materiales asignados");
+        lsMateriales.setWidth(appWidth, Sizeable.Unit.EM);
+        lsMateriales.removeAllItems();
+        lsMateriales.addValueChangeListener(new ValueChangeListener() {
+
+            @Override
+            public void valueChange(ValueChangeEvent event) {
+                if (lsMateriales.getValue() != null) {
+                    lsMateriales.removeItem(lsMateriales.getValue());
+                }
+            }
+        });
+
+        body.addComponent(cbMateriales);
+        body.setComponentAlignment(cbMateriales, Alignment.MIDDLE_CENTER);
+        body.addComponent(lsMateriales);
+        body.setComponentAlignment(lsMateriales, Alignment.MIDDLE_CENTER);
+
+        infoMateriales.addComponent(body);
+    }
+
+    /**
+     * Método que nos crea la parte de la interfaz con la información principal de los clientes
+     */
+    private void generaInformacioOperadores() {
+        infoOperadores = new VerticalLayout();
+        infoOperadores.setSpacing(true);
+        infoOperadores.setMargin(true);
+
+        HorizontalLayout body = new HorizontalLayout();
+        body.setSpacing(true);
+        body.setMargin(true);
+
+        cbOperadores.setCaption("Operador:");
+        cbOperadores.setFilteringMode(FilteringMode.CONTAINS);
+        cbOperadores.setNullSelectionAllowed(false);
+        cbOperadores.setWidth(appWidth, Sizeable.Unit.EM);
+        cbOperadores.addItems(lOperadores);
+
+        cbOperadores.addValueChangeListener(new ValueChangeListener() {
+
+            @Override
+            public void valueChange(ValueChangeEvent event) {
+                if (cbMateriales.getValue() != null) {
+                    lsMateriales.addItem((TOperadores) cbOperadores.getValue());
+                }
+            }
+        });
+
+        lsOperadores = new ListSelect("Operadores asignados");
+        lsOperadores.setWidth(appWidth, Sizeable.Unit.EM);
+        lsOperadores.removeAllItems();
+        lsOperadores.addValueChangeListener(new ValueChangeListener() {
+
+            @Override
+            public void valueChange(ValueChangeEvent event) {
+                if (lsOperadores.getValue() != null) {
+                    lsOperadores.removeItem(lsOperadores.getValue());
+                }
+            }
+        });
+
+        body.addComponent(cbOperadores);
+        body.setComponentAlignment(cbOperadores, Alignment.MIDDLE_CENTER);
+        body.addComponent(lsOperadores);
+        body.setComponentAlignment(lsOperadores, Alignment.MIDDLE_CENTER);
+
+        infoOperadores.addComponent(body);
     }
 
 }

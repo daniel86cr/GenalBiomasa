@@ -5,6 +5,8 @@
  */
 package com.dina.genasoft.vistas.maestros.clientes;
 
+import java.util.List;
+
 import javax.annotation.PostConstruct;
 
 import org.mybatis.spring.MyBatisSystemException;
@@ -15,12 +17,17 @@ import com.dina.genasoft.configuration.Constants;
 import com.dina.genasoft.controller.ControladorVistas;
 import com.dina.genasoft.db.entity.TClientes;
 import com.dina.genasoft.db.entity.TEmpleados;
+import com.dina.genasoft.db.entity.TMateriales;
+import com.dina.genasoft.db.entity.TOperadores;
 import com.dina.genasoft.db.entity.TPermisos;
 import com.dina.genasoft.exception.GenasoftException;
 import com.dina.genasoft.utils.Utils;
 import com.dina.genasoft.vistas.Menu;
 import com.dina.genasoft.vistas.VistaInicioSesion;
+import com.dina.genasoft.vistas.maestros.clientes.direcciones.VistaNuevaDireccionCliente;
 import com.vaadin.annotations.Theme;
+import com.vaadin.data.Property.ValueChangeEvent;
+import com.vaadin.data.Property.ValueChangeListener;
 import com.vaadin.data.fieldgroup.BeanFieldGroup;
 import com.vaadin.navigator.View;
 import com.vaadin.navigator.ViewChangeListener.ViewChangeEvent;
@@ -33,13 +40,18 @@ import com.vaadin.spring.annotation.UIScope;
 import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Button.ClickEvent;
+import com.vaadin.ui.Button.ClickListener;
 import com.vaadin.ui.ComboBox;
 import com.vaadin.ui.CustomComponent;
 import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.Label;
+import com.vaadin.ui.ListSelect;
 import com.vaadin.ui.Notification;
 import com.vaadin.ui.TextField;
 import com.vaadin.ui.VerticalLayout;
+
+import de.steinwedel.messagebox.ButtonOption;
+import de.steinwedel.messagebox.MessageBox;
 
 /**
  * @author Daniel Carmona Romero
@@ -54,7 +66,7 @@ public class VistaNuevoCliente extends CustomComponent implements View ,Button.C
     @Autowired
     private ControladorVistas             contrVista;
     /** El nombre de la vista.*/
-    public static final String            NAME     = "nuevoCliente";
+    public static final String            NAME           = "nuevoCliente";
     /** Para los campos que componen un cliente.*/
     private BeanFieldGroup<TClientes>     binder;
     /** El boton para crear el operador.*/
@@ -74,19 +86,42 @@ public class VistaNuevoCliente extends CustomComponent implements View ,Button.C
     @Value("${app.width}")
     private Integer                       appWidth;
     /** El log de la aplicación.*/
-    private static final org.slf4j.Logger log      = org.slf4j.LoggerFactory.getLogger(VistaNuevoCliente.class);
+    private static final org.slf4j.Logger log            = org.slf4j.LoggerFactory.getLogger(VistaNuevoCliente.class);
     // Los campos obligatorios
     /** La caja de texto para la referencia .*/
     private TextField                     txtRazonSocial;
     /** La caja de texto para el nombre.*/
     private TextField                     txtCif;
     /** Los permisos del empleado actual. */
-    private TPermisos                     permisos = null;
+    private TPermisos                     permisos       = null;
     /** El usuario que está logado. */
-    private Integer                       user     = null;
+    private Integer                       user           = null;
     /** La fecha en que se inició sesión. */
-    private Long                          time     = null;
+    private Long                          time           = null;
     private TEmpleados                    empleado;
+    /** Botones superiores. **/
+    /** El botón principal del segmento. Muestra la información principal del cliente.*/
+    private Button                        principalButton;
+    /** Muestra la información relacionada con los materiales del cliente.*/
+    private Button                        materialesButton;
+    /** Muestra la información relacionada con los operadores del cliente.*/
+    private Button                        operadoresButton;
+    /** El boton para crear la dirección de descarga del cliente.*/
+    private Button                        crearDireccionButton;
+    /** Container que mostrará los campos relacionado con la información principal del cliente. */
+    private VerticalLayout                infoPrincipal  = null;
+    /** Container que mostrará los campos relacionado con la información de materiales del cliente. */
+    private VerticalLayout                infoMateriales = null;
+    /** Container que mostrará los campos relacionado con la información de operadores del cliente. */
+    private VerticalLayout                infoOperadores = null;
+    /** ListSelect para añadir los materiales para los materiales. */
+    private ListSelect                    lsMateriales;
+    /** ListSelect para añadir los materiales para los materiales. */
+    private ListSelect                    lsOperadores;
+    /** Lista con los materiales activos del sistema. */
+    private List<TMateriales>             lMateriales;
+    /** Lista con los operadores activos del sistema. */
+    private List<TOperadores>             lOperadores;
 
     @Override
     public void buttonClick(ClickEvent event) {
@@ -109,6 +144,11 @@ public class VistaNuevoCliente extends CustomComponent implements View ,Button.C
                     aviso.setPosition(Position.MIDDLE_CENTER);
                     aviso.show(Page.getCurrent());
                     inicializarCampos();
+
+                    MessageBox.createQuestion().withCaption(appName).withMessage("¿Quieres crear un nueva dirección de descarga?").withNoButton().withYesButton(() ->
+
+                    getUI().getNavigator().navigateTo(VistaNuevaDireccionCliente.NAME + "/" + cliente.getId()), ButtonOption.caption("Sí")).open();
+
                 } else {
                     result = contrVista.obtenerDescripcionCodigo(result);
                     Notification aviso = new Notification(result, Notification.Type.WARNING_MESSAGE);
@@ -195,6 +235,12 @@ public class VistaNuevoCliente extends CustomComponent implements View ,Button.C
                     return;
                 }
 
+                // Obtenemos los materiales activos del sistema.
+                lMateriales = contrVista.obtenerMaterialesActivos(user, time);
+
+                // Obtenemos los operadores activos del sistema.
+                lOperadores = contrVista.obtenerOperadoresActivos(user, time);
+
                 // Creamos los botones de la pantalla.
                 crearBotones();
 
@@ -207,8 +253,17 @@ public class VistaNuevoCliente extends CustomComponent implements View ,Button.C
                 // Creamos los botones de la pantalla.
                 crearBotones();
 
+                // Creamos los botones superiores
+                crearBotonesMenu();
+
                 // Creamos los componetes que conforman la pantalla.
                 crearComponentes();
+
+                // Generamos las partes de la intefaz.
+
+                generaInformacionPrincipal();
+                generaInformacionMateriales();
+                generaInformacioOperadores();
 
                 Label texto = new Label("Nuevo cliente");
                 texto.setStyleName("tituloTamano18");
@@ -230,24 +285,10 @@ public class VistaNuevoCliente extends CustomComponent implements View ,Button.C
                 viewLayout.addComponent(titulo);
                 viewLayout.setComponentAlignment(titulo, Alignment.TOP_CENTER);
 
-                HorizontalLayout body = new HorizontalLayout();
-                body.setSpacing(true);
-                body.setMargin(true);
-
-                // Formulario con los campos que componen el empleado.
-                VerticalLayout formulario1 = new VerticalLayout();
-                formulario1.setSpacing(true);
-
-                formulario1.addComponent(txtRazonSocial);
-                formulario1.setComponentAlignment(txtRazonSocial, Alignment.MIDDLE_CENTER);
-                formulario1.addComponent(txtCif);
-                formulario1.setComponentAlignment(txtCif, Alignment.MIDDLE_CENTER);
-                formulario1.addComponent(cbEstado);
-                formulario1.setComponentAlignment(cbEstado, Alignment.MIDDLE_CENTER);
-                body.addComponent(formulario1);
-                body.setComponentAlignment(formulario1, Alignment.MIDDLE_CENTER);
-                viewLayout.addComponent(body);
-                viewLayout.setComponentAlignment(body, Alignment.MIDDLE_CENTER);
+                viewLayout.addComponent(crearBotonesMenu());
+                viewLayout.addComponent(infoPrincipal);
+                viewLayout.addComponent(infoMateriales);
+                viewLayout.addComponent(infoOperadores);
                 viewLayout.addComponent(crearButton);
                 viewLayout.setComponentAlignment(crearButton, Alignment.MIDDLE_CENTER);
 
@@ -258,6 +299,10 @@ public class VistaNuevoCliente extends CustomComponent implements View ,Button.C
                 viewLayout.setExpandRatio(titulo, 0.1f);
                 viewLayout.setMargin(true);
                 viewLayout.setSpacing(true);
+
+                infoPrincipal.setVisible(true);
+                infoMateriales.setVisible(false);
+                infoOperadores.setVisible(false);
 
             } catch (MyBatisSystemException e) {
                 Notification aviso = new Notification("No se ha podido establecer conexión con la base de datos.", Notification.Type.ERROR_MESSAGE);
@@ -292,9 +337,85 @@ public class VistaNuevoCliente extends CustomComponent implements View ,Button.C
      */
     private void crearBotones() {
         // Creamos los botones.
-        crearButton = new Button("Crear material", this);
+        crearButton = new Button("Crear cliente", this);
         crearButton.addStyleName("big");
 
+    }
+
+    /**
+     * Método que nos genera el contenedor con los botones que conforma el segmento del menú de cliente. 
+     * @return El contenedor con los botones.
+     */
+    private HorizontalLayout crearBotonesMenu() {
+        HorizontalLayout botonesMenu = new HorizontalLayout();
+        botonesMenu.setStyleName("segment");
+        botonesMenu.addStyleName("segment-alternate");
+
+        // Los botones que componen el menú.
+        principalButton = new Button("Información principal");
+        principalButton.addStyleName("default");
+        principalButton.addStyleName("first");
+        principalButton.addStyleName("down");
+
+        // Infiormación principal
+        principalButton.addClickListener(new ClickListener() {
+
+            public void buttonClick(ClickEvent event) {
+                if (!infoPrincipal.isVisible()) {
+                    infoPrincipal.setVisible(true);
+                    infoOperadores.setVisible(false);
+                    infoMateriales.setVisible(false);
+                    principalButton.addStyleName("down");
+                    materialesButton.setStyleName("default");
+                    operadoresButton.setStyleName("default");
+                    crearButton.setVisible(true);
+                }
+            }
+        });
+
+        materialesButton = new Button("Materiales");
+        materialesButton.addStyleName("default");
+
+        materialesButton.addClickListener(new ClickListener() {
+
+            public void buttonClick(ClickEvent event) {
+                if (!infoMateriales.isVisible()) {
+                    infoMateriales.setVisible(true);
+                    infoPrincipal.setVisible(false);
+                    infoOperadores.setVisible(false);
+                    principalButton.addStyleName("default");
+                    materialesButton.setStyleName("down");
+                    operadoresButton.setStyleName("default");
+                    crearButton.setVisible(false);
+                }
+            }
+        });
+
+        operadoresButton = new Button("Operadores");
+        operadoresButton.addStyleName("default");
+
+        operadoresButton.addClickListener(new ClickListener() {
+
+            public void buttonClick(ClickEvent event) {
+                if (!infoOperadores.isVisible()) {
+                    infoOperadores.setVisible(true);
+                    infoMateriales.setVisible(false);
+                    infoPrincipal.setVisible(false);
+                    principalButton.addStyleName("default");
+                    materialesButton.setStyleName("default");
+                    operadoresButton.setStyleName("down");
+                    crearButton.setVisible(false);
+
+                }
+            }
+        });
+
+        botonesMenu.addComponent(principalButton);
+        botonesMenu.addComponent(materialesButton);
+        botonesMenu.addComponent(operadoresButton);
+
+        // Retornamos el segmento de botones.
+        return botonesMenu;
     }
 
     /**
@@ -304,6 +425,12 @@ public class VistaNuevoCliente extends CustomComponent implements View ,Button.C
         // Combo box para el estado.
         cbEstado = new ComboBox();
         cbEstado.addStyleName("big");
+
+        cbMateriales = new ComboBox();
+        cbMateriales.addStyleName("big");
+
+        cbOperadores = new ComboBox();
+        cbOperadores.addStyleName("big");
     }
 
     /**
@@ -368,4 +495,131 @@ public class VistaNuevoCliente extends CustomComponent implements View ,Button.C
     private boolean validarCamposObligatorios() {
         return !cbEstado.isValid() || !txtCif.isValid() || !txtRazonSocial.isValid();
     }
+
+    /**
+     * Método que nos crea la parte de la interfaz con la información principal de los clientes
+     */
+    private void generaInformacionPrincipal() {
+        infoPrincipal = new VerticalLayout();
+        infoPrincipal.setSpacing(true);
+        infoPrincipal.setMargin(true);
+
+        HorizontalLayout body = new HorizontalLayout();
+        body.setSpacing(true);
+        body.setMargin(true);
+
+        // Formulario con los campos que componen el empleado.
+        VerticalLayout formulario1 = new VerticalLayout();
+        formulario1.setSpacing(true);
+
+        formulario1.addComponent(txtRazonSocial);
+        formulario1.setComponentAlignment(txtRazonSocial, Alignment.MIDDLE_CENTER);
+        formulario1.addComponent(txtCif);
+        formulario1.setComponentAlignment(txtCif, Alignment.MIDDLE_CENTER);
+        formulario1.addComponent(cbEstado);
+        formulario1.setComponentAlignment(cbEstado, Alignment.MIDDLE_CENTER);
+        body.addComponent(formulario1);
+        body.setComponentAlignment(formulario1, Alignment.MIDDLE_CENTER);
+
+        infoPrincipal.addComponent(body);
+    }
+
+    /**
+     * Método que nos crea la parte de la interfaz con la información principal de los clientes
+     */
+    private void generaInformacionMateriales() {
+        infoMateriales = new VerticalLayout();
+        infoMateriales.setSpacing(true);
+        infoMateriales.setMargin(true);
+
+        HorizontalLayout body = new HorizontalLayout();
+        body.setSpacing(true);
+        body.setMargin(true);
+
+        cbMateriales.setCaption("Material:");
+        cbMateriales.setFilteringMode(FilteringMode.CONTAINS);
+        cbMateriales.setNullSelectionAllowed(false);
+        cbMateriales.setWidth(appWidth, Sizeable.Unit.EM);
+        cbMateriales.addItems(lMateriales);
+
+        cbMateriales.addValueChangeListener(new ValueChangeListener() {
+
+            @Override
+            public void valueChange(ValueChangeEvent event) {
+                if (cbMateriales.getValue() != null) {
+                    lsMateriales.addItem((TMateriales) cbMateriales.getValue());
+                }
+            }
+        });
+
+        lsMateriales = new ListSelect("Materiales asignados");
+        lsMateriales.setWidth(appWidth, Sizeable.Unit.EM);
+        lsMateriales.removeAllItems();
+        lsMateriales.addValueChangeListener(new ValueChangeListener() {
+
+            @Override
+            public void valueChange(ValueChangeEvent event) {
+                if (lsMateriales.getValue() != null) {
+                    lsMateriales.removeItem(lsMateriales.getValue());
+                }
+            }
+        });
+
+        body.addComponent(cbMateriales);
+        body.setComponentAlignment(cbMateriales, Alignment.MIDDLE_CENTER);
+        body.addComponent(lsMateriales);
+        body.setComponentAlignment(lsMateriales, Alignment.MIDDLE_CENTER);
+
+        infoMateriales.addComponent(body);
+    }
+
+    /**
+     * Método que nos crea la parte de la interfaz con la información principal de los clientes
+     */
+    private void generaInformacioOperadores() {
+        infoOperadores = new VerticalLayout();
+        infoOperadores.setSpacing(true);
+        infoOperadores.setMargin(true);
+
+        HorizontalLayout body = new HorizontalLayout();
+        body.setSpacing(true);
+        body.setMargin(true);
+
+        cbOperadores.setCaption("Operador:");
+        cbOperadores.setFilteringMode(FilteringMode.CONTAINS);
+        cbOperadores.setNullSelectionAllowed(false);
+        cbOperadores.setWidth(appWidth, Sizeable.Unit.EM);
+        cbOperadores.addItems(lOperadores);
+
+        cbOperadores.addValueChangeListener(new ValueChangeListener() {
+
+            @Override
+            public void valueChange(ValueChangeEvent event) {
+                if (cbMateriales.getValue() != null) {
+                    lsMateriales.addItem((TOperadores) cbOperadores.getValue());
+                }
+            }
+        });
+
+        lsOperadores = new ListSelect("Operadores asignados");
+        lsOperadores.setWidth(appWidth, Sizeable.Unit.EM);
+        lsOperadores.removeAllItems();
+        lsOperadores.addValueChangeListener(new ValueChangeListener() {
+
+            @Override
+            public void valueChange(ValueChangeEvent event) {
+                if (lsOperadores.getValue() != null) {
+                    lsOperadores.removeItem(lsOperadores.getValue());
+                }
+            }
+        });
+
+        body.addComponent(cbOperadores);
+        body.setComponentAlignment(cbOperadores, Alignment.MIDDLE_CENTER);
+        body.addComponent(lsOperadores);
+        body.setComponentAlignment(lsOperadores, Alignment.MIDDLE_CENTER);
+
+        infoOperadores.addComponent(body);
+    }
+
 }

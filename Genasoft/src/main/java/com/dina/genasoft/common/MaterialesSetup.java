@@ -96,6 +96,14 @@ public class MaterialesSetup implements Serializable {
      * Método que nos retorna los materiales activos en el sistema.
      * @return Los materiales activos encontrados
      */
+    public List<TMateriales> obtenerMaterialesAsignadosCliente(Integer idCliente) {
+        return tMaterialesMapper.obtenerMaterialesAsignadosCliente(idCliente);
+    }
+
+    /**
+     * Método que nos retorna los materiales activos en el sistema.
+     * @return Los materiales activos encontrados
+     */
     public List<TMaterialesVista> obtenerMaterialesActivosVista() {
         return convertirMaterialesVista(tMaterialesMapper.obtenerMaterialesActivos());
     }

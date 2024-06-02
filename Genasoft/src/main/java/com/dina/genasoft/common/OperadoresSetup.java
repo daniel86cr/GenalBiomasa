@@ -102,6 +102,14 @@ public class OperadoresSetup implements Serializable {
     }
 
     /**
+     * Método que nos retorna los operadores activos en el sistema.
+     * @return Los operadores activos encontrados
+     */
+    public List<TOperadores> obtenerOperadoresAsignadosCliente(Integer idCliente) {
+        return tOperadoresMapper.obtenerOperadoresAsignadosCliente(idCliente);
+    }
+
+    /**
      * Método que nos retorna los clientes activos en el sistema.
      * @return Los clientes activos encontrados
      */
