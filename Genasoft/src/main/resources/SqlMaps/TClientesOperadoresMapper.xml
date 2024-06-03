@@ -188,6 +188,7 @@
     select 'false' as QUERYID,
     <include refid="Base_Column_List" />
     from t_clientes_operadores
-    where id_cliente = #{idCliente,jdbcType=INTEGER}      
+    where id_cliente = #{idCliente,jdbcType=INTEGER}
+    AND estado = 1      
   </select>
 </mapper>

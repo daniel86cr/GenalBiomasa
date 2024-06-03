@@ -309,6 +309,6 @@
     where 
 		estado = 1 
 	AND
-		id in(select id_operador from t_clientes_operadores where id_cliente #{idCliente,jdbcType=INTEGER})
+		id in(select id_operador from t_clientes_operadores where id_cliente = #{idCliente,jdbcType=INTEGER})
   </select>
 </mapper>

@@ -16,10 +16,13 @@ import org.springframework.beans.factory.annotation.Value;
 import com.dina.genasoft.configuration.Constants;
 import com.dina.genasoft.controller.ControladorVistas;
 import com.dina.genasoft.db.entity.TClientes;
+import com.dina.genasoft.db.entity.TClientesMateriales;
+import com.dina.genasoft.db.entity.TClientesOperadores;
 import com.dina.genasoft.db.entity.TEmpleados;
 import com.dina.genasoft.db.entity.TMateriales;
 import com.dina.genasoft.db.entity.TOperadores;
 import com.dina.genasoft.db.entity.TPermisos;
+import com.dina.genasoft.db.entity.TRegistrosCambiosClientes;
 import com.dina.genasoft.exception.GenasoftException;
 import com.dina.genasoft.utils.Utils;
 import com.dina.genasoft.vistas.Menu;
@@ -106,8 +109,6 @@ public class VistaNuevoCliente extends CustomComponent implements View ,Button.C
     private Button                        materialesButton;
     /** Muestra la información relacionada con los operadores del cliente.*/
     private Button                        operadoresButton;
-    /** El boton para crear la dirección de descarga del cliente.*/
-    private Button                        crearDireccionButton;
     /** Container que mostrará los campos relacionado con la información principal del cliente. */
     private VerticalLayout                infoPrincipal  = null;
     /** Container que mostrará los campos relacionado con la información de materiales del cliente. */
@@ -137,20 +138,70 @@ public class VistaNuevoCliente extends CustomComponent implements View ,Button.C
 
                 // Construimos el objeto cliente a partir de los datos introducidos en el formulario.
                 construirBean();
-                String result = contrVista.crearCliente(cliente, user, time);
-                if (result.equals(Constants.OPERACION_OK)) {
+                Integer id = contrVista.crearClienteRetornaId(cliente, user, time);
+                if (id > 0) {
+                    String result = Constants.OPERACION_OK;
                     result = contrVista.obtenerDescripcionCodigo(result);
                     Notification aviso = new Notification(result, Notification.Type.HUMANIZED_MESSAGE);
                     aviso.setPosition(Position.MIDDLE_CENTER);
                     aviso.show(Page.getCurrent());
+
+                    // Asociamos los operadores que haya seleccionado
+                    @SuppressWarnings("unchecked")
+                    List<TOperadores> lOperadoresAsig = (List<TOperadores>) lsOperadores.getItemIds();
+                    TClientesOperadores clOp = null;
+                    TRegistrosCambiosClientes record = null;
+                    for (TOperadores op : lOperadoresAsig) {
+                        clOp = new TClientesOperadores();
+                        clOp.setEstado(1);
+                        clOp.setFechaCrea(Utils.generarFecha());
+                        clOp.setIdCliente(id);
+                        clOp.setIdOperador(op.getId());
+                        clOp.setUsuCrea(user);
+                        contrVista.asignarOperadorCliente(clOp, user, time);
+
+                        record = new TRegistrosCambiosClientes();
+                        record.setCambio("Se le asigna el operador: " + op.getNombre());
+                        record.setFechaCambio(Utils.generarFecha());
+                        record.setIdCliente(id);
+                        record.setUsuCrea(user);
+
+                        contrVista.crearRegistroCambioCliente(record, user, time);
+                    }
+
+                    // Asociamos los materiales que haya seleccionado
+                    @SuppressWarnings("unchecked")
+                    List<TMateriales> lMaterialesAsig = (List<TMateriales>) lsMateriales.getItemIds();
+                    TClientesMateriales clMat = null;
+                    TRegistrosCambiosClientes record2 = null;
+                    for (TMateriales mat : lMaterialesAsig) {
+                        clMat = new TClientesMateriales();
+                        clMat.setEstado(1);
+                        clMat.setFechaCrea(Utils.generarFecha());
+                        clMat.setIdCliente(id);
+                        clMat.setIdMaterial(mat.getId());
+                        clMat.setIva(mat.getIva());
+                        clMat.setPrecioKg(mat.getPrecio());
+                        clMat.setUsuCrea(user);
+                        contrVista.asignarMaterialCliente(clMat, user, time);
+
+                        record2 = new TRegistrosCambiosClientes();
+                        record2.setCambio("Se le asigna el material: " + mat.getDescripcion());
+                        record2.setFechaCambio(Utils.generarFecha());
+                        record2.setIdCliente(id);
+                        record2.setUsuCrea(user);
+
+                        contrVista.crearRegistroCambioCliente(record2, user, time);
+                    }
+
                     inicializarCampos();
 
-                    MessageBox.createQuestion().withCaption(appName).withMessage("¿Quieres crear un nueva dirección de descarga?").withNoButton().withYesButton(() ->
+                    MessageBox.createQuestion().withCaption(appName).withMessage("¿Quieres crear una dirección?").withNoButton().withYesButton(() ->
 
-                    getUI().getNavigator().navigateTo(VistaNuevaDireccionCliente.NAME + "/" + cliente.getId()), ButtonOption.caption("Sí")).open();
+                    getUI().getNavigator().navigateTo(VistaNuevaDireccionCliente.NAME + "/" + id), ButtonOption.caption("Sí")).open();
 
                 } else {
-                    result = contrVista.obtenerDescripcionCodigo(result);
+                    String result = contrVista.obtenerDescripcionCodigo(Constants.BD_KO_CREA_CLIENTE);
                     Notification aviso = new Notification(result, Notification.Type.WARNING_MESSAGE);
                     aviso.setPosition(Position.MIDDLE_CENTER);
                     aviso.show(Page.getCurrent());
@@ -287,8 +338,11 @@ public class VistaNuevoCliente extends CustomComponent implements View ,Button.C
 
                 viewLayout.addComponent(crearBotonesMenu());
                 viewLayout.addComponent(infoPrincipal);
+                viewLayout.setComponentAlignment(infoPrincipal, Alignment.MIDDLE_CENTER);
                 viewLayout.addComponent(infoMateriales);
+                viewLayout.setComponentAlignment(infoMateriales, Alignment.MIDDLE_CENTER);
                 viewLayout.addComponent(infoOperadores);
+                viewLayout.setComponentAlignment(infoOperadores, Alignment.MIDDLE_CENTER);
                 viewLayout.addComponent(crearButton);
                 viewLayout.setComponentAlignment(crearButton, Alignment.MIDDLE_CENTER);
 
@@ -368,7 +422,6 @@ public class VistaNuevoCliente extends CustomComponent implements View ,Button.C
                     principalButton.addStyleName("down");
                     materialesButton.setStyleName("default");
                     operadoresButton.setStyleName("default");
-                    crearButton.setVisible(true);
                 }
             }
         });
@@ -383,10 +436,9 @@ public class VistaNuevoCliente extends CustomComponent implements View ,Button.C
                     infoMateriales.setVisible(true);
                     infoPrincipal.setVisible(false);
                     infoOperadores.setVisible(false);
-                    principalButton.addStyleName("default");
+                    principalButton.setStyleName("default");
                     materialesButton.setStyleName("down");
                     operadoresButton.setStyleName("default");
-                    crearButton.setVisible(false);
                 }
             }
         });
@@ -401,10 +453,9 @@ public class VistaNuevoCliente extends CustomComponent implements View ,Button.C
                     infoOperadores.setVisible(true);
                     infoMateriales.setVisible(false);
                     infoPrincipal.setVisible(false);
-                    principalButton.addStyleName("default");
+                    principalButton.setStyleName("default");
                     materialesButton.setStyleName("default");
                     operadoresButton.setStyleName("down");
-                    crearButton.setVisible(false);
 
                 }
             }
@@ -522,6 +573,7 @@ public class VistaNuevoCliente extends CustomComponent implements View ,Button.C
         body.setComponentAlignment(formulario1, Alignment.MIDDLE_CENTER);
 
         infoPrincipal.addComponent(body);
+        infoPrincipal.setComponentAlignment(body, Alignment.MIDDLE_CENTER);
     }
 
     /**
@@ -548,6 +600,7 @@ public class VistaNuevoCliente extends CustomComponent implements View ,Button.C
             public void valueChange(ValueChangeEvent event) {
                 if (cbMateriales.getValue() != null) {
                     lsMateriales.addItem((TMateriales) cbMateriales.getValue());
+                    cbMateriales.clear();
                 }
             }
         });
@@ -561,6 +614,7 @@ public class VistaNuevoCliente extends CustomComponent implements View ,Button.C
             public void valueChange(ValueChangeEvent event) {
                 if (lsMateriales.getValue() != null) {
                     lsMateriales.removeItem(lsMateriales.getValue());
+
                 }
             }
         });
@@ -571,6 +625,7 @@ public class VistaNuevoCliente extends CustomComponent implements View ,Button.C
         body.setComponentAlignment(lsMateriales, Alignment.MIDDLE_CENTER);
 
         infoMateriales.addComponent(body);
+        infoMateriales.setComponentAlignment(body, Alignment.MIDDLE_CENTER);
     }
 
     /**
@@ -595,8 +650,9 @@ public class VistaNuevoCliente extends CustomComponent implements View ,Button.C
 
             @Override
             public void valueChange(ValueChangeEvent event) {
-                if (cbMateriales.getValue() != null) {
-                    lsMateriales.addItem((TOperadores) cbOperadores.getValue());
+                if (cbOperadores.getValue() != null) {
+                    lsOperadores.addItem((TOperadores) cbOperadores.getValue());
+                    cbOperadores.clear();
                 }
             }
         });
@@ -620,6 +676,7 @@ public class VistaNuevoCliente extends CustomComponent implements View ,Button.C
         body.setComponentAlignment(lsOperadores, Alignment.MIDDLE_CENTER);
 
         infoOperadores.addComponent(body);
+        infoOperadores.setComponentAlignment(body, Alignment.MIDDLE_CENTER);
     }
 
 }

@@ -3,7 +3,7 @@
  *  
  *  Copyright (C) 2024
  */
-package com.dina.genasoft.vistas.maestros.clientes.direcciones;
+package com.dina.genasoft.vistas.pesajes;
 
 import javax.annotation.PostConstruct;
 
@@ -13,17 +13,15 @@ import org.springframework.beans.factory.annotation.Value;
 
 import com.dina.genasoft.configuration.Constants;
 import com.dina.genasoft.controller.ControladorVistas;
-import com.dina.genasoft.db.entity.TDireccionCliente;
 import com.dina.genasoft.db.entity.TEmpleados;
 import com.dina.genasoft.db.entity.TPermisos;
-import com.dina.genasoft.db.entity.TRegistrosCambiosDireccionCliente;
+import com.dina.genasoft.db.entity.TRegistrosCambiosTransportistas;
+import com.dina.genasoft.db.entity.TTransportistas;
 import com.dina.genasoft.exception.GenasoftException;
 import com.dina.genasoft.utils.Utils;
-import com.dina.genasoft.utils.enums.OperadorEnum;
+import com.dina.genasoft.utils.enums.TransportistaEnum;
 import com.dina.genasoft.vistas.Menu;
 import com.dina.genasoft.vistas.VistaInicioSesion;
-import com.dina.genasoft.vistas.maestros.clientes.VistaCliente;
-import com.dina.genasoft.vistas.maestros.operadores.VistaListadoOperadores;
 import com.vaadin.annotations.Theme;
 import com.vaadin.data.fieldgroup.BeanFieldGroup;
 import com.vaadin.navigator.View;
@@ -47,61 +45,63 @@ import com.vaadin.ui.VerticalLayout;
 
 /**
  * @author Daniel Carmona Romero
- * Vista para mostrar/visualizar la dirección del cliente.
+ * Vista para mostrar/visualizar un transportista.
  */
 @SuppressWarnings("serial")
 @Theme("Genal")
 @UIScope
-@SpringView(name = VistaDireccionCliente.NAME)
-public class VistaDireccionCliente extends CustomComponent implements View ,Button.ClickListener {
+@SpringView(name = VistaPesaje.NAME)
+public class VistaPesaje extends CustomComponent implements View ,Button.ClickListener {
     /** El controlador de las vistas. */
     @Autowired
-    private ControladorVistas                 contrVista;
+    private ControladorVistas               contrVista;
     /** El nombre de la vista.*/
-    public static final String                NAME     = "vOperador";
-    /** Para los campos que componen una dirección del cliente.*/
-    private BeanFieldGroup<TDireccionCliente> binder;
-    /** El boton para crear la dirección del cliente.*/
-    private Button                            modificarButton;
-    /** El boton para volver al cliente.*/
-    private Button                            listadoButton;
+    public static final String              NAME     = "vPesaje";
+    /** Para los campos que componen un transportista.*/
+    private BeanFieldGroup<TTransportistas> binder;
+    /** El boton para crear el transportista.*/
+    private Button                          modificarButton;
+    /** El boton para volver al listado de transportistas.*/
+    private Button                          listadoButton;
     /** Combobox para los estados.*/
-    private ComboBox                          cbEstado;
-    /** El operador a modificar.*/
-    private TDireccionCliente                 nDireccion;
+    private ComboBox                        cbEstado;
+    /** El transportista a modificar.*/
+    private TTransportistas                 nTransportista;
     /** Contendrá el nombre de la aplicación.*/
     @Value("${app.name}")
-    private String                            appName;
+    private String                          appName;
     /** Contendrá el ancho de los componentes.*/
     @Value("${app.width}")
-    private Integer                           appWidth;
+    private Integer                         appWidth;
     /** El log de la aplicación.*/
-    private static final org.slf4j.Logger     log      = org.slf4j.LoggerFactory.getLogger(VistaDireccionCliente.class);
+    private static final org.slf4j.Logger   log      = org.slf4j.LoggerFactory.getLogger(VistaPesaje.class);
     // Los campos obligatorios
     /** La caja de texto para la referencia .*/
-    private TextField                         txtCodDireccion;
+    private TextField                       txtRazonSocial;
+    /** La caja de texto para el nombre.*/
+    private TextField                       txtCif;
     /** La caja de texto para el LER.*/
-    private TextField                         txtDireccion;
+    private TextField                       txtDireccion;
     /** La caja de texto para el precio.*/
-    private TextField                         txtCiudad;
+    private TextField                       txtCiudad;
     /** La caja de texto para el precio.*/
-    private TextField                         txtCp;
+    private TextField                       txtCp;
     /** La caja de texto para el precio.*/
-    private TextField                         txtProvincia;
+    private TextField                       txtProvincia;
     /** Los permisos del empleado actual. */
-    private TPermisos                         permisos = null;
+    private TPermisos                       permisos = null;
     /** El usuario que está logado. */
-    private Integer                           user     = null;
+    private Integer                         user     = null;
     /** La fecha en que se inició sesión. */
-    private Long                              time     = null;
-    /** Contendrá los cambios que se aplican a la dirección del cliente. */
-    private String                            cambios;
-    private TEmpleados                        empleado;
+    private Long                            time     = null;
+    /** Contendrá los cambios que se aplican al transportista. */
+    private String                          cambios;
+    private TEmpleados                      empleado;
 
     @Override
     public void buttonClick(ClickEvent event) {
         if (event.getButton().equals(modificarButton)) {
-            // Creamos el evento para modificar un nuevo operador con los datos introducidos en el formulario
+            // Creamos el evento para modificar un nuevo transportista con los datos introducidos en el formulario
             try {
                 if (validarCamposObligatorios()) {
                     Notification aviso = new Notification("Se debe informar los campos marcados con '*'", Notification.Type.ASSISTIVE_NOTIFICATION);
@@ -110,21 +110,21 @@ public class VistaDireccionCliente extends CustomComponent implements View ,Butt
                     return;
                 }
 
-                // Construimos el objeto operador a partir de los datos introducidos en el formulario.
+                // Construimos el objeto transportista a partir de los datos introducidos en el formulario.
                 construirBean();
-                String result = contrVista.modificarDireccionCliente(nDireccion, user, time);
+                String result = contrVista.modificarTransportista(nTransportista, user, time);
                 if (result.equals(Constants.OPERACION_OK)) {
 
                     // Si hay cambios, guardamos los cambios en el registro de cambios
                     if (!cambios.isEmpty()) {
 
-                        TRegistrosCambiosDireccionCliente record = new TRegistrosCambiosDireccionCliente();
+                        TRegistrosCambiosTransportistas record = new TRegistrosCambiosTransportistas();
                         record.setCambio(cambios);
                         record.setFechaCambio(Utils.generarFecha());
-                        record.setIdDireccion(nDireccion.getId());
+                        record.setIdTransportista(nTransportista.getId());
                         record.setUsuCrea(user);
 
-                        contrVista.crearRegistroCambioDireccionCliente(record, user, time);
+                        contrVista.crearRegistroCambioTransportista(record, user, time);
                     }
                     result = contrVista.obtenerDescripcionCodigo(result);
                     Notification aviso = new Notification(result, Notification.Type.ASSISTIVE_NOTIFICATION);
@@ -164,7 +164,7 @@ public class VistaDireccionCliente extends CustomComponent implements View ,Butt
             }
 
         } else if (event.getButton().equals(listadoButton)) {
-            getUI().getNavigator().navigateTo(VistaCliente.NAME + "/" + nDireccion.getIdCliente());
+            getUI().getNavigator().navigateTo(VistaListadoPesajes.NAME);
         }
     }
 
@@ -192,7 +192,7 @@ public class VistaDireccionCliente extends CustomComponent implements View ,Butt
 
         if (time != null) {
             try {
-                binder = new BeanFieldGroup<>(TDireccionCliente.class);
+                binder = new BeanFieldGroup<>(TTransportistas.class);
 
                 empleado = contrVista.obtenerEmpleadoPorId(user, user, time);
 
@@ -226,20 +226,20 @@ public class VistaDireccionCliente extends CustomComponent implements View ,Butt
                 String parametros = event.getParameters();
 
                 if (parametros != null && !parametros.isEmpty()) {
-                    nDireccion = contrVista.obtenerDireccionClientePorId(Integer.valueOf(parametros), user, time);
+                    nTransportista = contrVista.obtenerTransportistaPorId(Integer.valueOf(parametros), user, time);
                 } else {
                     parametros = null;
                 }
 
-                if (nDireccion == null) {
-                    Notification aviso = new Notification("No se ha encontrado la dirección del cliente.", Notification.Type.ERROR_MESSAGE);
+                if (nTransportista == null) {
+                    Notification aviso = new Notification("No se ha encontrado el transportista.", Notification.Type.ERROR_MESSAGE);
                     aviso.setPosition(Position.MIDDLE_CENTER);
                     aviso.show(Page.getCurrent());
-                    getUI().getNavigator().navigateTo(VistaListadoOperadores.NAME);
+                    getUI().getNavigator().navigateTo(VistaListadoPesajes.NAME);
                     return;
                 }
 
-                binder.setItemDataSource(nDireccion);
+                binder.setItemDataSource(nTransportista);
 
                 // Creamos los botones de la pantalla.
                 crearBotones();
@@ -247,7 +247,7 @@ public class VistaDireccionCliente extends CustomComponent implements View ,Butt
                 // Creamos los componetes que conforman la pantalla.
                 crearComponentes(parametros);
 
-                Label texto = new Label(nDireccion.getCodDireccion());
+                Label texto = new Label(nTransportista.getNombre());
                 texto.setStyleName("tituloTamano18");
                 texto.setHeight(4, Sizeable.Unit.EM);
                 Label texto2 = new Label(" ");
@@ -271,18 +271,20 @@ public class VistaDireccionCliente extends CustomComponent implements View ,Butt
                 body.setSpacing(true);
                 body.setMargin(true);
 
-                // Formulario con los campos que componen el operador.
+                // Formulario con los campos que componen el transportista.
                 VerticalLayout formulario1 = new VerticalLayout();
                 formulario1.setSpacing(true);
-                // Formulario con los campos que componen el operador.
+                // Formulario con los campos que componen el transportista.
                 VerticalLayout formulario2 = new VerticalLayout();
                 formulario2.setSpacing(true);
 
                 Label lblSpace = new Label(" ");
                 lblSpace.setHeight(5, Sizeable.Unit.EM);
 
-                formulario1.addComponent(txtCodDireccion);
-                formulario1.setComponentAlignment(txtCodDireccion, Alignment.MIDDLE_CENTER);
+                formulario1.addComponent(txtRazonSocial);
+                formulario1.setComponentAlignment(txtRazonSocial, Alignment.MIDDLE_CENTER);
+                formulario1.addComponent(txtCif);
+                formulario1.setComponentAlignment(txtCif, Alignment.MIDDLE_CENTER);
                 formulario1.addComponent(txtDireccion);
                 formulario1.setComponentAlignment(txtDireccion, Alignment.MIDDLE_CENTER);
                 formulario1.addComponent(txtCp);
@@ -344,7 +346,7 @@ public class VistaDireccionCliente extends CustomComponent implements View ,Butt
         // Creamos los botones.
         modificarButton = new Button("Aplicar cambios", this);
         modificarButton.addStyleName("big");
-        listadoButton = new Button("Volver al cliente", this);
+        listadoButton = new Button("Volver al listado", this);
         listadoButton.addStyleName("big");
     }
 
@@ -354,20 +356,28 @@ public class VistaDireccionCliente extends CustomComponent implements View ,Butt
     private void crearCombos() {
         // Combo box para el estado.
         cbEstado = new ComboBox();
+
     }
 
     /**
      * Método que nos crea los componetes que conforman la pantalla.
      */
     private void crearComponentes(String nombre) {
-        //Los campos que componen un operador.
+        //Los campos que componen un transportista.
 
         // La razón social.
-        txtCodDireccion = (TextField) binder.buildAndBind("Razón social:", "codDireccion");
-        txtCodDireccion.setNullRepresentation("");
-        txtCodDireccion.setWidth(appWidth, Sizeable.Unit.EM);
-        txtCodDireccion.setMaxLength(445);
-        txtCodDireccion.setRequired(true);
+        txtRazonSocial = (TextField) binder.buildAndBind("Razón social:", "nombre");
+        txtRazonSocial.setNullRepresentation("");
+        txtRazonSocial.setWidth(appWidth, Sizeable.Unit.EM);
+        txtRazonSocial.setMaxLength(445);
+        txtRazonSocial.setRequired(true);
+
+        // El CIF
+        txtCif = (TextField) binder.buildAndBind("CIF:", "cif");
+        txtCif.setNullRepresentation("");
+        txtCif.setRequired(true);
+        txtCif.setWidth(appWidth, Sizeable.Unit.EM);
+        txtCif.setMaxLength(45);
 
         // Dirección
         txtDireccion = (TextField) binder.buildAndBind("Dirección:", "direccion");
@@ -384,7 +394,7 @@ public class VistaDireccionCliente extends CustomComponent implements View ,Butt
         txtCp.setMaxLength(245);
 
         // Ciudad.
-        txtCiudad = (TextField) binder.buildAndBind("Ciudad: ", "poblacion");
+        txtCiudad = (TextField) binder.buildAndBind("Ciudad: ", "ciudad");
         txtCiudad.setNullRepresentation("");
         txtCiudad.setWidth(appWidth, Sizeable.Unit.EM);
         txtCiudad.setRequired(true);
@@ -401,7 +411,7 @@ public class VistaDireccionCliente extends CustomComponent implements View ,Butt
         cbEstado.setCaption("Estado:");
         cbEstado.addItem(Constants.ACTIVO);
         cbEstado.addItem(Constants.DESACTIVADO);
-        cbEstado.setValue(nDireccion.getEstado().equals(OperadorEnum.ACTIVO.getValue()) ? Constants.ACTIVO : Constants.DESACTIVADO);
+        cbEstado.setValue(nTransportista.getEstado().equals(TransportistaEnum.ACTIVO.getValue()) ? Constants.ACTIVO : Constants.DESACTIVADO);
         cbEstado.setFilteringMode(FilteringMode.CONTAINS);
         cbEstado.setRequired(true);
         cbEstado.setNullSelectionAllowed(false);
@@ -415,86 +425,103 @@ public class VistaDireccionCliente extends CustomComponent implements View ,Butt
     private void construirBean() throws GenasoftException {
         cambios = "";
         Integer estado = cbEstado.getValue().equals(Constants.ACTIVO) ? 1 : 0;
-        if (!nDireccion.getEstado().equals(estado)) {
-            cambios = "Se cambia el estado del operador, pasa de " + nDireccion.getEstado() + " a " + estado;
+        if (!nTransportista.getEstado().equals(estado)) {
+            cambios = "Se cambia el estado del transportista, pasa de " + nTransportista.getEstado() + " a " + estado;
         }
-        nDireccion.setEstado(cbEstado.getValue().equals(Constants.ACTIVO) ? 1 : 0);
-        String value = txtCodDireccion.getValue();
+        nTransportista.setEstado(cbEstado.getValue().equals(Constants.ACTIVO) ? 1 : 0);
+        String value = txtRazonSocial.getValue();
 
         if (value != null) {
             value = value.trim().toUpperCase();
         }
-        if (value == null && nDireccion.getCodDireccion() != null) {
-            cambios = cambios + "\n Se le quita el código de dirección, antes tenia: " + nDireccion.getCodDireccion();
-        } else if (value != null && nDireccion.getCodDireccion() == null) {
+        if (value == null && nTransportista.getNombre() != null) {
+            cambios = cambios + "\n Se le quita el nombre, antes tenia: " + nTransportista.getNombre();
+        } else if (value != null && nTransportista.getNombre() == null) {
             value = value.trim().toUpperCase();
-            cambios = cambios + "\n Se le asigna un nuevo código de dirección, antes no tenía tenia, ahora tiene:  " + value;
-        } else if (value != null && !value.equals(nDireccion.getCodDireccion())) {
+            cambios = cambios + "\n Se le asigna una nuevo nombre, antes no tenía tenia, ahora tiene:  " + value;
+        } else if (value != null && !value.equals(nTransportista.getNombre())) {
             value = value.trim().toUpperCase();
-            cambios = cambios + "\n Se le cambia el código de dirección, antes tenia: " + nDireccion.getCodDireccion() + " y ahora tiene: " + value;
+            cambios = cambios + "\n Se le cambia el nombre, antes tenia: " + nTransportista.getNombre() + " y ahora tiene: " + value;
         }
 
-        nDireccion.setCodDireccion(value);
+        nTransportista.setNombre(value);
+        nTransportista.setRazonSocial(value);
+
+        value = txtCif.getValue().trim().toUpperCase();
+
+        if (value != null) {
+            value = value.trim().toUpperCase();
+        }
+
+        if (value == null && nTransportista.getCif() != null) {
+            cambios = cambios + "\n Se le quita el CIF, antes tenia: " + nTransportista.getCif();
+        } else if (value != null && nTransportista.getCif() == null) {
+            cambios = cambios + "\n Se le asigna un nuevo CIF,  antes no tenía tenia, ahora tiene:  " + value;
+        } else if (value != null && !value.equals(nTransportista.getCif())) {
+            cambios = cambios + "\n Se le cambia el CIF, antes tenia: " + nTransportista.getCif() + " y ahora tiene: " + value;
+        }
+
+        nTransportista.setCif(value);
 
         value = txtCiudad.getValue();
 
-        if (value == null && nDireccion.getPoblacion() != null) {
-            cambios = cambios + "\n Se le quita la población, antes tenia: " + nDireccion.getPoblacion();
-        } else if (value != null && nDireccion.getPoblacion() == null) {
+        if (value == null && nTransportista.getCiudad() != null) {
+            cambios = cambios + "\n Se le quita la ciudad, antes tenia: " + nTransportista.getCiudad();
+        } else if (value != null && nTransportista.getCiudad() == null) {
             value = value.trim().toUpperCase();
-            cambios = cambios + "\n Se le asigna una nueva población, antes no tenía tenia, ahora tiene:  " + value;
-        } else if (value != null && !value.equals(nDireccion.getPoblacion())) {
+            cambios = cambios + "\n Se le asigna una nueva ciudad, antes no tenía tenia, ahora tiene:  " + value;
+        } else if (value != null && !value.equals(nTransportista.getCiudad())) {
             value = value.trim().toUpperCase();
-            cambios = cambios + "\n Se le cambia la población, antes tenia: " + nDireccion.getPoblacion() + " y ahora tiene: " + value;
+            cambios = cambios + "\n Se le cambia la ciudad, antes tenia: " + nTransportista.getCiudad() + " y ahora tiene: " + value;
         }
 
-        nDireccion.setPoblacion(value);
+        nTransportista.setCiudad(value);
 
         value = txtCp.getValue();
 
-        if (value == null && nDireccion.getCodigoPostal() != null) {
-            cambios = cambios + "\n Se le quita el codigo postal, antes tenia: " + nDireccion.getCodigoPostal();
-        } else if (value != null && nDireccion.getCodigoPostal() == null) {
+        if (value == null && nTransportista.getCodigoPostal() != null) {
+            cambios = cambios + "\n Se le quita el codigo postal, antes tenia: " + nTransportista.getCodigoPostal();
+        } else if (value != null && nTransportista.getCodigoPostal() == null) {
             value = value.trim().toUpperCase();
             cambios = cambios + "\n Se le asigna un nuevo codigo postal, antes no tenía tenia, ahora tiene:  " + value;
-        } else if (value != null && !value.equals(nDireccion.getCodigoPostal())) {
+        } else if (value != null && !value.equals(nTransportista.getCodigoPostal())) {
             value = value.trim().toUpperCase();
-            cambios = cambios + "\n Se le cambia el codigo postal, antes tenia: " + nDireccion.getCodigoPostal() + " y ahora tiene: " + value;
+            cambios = cambios + "\n Se le cambia el codigo postal, antes tenia: " + nTransportista.getCodigoPostal() + " y ahora tiene: " + value;
         }
 
-        nDireccion.setCodigoPostal(value);
+        nTransportista.setCodigoPostal(value);
 
         value = txtProvincia.getValue();
 
-        if (value == null && nDireccion.getProvincia() != null) {
-            cambios = cambios + "\n Se le quita la provincia, antes tenia: " + nDireccion.getProvincia();
-        } else if (value != null && nDireccion.getProvincia() == null) {
+        if (value == null && nTransportista.getProvincia() != null) {
+            cambios = cambios + "\n Se le quita la provincia, antes tenia: " + nTransportista.getProvincia();
+        } else if (value != null && nTransportista.getProvincia() == null) {
             value = value.trim().toUpperCase();
             cambios = cambios + "\n Se le asigna una nueva provincia, antes no tenía tenia, ahora tiene:  " + value;
-        } else if (value != null && !value.equals(nDireccion.getProvincia())) {
+        } else if (value != null && !value.equals(nTransportista.getProvincia())) {
             value = value.trim().toUpperCase();
-            cambios = cambios + "\n Se le cambia la provincia, antes tenia: " + nDireccion.getProvincia() + " y ahora tiene: " + value;
+            cambios = cambios + "\n Se le cambia la provincia, antes tenia: " + nTransportista.getProvincia() + " y ahora tiene: " + value;
         }
 
-        nDireccion.setProvincia(value);
+        nTransportista.setProvincia(value);
 
         value = txtDireccion.getValue();
 
-        if (value == null && nDireccion.getDireccion() != null) {
-            cambios = cambios + "\n Se le quita la dirección, antes tenia: " + nDireccion.getDireccion();
-        } else if (value != null && nDireccion.getDireccion() == null) {
+        if (value == null && nTransportista.getDireccion() != null) {
+            cambios = cambios + "\n Se le quita la dirección, antes tenia: " + nTransportista.getDireccion();
+        } else if (value != null && nTransportista.getDireccion() == null) {
             value = value.trim().toUpperCase();
             cambios = cambios + "\n Se le asigna una nueva dirección, antes no tenía tenia, ahora tiene:  " + value;
-        } else if (value != null && !value.equals(nDireccion.getDireccion())) {
+        } else if (value != null && !value.equals(nTransportista.getDireccion())) {
             value = value.trim().toUpperCase();
-            cambios = cambios + "\n Se le cambia la dirección, antes tenia: " + nDireccion.getDireccion() + " y ahora tiene: " + value;
+            cambios = cambios + "\n Se le cambia la dirección, antes tenia: " + nTransportista.getDireccion() + " y ahora tiene: " + value;
         }
 
-        nDireccion.setDireccion(value);
+        nTransportista.setDireccion(value);
 
         if (!cambios.isEmpty()) {
-            nDireccion.setFechaModifica(Utils.generarFecha());
-            nDireccion.setUsuModifica(user);
+            nTransportista.setFechaModifica(Utils.generarFecha());
+            nTransportista.setUsuModifica(user);
         }
 
     }
@@ -504,7 +531,7 @@ public class VistaDireccionCliente extends CustomComponent implements View ,Butt
      * @return true si no se cumple la validación
      */
     private boolean validarCamposObligatorios() {
-        return !cbEstado.isValid() || !txtCodDireccion.isValid() || !txtDireccion.isValid() || !txtCp.isValid() || !txtProvincia.isValid() || !txtCiudad.isValid();
+        return !cbEstado.isValid() || !txtCif.isValid() || !txtRazonSocial.isValid() || !txtDireccion.isValid() || !txtCp.isValid() || !txtProvincia.isValid() || !txtCiudad.isValid();
     }
 
 }

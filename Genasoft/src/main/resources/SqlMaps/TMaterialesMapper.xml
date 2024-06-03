@@ -273,6 +273,6 @@
     where 
 		estado = 1 
 	AND
-		id in(select id_material from t_clientes_materiales where id_cliente #{idCliente,jdbcType=INTEGER})
+		id in (select id_material from t_clientes_materiales where id_cliente = #{idCliente,jdbcType=INTEGER})
   </select>
 </mapper>

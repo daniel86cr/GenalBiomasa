@@ -30,8 +30,11 @@ import com.dina.genasoft.common.RolesSetup;
 import com.dina.genasoft.common.TransportistasSetup;
 import com.dina.genasoft.configuration.Constants;
 import com.dina.genasoft.db.entity.TClientes;
+import com.dina.genasoft.db.entity.TClientesMateriales;
+import com.dina.genasoft.db.entity.TClientesOperadores;
 import com.dina.genasoft.db.entity.TClientesVista;
 import com.dina.genasoft.db.entity.TDireccionCliente;
+import com.dina.genasoft.db.entity.TDireccionClienteVista;
 import com.dina.genasoft.db.entity.TEmpleados;
 import com.dina.genasoft.db.entity.TEmpleadosVista;
 import com.dina.genasoft.db.entity.TEmpresas;
@@ -442,6 +445,30 @@ public class ControladorVistas implements Serializable {
         Timestamp t = new Timestamp(time);
         if (commonSetup.conexionValida(userId, t, estadoAplicacion)) {
             result = clientesSetup.obtenerDireccionesClientePorIdCliente(idCliente);
+        } else {
+            if (estadoAplicacion == null || estadoAplicacion.equals(-1)) {
+                throw new GenasoftException(Constants.LICENCIA_NO_VALIDA);
+            } else {
+                throw new GenasoftException(Constants.SESION_INVALIDA);
+            }
+        }
+
+        // Retornamos el resultado de la inserción del cliente.
+        return result;
+    }
+
+    /**
+     * Método que se encarga de crear un nuevo cliente en el sistema.
+     * @param record El cliente a crear.     
+     * @param userId El usuario que está activo.
+     * @param time El tiempo en milisegundos.
+     * @return El código del resultado de la operación.
+     */
+    public List<TDireccionClienteVista> obtenerDireccionesClientePorIdClienteVista(Integer idCliente, Integer userId, long time) throws GenasoftException {
+        List<TDireccionClienteVista> result = null;
+        Timestamp t = new Timestamp(time);
+        if (commonSetup.conexionValida(userId, t, estadoAplicacion)) {
+            result = clientesSetup.obtenerDireccionesClientePorIdClienteVista(idCliente);
         } else {
             if (estadoAplicacion == null || estadoAplicacion.equals(-1)) {
                 throw new GenasoftException(Constants.LICENCIA_NO_VALIDA);
@@ -1518,6 +1545,106 @@ public class ControladorVistas implements Serializable {
         Timestamp t = new Timestamp(time);
         if (commonSetup.conexionValida(userId, t, estadoAplicacion)) {
             result = monedasSetup.obtenerIvaPorId(id);
+        } else {
+            if (estadoAplicacion == null || estadoAplicacion.equals(-1)) {
+                throw new GenasoftException(Constants.LICENCIA_NO_VALIDA);
+            } else {
+                throw new GenasoftException(Constants.SESION_INVALIDA);
+            }
+        }
+        // Retornamos el cliente encontrado.
+        return result;
+    }
+
+    /**
+     * Método que nos retorna el cliente a partir del ID.
+     * @param id El ID del cliente por el que realizar la búsqueda.
+     * @param userId El usuario que está activo.
+     * @param time El tiempo en milisegundos.
+     * @return El cliente encontrado.
+     * @throws GenasoftException Si se ha iniciado sesión en otro dispositivo.
+     */
+    public String asignarOperadorCliente(TClientesOperadores record, Integer userId, long time) throws GenasoftException {
+        String result = null;
+
+        Timestamp t = new Timestamp(time);
+        if (commonSetup.conexionValida(userId, t, estadoAplicacion)) {
+            result = clientesSetup.asignarOperadorCliente(record);
+        } else {
+            if (estadoAplicacion == null || estadoAplicacion.equals(-1)) {
+                throw new GenasoftException(Constants.LICENCIA_NO_VALIDA);
+            } else {
+                throw new GenasoftException(Constants.SESION_INVALIDA);
+            }
+        }
+        // Retornamos el cliente encontrado.
+        return result;
+    }
+
+    /**
+     * Método que nos retorna el cliente a partir del ID.
+     * @param id El ID del cliente por el que realizar la búsqueda.
+     * @param userId El usuario que está activo.
+     * @param time El tiempo en milisegundos.
+     * @return El cliente encontrado.
+     * @throws GenasoftException Si se ha iniciado sesión en otro dispositivo.
+     */
+    public String modificarOperadorCliente(TClientesOperadores record, Integer userId, long time) throws GenasoftException {
+        String result = null;
+
+        Timestamp t = new Timestamp(time);
+        if (commonSetup.conexionValida(userId, t, estadoAplicacion)) {
+            result = clientesSetup.modificarOperadorCliente(record);
+        } else {
+            if (estadoAplicacion == null || estadoAplicacion.equals(-1)) {
+                throw new GenasoftException(Constants.LICENCIA_NO_VALIDA);
+            } else {
+                throw new GenasoftException(Constants.SESION_INVALIDA);
+            }
+        }
+        // Retornamos el cliente encontrado.
+        return result;
+    }
+
+    /**
+     * Método que nos retorna el cliente a partir del ID.
+     * @param id El ID del cliente por el que realizar la búsqueda.
+     * @param userId El usuario que está activo.
+     * @param time El tiempo en milisegundos.
+     * @return El cliente encontrado.
+     * @throws GenasoftException Si se ha iniciado sesión en otro dispositivo.
+     */
+    public String asignarMaterialCliente(TClientesMateriales record, Integer userId, long time) throws GenasoftException {
+        String result = null;
+
+        Timestamp t = new Timestamp(time);
+        if (commonSetup.conexionValida(userId, t, estadoAplicacion)) {
+            result = clientesSetup.asignarMaterialCliente(record);
+        } else {
+            if (estadoAplicacion == null || estadoAplicacion.equals(-1)) {
+                throw new GenasoftException(Constants.LICENCIA_NO_VALIDA);
+            } else {
+                throw new GenasoftException(Constants.SESION_INVALIDA);
+            }
+        }
+        // Retornamos el cliente encontrado.
+        return result;
+    }
+
+    /**
+     * Método que nos retorna el cliente a partir del ID.
+     * @param id El ID del cliente por el que realizar la búsqueda.
+     * @param userId El usuario que está activo.
+     * @param time El tiempo en milisegundos.
+     * @return El cliente encontrado.
+     * @throws GenasoftException Si se ha iniciado sesión en otro dispositivo.
+     */
+    public String modificarMaterialCliente(TClientesMateriales record, Integer userId, long time) throws GenasoftException {
+        String result = null;
+
+        Timestamp t = new Timestamp(time);
+        if (commonSetup.conexionValida(userId, t, estadoAplicacion)) {
+            result = clientesSetup.modificarMaterialCliente(record);
         } else {
             if (estadoAplicacion == null || estadoAplicacion.equals(-1)) {
                 throw new GenasoftException(Constants.LICENCIA_NO_VALIDA);

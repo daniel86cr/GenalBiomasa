@@ -123,6 +123,15 @@ public class ClientesSetup implements Serializable {
     }
 
     /**
+     * Método que nos retorna las direcciones de cliente a partir del ID.
+     * @param id El ID de la dirección de cliente.
+     * @return Las direcciones de cliente encontradas.
+     */
+    public List<TDireccionClienteVista> obtenerDireccionesClientePorIdClienteVista(Integer idCliente) {
+        return convertirDireccionClientesVista(obtenerDireccionesClientePorIdCliente(idCliente));
+    }
+
+    /**
      * Método que nos retorna el cliente a partir del nombre.
      * @param nombre El nombre del cliente
      * @return El cliente encontrado.
@@ -363,6 +372,50 @@ public class ClientesSetup implements Serializable {
      */
     public List<TClientesOperadores> obtenerOperadoresAsociadosCliente(Integer idCliente) {
         return tClientesOperadoresMapper.obtenerOperadoresAsociadosCliente(idCliente);
+    }
+
+    public String asignarOperadorCliente(TClientesOperadores record) {
+        TClientesOperadores aux = tClientesOperadoresMapper.selectByPrimaryKey(record.getIdCliente(), record.getIdOperador());
+        if (aux != null) {
+            modificarOperadorCliente(record);
+        } else {
+            tClientesOperadoresMapper.insert(record);
+        }
+
+        return Constants.OPERACION_OK;
+    }
+
+    public String modificarOperadorCliente(TClientesOperadores record) {
+        TClientesOperadores aux = tClientesOperadoresMapper.selectByPrimaryKey(record.getIdCliente(), record.getIdOperador());
+        if (aux == null) {
+            asignarOperadorCliente(record);
+        } else {
+            tClientesOperadoresMapper.updateByPrimaryKey(record);
+        }
+
+        return Constants.OPERACION_OK;
+    }
+
+    public String asignarMaterialCliente(TClientesMateriales record) {
+        TClientesMateriales aux = tClientesMaterialesMapper.selectByPrimaryKey(record.getIdCliente(), record.getIdMaterial());
+        if (aux != null) {
+            modificarMaterialCliente(record);
+        } else {
+            tClientesMaterialesMapper.insert(record);
+        }
+
+        return Constants.OPERACION_OK;
+    }
+
+    public String modificarMaterialCliente(TClientesMateriales record) {
+        TClientesMateriales aux = tClientesMaterialesMapper.selectByPrimaryKey(record.getIdCliente(), record.getIdMaterial());
+        if (aux == null) {
+            asignarMaterialCliente(record);
+        } else {
+            tClientesMaterialesMapper.updateByPrimaryKey(record);
+        }
+
+        return Constants.OPERACION_OK;
     }
 
     /**

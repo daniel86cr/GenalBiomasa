@@ -16,12 +16,12 @@ import com.dina.genasoft.controller.ControladorVistas;
 import com.dina.genasoft.db.entity.TClientes;
 import com.dina.genasoft.db.entity.TDireccionCliente;
 import com.dina.genasoft.db.entity.TEmpleados;
-import com.dina.genasoft.db.entity.TOperadores;
 import com.dina.genasoft.db.entity.TPermisos;
 import com.dina.genasoft.exception.GenasoftException;
 import com.dina.genasoft.utils.Utils;
 import com.dina.genasoft.vistas.Menu;
 import com.dina.genasoft.vistas.VistaInicioSesion;
+import com.dina.genasoft.vistas.maestros.clientes.VistaCliente;
 import com.dina.genasoft.vistas.maestros.clientes.VistaListadoClientes;
 import com.vaadin.annotations.Theme;
 import com.vaadin.data.fieldgroup.BeanFieldGroup;
@@ -55,45 +55,47 @@ import com.vaadin.ui.VerticalLayout;
 public class VistaNuevaDireccionCliente extends CustomComponent implements View ,Button.ClickListener {
     /** El controlador de las vistas. */
     @Autowired
-    private ControladorVistas             contrVista;
+    private ControladorVistas                 contrVista;
     /** El nombre de la vista.*/
-    public static final String            NAME     = "nuevoOperador";
+    public static final String                NAME     = "vNuevaDireccion";
     /** Para los campos que componen un operador.*/
-    private BeanFieldGroup<TOperadores>   binder;
+    private BeanFieldGroup<TDireccionCliente> binder;
     /** El boton para crear el operador.*/
-    private Button                        crearButton;
+    private Button                            crearButton;
+    /** El boton para volver al cliente.*/
+    private Button                            listadoButton;
     /** Combobox para los estados.*/
-    private ComboBox                      cbEstado;
+    private ComboBox                          cbEstado;
     /** La dirección a crear.*/
-    private TDireccionCliente             direccion;
+    private TDireccionCliente                 direccion;
     /** El cliente para añadirle la nueva dirección.*/
-    private TClientes                     cliente;
+    private TClientes                         cliente;
     /** Contendrá el nombre de la aplicación.*/
     @Value("${app.name}")
-    private String                        appName;
+    private String                            appName;
     /** Contendrá el ancho de los componentes.*/
     @Value("${app.width}")
-    private Integer                       appWidth;
+    private Integer                           appWidth;
     /** El log de la aplicación.*/
-    private static final org.slf4j.Logger log      = org.slf4j.LoggerFactory.getLogger(VistaNuevaDireccionCliente.class);
+    private static final org.slf4j.Logger     log      = org.slf4j.LoggerFactory.getLogger(VistaNuevaDireccionCliente.class);
     // Los campos obligatorios
     /** La caja de texto para la referencia .*/
-    private TextField                     txtCodDireccion;
+    private TextField                         txtCodDireccion;
     /** La caja de texto para la dirección.*/
-    private TextField                     txtDireccion;
+    private TextField                         txtDireccion;
     /** La caja de texto para el precio.*/
-    private TextField                     txtCiudad;
+    private TextField                         txtCiudad;
     /** La caja de texto para el precio.*/
-    private TextField                     txtCp;
+    private TextField                         txtCp;
     /** La caja de texto para el precio.*/
-    private TextField                     txtProvincia;
+    private TextField                         txtProvincia;
     /** Los permisos del empleado actual. */
-    private TPermisos                     permisos = null;
+    private TPermisos                         permisos = null;
     /** El usuario que está logado. */
-    private Integer                       user     = null;
+    private Integer                           user     = null;
     /** La fecha en que se inició sesión. */
-    private Long                          time     = null;
-    private TEmpleados                    empleado;
+    private Long                              time     = null;
+    private TEmpleados                        empleado;
 
     @Override
     public void buttonClick(ClickEvent event) {
@@ -150,6 +152,8 @@ public class VistaNuevaDireccionCliente extends CustomComponent implements View 
                 aviso.show(Page.getCurrent());
             }
 
+        } else if (event.getButton().equals(listadoButton)) {
+            getUI().getNavigator().navigateTo(VistaCliente.NAME + "/" + cliente.getId());
         }
     }
 
@@ -205,7 +209,7 @@ public class VistaNuevaDireccionCliente extends CustomComponent implements View 
                     return;
                 }
 
-                binder = new BeanFieldGroup<>(TOperadores.class);
+                binder = new BeanFieldGroup<>(TDireccionCliente.class);
 
                 empleado = contrVista.obtenerEmpleadoPorId(user, user, time);
 
@@ -234,7 +238,7 @@ public class VistaNuevaDireccionCliente extends CustomComponent implements View 
                 crearBotones();
 
                 //El fieldgroup no es un componente
-                binder.setItemDataSource(new TOperadores());
+                binder.setItemDataSource(new TDireccionCliente());
 
                 // Creamos los combos de la pantalla.
                 crearCombos();
@@ -264,6 +268,7 @@ public class VistaNuevaDireccionCliente extends CustomComponent implements View 
                 viewLayout.setComponentAlignment(imgGenaSoft, Alignment.TOP_RIGHT);
                 viewLayout.addComponent(titulo);
                 viewLayout.setComponentAlignment(titulo, Alignment.TOP_CENTER);
+                viewLayout.addComponent(listadoButton);
 
                 HorizontalLayout body = new HorizontalLayout();
                 body.setSpacing(true);
@@ -354,7 +359,7 @@ public class VistaNuevaDireccionCliente extends CustomComponent implements View 
         //Los campos que componen un empleado.
 
         // La razón social.
-        txtCodDireccion = (TextField) binder.buildAndBind("Razón social:", "codDireccion");
+        txtCodDireccion = (TextField) binder.buildAndBind("Código dirección:", "codDireccion");
         txtCodDireccion.setNullRepresentation("");
         txtCodDireccion.setWidth(appWidth, Sizeable.Unit.EM);
         txtCodDireccion.setMaxLength(445);
@@ -375,7 +380,7 @@ public class VistaNuevaDireccionCliente extends CustomComponent implements View 
         txtCp.setMaxLength(245);
 
         // Ciudad.
-        txtCiudad = (TextField) binder.buildAndBind("Ciudad: ", "ciudad");
+        txtCiudad = (TextField) binder.buildAndBind("Ciudad: ", "poblacion");
         txtCiudad.setNullRepresentation("");
         txtCiudad.setWidth(appWidth, Sizeable.Unit.EM);
         txtCiudad.setRequired(true);

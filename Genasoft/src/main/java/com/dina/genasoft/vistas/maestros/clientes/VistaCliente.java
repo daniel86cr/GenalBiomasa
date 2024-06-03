@@ -16,20 +16,29 @@ import org.springframework.beans.factory.annotation.Value;
 import com.dina.genasoft.configuration.Constants;
 import com.dina.genasoft.controller.ControladorVistas;
 import com.dina.genasoft.db.entity.TClientes;
+import com.dina.genasoft.db.entity.TClientesMateriales;
+import com.dina.genasoft.db.entity.TClientesOperadores;
+import com.dina.genasoft.db.entity.TDireccionClienteVista;
 import com.dina.genasoft.db.entity.TEmpleados;
 import com.dina.genasoft.db.entity.TMateriales;
 import com.dina.genasoft.db.entity.TOperadores;
 import com.dina.genasoft.db.entity.TPermisos;
 import com.dina.genasoft.db.entity.TRegistrosCambiosClientes;
 import com.dina.genasoft.exception.GenasoftException;
+import com.dina.genasoft.utils.TablaGenerica;
 import com.dina.genasoft.utils.Utils;
 import com.dina.genasoft.utils.enums.OperadorEnum;
 import com.dina.genasoft.vistas.Menu;
 import com.dina.genasoft.vistas.VistaInicioSesion;
+import com.dina.genasoft.vistas.maestros.clientes.direcciones.VistaDireccionCliente;
+import com.dina.genasoft.vistas.maestros.clientes.direcciones.VistaNuevaDireccionCliente;
 import com.vaadin.annotations.Theme;
 import com.vaadin.data.Property.ValueChangeEvent;
 import com.vaadin.data.Property.ValueChangeListener;
 import com.vaadin.data.fieldgroup.BeanFieldGroup;
+import com.vaadin.data.util.BeanContainer;
+import com.vaadin.event.ItemClickEvent;
+import com.vaadin.event.ItemClickEvent.ItemClickListener;
 import com.vaadin.navigator.View;
 import com.vaadin.navigator.ViewChangeListener.ViewChangeEvent;
 import com.vaadin.server.Page;
@@ -48,6 +57,7 @@ import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.ListSelect;
 import com.vaadin.ui.Notification;
+import com.vaadin.ui.Table;
 import com.vaadin.ui.TextField;
 import com.vaadin.ui.VerticalLayout;
 
@@ -62,71 +72,88 @@ import com.vaadin.ui.VerticalLayout;
 public class VistaCliente extends CustomComponent implements View ,Button.ClickListener {
     /** El controlador de las vistas. */
     @Autowired
-    private ControladorVistas             contrVista;
+    private ControladorVistas                             contrVista;
+    /** Necesario para mostrar las direccones de descarga del cliente. */
+    private BeanContainer<String, TDireccionClienteVista> bcDirecciones;
     /** El nombre de la vista.*/
-    public static final String            NAME           = "vCliente";
+    public static final String                            NAME            = "vCliente";
     /** Para los campos que componen un cliente.*/
-    private BeanFieldGroup<TClientes>     binder;
+    private BeanFieldGroup<TClientes>                     binder;
     /** El boton para crear el operador.*/
-    private Button                        modificarButton;
+    private Button                                        modificarButton;
     /** El boton para volver al listado de clientes.*/
-    private Button                        listadoButton;
+    private Button                                        listadoButton;
     /** Combobox para los estados.*/
-    private ComboBox                      cbEstado;
+    private ComboBox                                      cbEstado;
     /** Combobox para los materiales.*/
-    private ComboBox                      cbMateriales;
+    private ComboBox                                      cbMateriales;
     /** Combobox para los materiales.*/
-    private ComboBox                      cbOperadores;
+    private ComboBox                                      cbOperadores;
     /** El cliente a modificar.*/
-    private TClientes                     nClientes;
+    private TClientes                                     nClientes;
     /** Contendrá el nombre de la aplicación.*/
     @Value("${app.name}")
-    private String                        appName;
+    private String                                        appName;
     /** Contendrá el ancho de los componentes.*/
     @Value("${app.width}")
-    private Integer                       appWidth;
+    private Integer                                       appWidth;
     /** El log de la aplicación.*/
-    private static final org.slf4j.Logger log            = org.slf4j.LoggerFactory.getLogger(VistaCliente.class);
+    private static final org.slf4j.Logger                 log             = org.slf4j.LoggerFactory.getLogger(VistaCliente.class);
     // Los campos obligatorios
     /** La caja de texto para la referencia .*/
-    private TextField                     txtRazonSocial;
+    private TextField                                     txtRazonSocial;
     /** La caja de texto para el nombre.*/
-    private TextField                     txtCif;
+    private TextField                                     txtCif;
     /** Los permisos del empleado actual. */
-    private TPermisos                     permisos       = null;
+    private TPermisos                                     permisos        = null;
     /** El usuario que está logado. */
-    private Integer                       user           = null;
+    private Integer                                       user            = null;
     /** La fecha en que se inició sesión. */
-    private Long                          time           = null;
-    private TEmpleados                    empleado;
+    private Long                                          time            = null;
+    private TEmpleados                                    empleado;
     /** Botones superiores. **/
     /** El botón principal del segmento. Muestra la información principal del cliente.*/
-    private Button                        principalButton;
+    private Button                                        principalButton;
+    /** El botón principal del segmento. Muestra la información de las direcciones del cliente.*/
+    private Button                                        direccionesButton;
     /** Muestra la información relacionada con los materiales del cliente.*/
-    private Button                        materialesButton;
+    private Button                                        materialesButton;
     /** Muestra la información relacionada con los operadores del cliente.*/
-    private Button                        operadoresButton;
+    private Button                                        operadoresButton;
     /** El boton para crear la dirección de descarga del cliente.*/
-    private Button                        crearDireccionButton;
+    private Button                                        crearDireccionButton;
+    /** El boton para desactivar la dirección de descarga del cliente.*/
+    private Button                                        desactivarDireccionButton;
     /** Container que mostrará los campos relacionado con la información principal del cliente. */
-    private VerticalLayout                infoPrincipal  = null;
+    private VerticalLayout                                infoPrincipal   = null;
     /** Container que mostrará los campos relacionado con la información de materiales del cliente. */
-    private VerticalLayout                infoMateriales = null;
+    private VerticalLayout                                infoMateriales  = null;
     /** Container que mostrará los campos relacionado con la información de operadores del cliente. */
-    private VerticalLayout                infoOperadores = null;
+    private VerticalLayout                                infoOperadores  = null;
+    /** Container que mostrará los campos relacionado con la información de direcciones del cliente. */
+    private VerticalLayout                                infoDirecciones = null;
     /** ListSelect para añadir los materiales para los materiales. */
-    private ListSelect                    lsMateriales;
+    private ListSelect                                    lsMateriales;
     /** ListSelect para añadir los materiales para los materiales. */
-    private ListSelect                    lsOperadores;
+    private ListSelect                                    lsOperadores;
     /** Lista con los materiales activos del sistema. */
-    private List<TMateriales>             lMateriales;
+    private List<TMateriales>                             lMateriales;
     /** Lista con los operadores activos del sistema. */
-    private List<TOperadores>             lOperadores;
+    private List<TOperadores>                             lOperadores;
     /** Lista con los materiales activos del sistema. */
-    private List<TMateriales>             lMaterialesAsignados;
+    private List<TMateriales>                             lMaterialesAsignados;
     /** Lista con los operadores activos del sistema. */
-    private List<TOperadores>             lOperadoresAsignados;
-    private String                        cambios;
+    private List<TOperadores>                             lOperadoresAsignados;
+    private String                                        cambios;
+    /** Tabla para mostrar las direcciones del cliente. */
+    private Table                                         tablaDirecciones;
+    private String                                        idDireccionSeleccionada;
+    /** Lista de direcciones de descarga del cliente. */
+    private List<TDireccionClienteVista>                  lDirecciones    = null;
+    private List<Integer>                                 lIncluidosOperadores;
+    private List<Integer>                                 lIncluidosMateriales;
+    private List<TOperadores>                             lEliminadosOperadores;
+    private List<TMateriales>                             lEliminadosMateriales;
 
     @Override
     public void buttonClick(ClickEvent event) {
@@ -156,6 +183,106 @@ public class VistaCliente extends CustomComponent implements View ,Button.ClickL
 
                         contrVista.crearRegistroCambioCliente(record, user, time);
                     }
+
+                    // Asociamos los operadores que haya seleccionado
+                    @SuppressWarnings("unchecked")
+                    List<TOperadores> lOperadoresAsig = (List<TOperadores>) lsOperadores.getItemIds();
+                    TClientesOperadores clOp = null;
+                    TRegistrosCambiosClientes record = null;
+                    TRegistrosCambiosClientes record2 = null;
+                    for (TOperadores op : lOperadoresAsig) {
+                        clOp = new TClientesOperadores();
+                        clOp.setEstado(1);
+                        clOp.setFechaCrea(Utils.generarFecha());
+                        clOp.setIdCliente(nClientes.getId());
+                        clOp.setIdOperador(op.getId());
+                        clOp.setUsuCrea(user);
+                        contrVista.asignarOperadorCliente(clOp, user, time);
+
+                        if (lIncluidosOperadores.contains(op.getId())) {
+                            record = new TRegistrosCambiosClientes();
+                            record.setCambio("Se le asigna el operador: " + op.getNombre());
+                            record.setFechaCambio(Utils.generarFecha());
+                            record.setIdCliente(nClientes.getId());
+                            record.setUsuCrea(user);
+
+                            contrVista.crearRegistroCambioCliente(record, user, time);
+                        }
+                    }
+
+                    // Asociamos los materiales que haya seleccionado
+                    @SuppressWarnings("unchecked")
+                    List<TMateriales> lMaterialesAsig = (List<TMateriales>) lsMateriales.getItemIds();
+                    TClientesMateriales clMat = null;
+
+                    for (TMateriales mat : lMaterialesAsig) {
+                        clMat = new TClientesMateriales();
+                        clMat.setEstado(1);
+                        clMat.setFechaCrea(Utils.generarFecha());
+                        clMat.setIdCliente(nClientes.getId());
+                        clMat.setIva(mat.getIva());
+                        clMat.setPrecioKg(mat.getPrecio());
+                        clMat.setIdMaterial(mat.getId());
+                        clMat.setUsuCrea(user);
+                        contrVista.asignarMaterialCliente(clMat, user, time);
+
+                        if (lIncluidosMateriales.contains(mat.getId())) {
+                            record2 = new TRegistrosCambiosClientes();
+                            record2.setCambio("Se le asigna el material: " + mat.getDescripcion());
+                            record2.setFechaCambio(Utils.generarFecha());
+                            record2.setIdCliente(nClientes.getId());
+                            record2.setUsuCrea(user);
+
+                            contrVista.crearRegistroCambioCliente(record2, user, time);
+                        }
+                    }
+
+                    // Desactivamos lo que ha quitado del listado de operadores.
+                    for (TOperadores op : lEliminadosOperadores) {
+                        clOp = new TClientesOperadores();
+                        clOp.setEstado(0);
+                        clOp.setFechaCrea(Utils.generarFecha());
+                        clOp.setFechaModifica(Utils.generarFecha());
+                        clOp.setIdCliente(nClientes.getId());
+                        clOp.setIdOperador(op.getId());
+                        clOp.setUsuCrea(user);
+                        clOp.setUsuModifica(user);
+                        contrVista.asignarOperadorCliente(clOp, user, time);
+
+                        record = new TRegistrosCambiosClientes();
+                        record.setCambio("Se le desactiva el operador: " + op.getNombre());
+                        record.setFechaCambio(Utils.generarFecha());
+                        record.setIdCliente(nClientes.getId());
+                        record.setUsuCrea(user);
+
+                        contrVista.crearRegistroCambioCliente(record, user, time);
+                    }
+
+                    // Desactivamos lo que ha quitado del listado de materiales
+                    for (TMateriales mat : lEliminadosMateriales) {
+                        clMat = new TClientesMateriales();
+                        clMat.setEstado(0);
+                        clMat.setFechaCrea(Utils.generarFecha());
+                        clMat.setFechaModifica(Utils.generarFecha());
+                        clMat.setIdCliente(nClientes.getId());
+                        clMat.setIva(mat.getIva());
+                        clMat.setPrecioKg(mat.getPrecio());
+                        clMat.setIdMaterial(mat.getId());
+                        clMat.setUsuCrea(user);
+                        clMat.setUsuModifica(user);
+                        contrVista.asignarMaterialCliente(clMat, user, time);
+
+                        if (lIncluidosMateriales.contains(mat.getId())) {
+                            record2 = new TRegistrosCambiosClientes();
+                            record2.setCambio("Se le asigna el material: " + mat.getDescripcion());
+                            record2.setFechaCambio(Utils.generarFecha());
+                            record2.setIdCliente(nClientes.getId());
+                            record2.setUsuCrea(user);
+
+                            contrVista.crearRegistroCambioCliente(record2, user, time);
+                        }
+                    }
+
                     result = contrVista.obtenerDescripcionCodigo(result);
                     Notification aviso = new Notification(result, Notification.Type.ASSISTIVE_NOTIFICATION);
                     aviso.setPosition(Position.MIDDLE_CENTER);
@@ -195,6 +322,8 @@ public class VistaCliente extends CustomComponent implements View ,Button.ClickL
 
         } else if (event.getButton().equals(listadoButton)) {
             getUI().getNavigator().navigateTo(VistaListadoClientes.NAME);
+        } else if (event.getButton().equals(crearDireccionButton)) {
+            getUI().getNavigator().navigateTo(VistaNuevaDireccionCliente.NAME + "/" + nClientes.getId());
         }
     }
 
@@ -228,6 +357,14 @@ public class VistaCliente extends CustomComponent implements View ,Button.ClickL
 
                 permisos = contrVista.obtenerPermisosEmpleado(empleado, user, time);
 
+                bcDirecciones = new BeanContainer<>(TDireccionClienteVista.class);
+                bcDirecciones.setBeanIdProperty("id");
+
+                lIncluidosMateriales = Utils.generarListaGenerica();
+                lIncluidosOperadores = Utils.generarListaGenerica();
+                lEliminadosMateriales = Utils.generarListaGenerica();
+                lEliminadosOperadores = Utils.generarListaGenerica();
+
                 if (permisos == null) {
                     Notification aviso = new Notification("No se ha podido identificar los permisos asignados, contacta con el administrador.", Notification.Type.ERROR_MESSAGE);
                     aviso.setPosition(Position.MIDDLE_CENTER);
@@ -251,15 +388,11 @@ public class VistaCliente extends CustomComponent implements View ,Button.ClickL
                 crearBotones();
                 // Creamos los combos de la pantalla.
                 crearCombos();
-
                 // Creamos los botones superiores
                 crearBotonesMenu();
+                // Creamos la tabla de direcciones
+                crearTablaDirecciones();
                 //El fieldgroup no es un componente
-
-                // Obtenemos los materiales activos del sistema.
-                lMateriales = contrVista.obtenerMaterialesActivos(user, time);
-                lMaterialesAsignados = contrVista.obtenerMaterialesAsignadosCliente(nClientes.getId(), user, time);
-                lOperadoresAsignados = contrVista.obtenerOperadoresAsignadosCliente(nClientes.getId(), user, time);
 
                 // Obtenemos los operadores activos del sistema.
                 lOperadores = contrVista.obtenerOperadoresActivos(user, time);
@@ -280,6 +413,12 @@ public class VistaCliente extends CustomComponent implements View ,Button.ClickL
                     return;
                 }
 
+                // Obtenemos los materiales activos del sistema.
+                lMateriales = contrVista.obtenerMaterialesActivos(user, time);
+                lMaterialesAsignados = contrVista.obtenerMaterialesAsignadosCliente(nClientes.getId(), user, time);
+                lOperadoresAsignados = contrVista.obtenerOperadoresAsignadosCliente(nClientes.getId(), user, time);
+                lDirecciones = contrVista.obtenerDireccionesClientePorIdClienteVista(nClientes.getId(), user, time);
+
                 binder.setItemDataSource(nClientes);
                 // Creamos los combos de la pantalla.
                 crearCombos();
@@ -293,11 +432,14 @@ public class VistaCliente extends CustomComponent implements View ,Button.ClickL
                 // Creamos los componetes que conforman la pantalla.
                 crearComponentes();
 
-                // Generamos las partes de la intefaz.
+                bcDirecciones.removeAllItems();
+                bcDirecciones.addAll(lDirecciones);
 
+                // Generamos las partes de la intefaz.
                 generaInformacionPrincipal();
                 generaInformacionMateriales();
                 generaInformacioOperadores();
+                generaInformacionDirecciones();
 
                 Label texto = new Label(nClientes.getNombre());
                 texto.setStyleName("tituloTamano18");
@@ -333,26 +475,15 @@ public class VistaCliente extends CustomComponent implements View ,Button.ClickL
                 Label lblSpace = new Label(" ");
                 lblSpace.setHeight(5, Sizeable.Unit.EM);
 
-                formulario1.addComponent(txtRazonSocial);
-                formulario1.setComponentAlignment(txtRazonSocial, Alignment.MIDDLE_CENTER);
-                formulario1.addComponent(txtCif);
-                formulario1.setComponentAlignment(txtCif, Alignment.MIDDLE_CENTER);
-                formulario1.addComponent(txtDireccion);
-                formulario1.setComponentAlignment(txtDireccion, Alignment.MIDDLE_CENTER);
-                formulario1.addComponent(txtCp);
-                formulario1.setComponentAlignment(txtCp, Alignment.MIDDLE_CENTER);
-                formulario1.addComponent(txtCiudad);
-                formulario1.setComponentAlignment(txtCiudad, Alignment.MIDDLE_CENTER);
-                formulario1.addComponent(txtProvincia);
-                formulario1.setComponentAlignment(txtProvincia, Alignment.MIDDLE_CENTER);
-                formulario1.addComponent(cbEstado);
-                formulario1.setComponentAlignment(cbEstado, Alignment.MIDDLE_CENTER);
-                body.addComponent(formulario1);
-                body.setComponentAlignment(formulario1, Alignment.MIDDLE_CENTER);
-                viewLayout.addComponent(listadoButton);
-                viewLayout.addComponent(body);
-                viewLayout.setComponentAlignment(body, Alignment.MIDDLE_CENTER);
-                viewLayout.addComponent(lblSpace);
+                viewLayout.addComponent(crearBotonesMenu());
+                viewLayout.addComponent(infoPrincipal);
+                viewLayout.setComponentAlignment(infoPrincipal, Alignment.MIDDLE_CENTER);
+                viewLayout.addComponent(infoDirecciones);
+                viewLayout.setComponentAlignment(infoDirecciones, Alignment.MIDDLE_CENTER);
+                viewLayout.addComponent(infoMateriales);
+                viewLayout.setComponentAlignment(infoMateriales, Alignment.MIDDLE_CENTER);
+                viewLayout.addComponent(infoOperadores);
+                viewLayout.setComponentAlignment(infoOperadores, Alignment.MIDDLE_CENTER);
                 viewLayout.addComponent(modificarButton);
                 viewLayout.setComponentAlignment(modificarButton, Alignment.MIDDLE_CENTER);
 
@@ -363,6 +494,12 @@ public class VistaCliente extends CustomComponent implements View ,Button.ClickL
                 viewLayout.setExpandRatio(titulo, 0.1f);
                 viewLayout.setMargin(true);
                 viewLayout.setSpacing(true);
+
+                infoPrincipal.setVisible(true);
+                infoMateriales.setVisible(false);
+                infoOperadores.setVisible(false);
+                infoDirecciones.setVisible(false);
+
             } catch (MyBatisSystemException e) {
                 Notification aviso = new Notification("No se ha podido establecer conexión con la base de datos.", Notification.Type.ERROR_MESSAGE);
                 aviso.setPosition(Position.MIDDLE_CENTER);
@@ -404,6 +541,9 @@ public class VistaCliente extends CustomComponent implements View ,Button.ClickL
         // Direcciones
         crearDireccionButton = new Button("Crear dirección", this);
         crearDireccionButton.addStyleName("big");
+
+        desactivarDireccionButton = new Button("Desactivar dirección", this);
+        desactivarDireccionButton.addStyleName("big");
     }
 
     /**
@@ -420,7 +560,7 @@ public class VistaCliente extends CustomComponent implements View ,Button.ClickL
         principalButton.addStyleName("default");
         principalButton.addStyleName("first");
         principalButton.addStyleName("down");
-
+        principalButton.setStyleName("down");
         // Infiormación principal
         principalButton.addClickListener(new ClickListener() {
 
@@ -429,16 +569,39 @@ public class VistaCliente extends CustomComponent implements View ,Button.ClickL
                     infoPrincipal.setVisible(true);
                     infoOperadores.setVisible(false);
                     infoMateriales.setVisible(false);
-                    principalButton.addStyleName("down");
+                    infoDirecciones.setVisible(false);
+                    principalButton.setStyleName("down");
                     materialesButton.setStyleName("default");
                     operadoresButton.setStyleName("default");
-                    modificarButton.setVisible(true);
+                    direccionesButton.setStyleName("default");
+                }
+            }
+        });
+
+        direccionesButton = new Button("Direcciones");
+        direccionesButton.addStyleName("default");
+        direccionesButton.addStyleName("down");
+
+        // Infiormación de direcciones
+        direccionesButton.addClickListener(new ClickListener() {
+
+            public void buttonClick(ClickEvent event) {
+                if (!infoDirecciones.isVisible()) {
+                    infoDirecciones.setVisible(true);
+                    infoPrincipal.setVisible(false);
+                    infoOperadores.setVisible(false);
+                    infoMateriales.setVisible(false);
+                    direccionesButton.setStyleName("down");
+                    materialesButton.setStyleName("default");
+                    operadoresButton.setStyleName("default");
+                    principalButton.setStyleName("default");
                 }
             }
         });
 
         materialesButton = new Button("Materiales");
         materialesButton.addStyleName("default");
+        materialesButton.addStyleName("down");
 
         materialesButton.addClickListener(new ClickListener() {
 
@@ -446,17 +609,19 @@ public class VistaCliente extends CustomComponent implements View ,Button.ClickL
                 if (!infoMateriales.isVisible()) {
                     infoMateriales.setVisible(true);
                     infoPrincipal.setVisible(false);
+                    infoDirecciones.setVisible(false);
                     infoOperadores.setVisible(false);
-                    principalButton.addStyleName("default");
+                    principalButton.setStyleName("default");
                     materialesButton.setStyleName("down");
                     operadoresButton.setStyleName("default");
-                    modificarButton.setVisible(false);
+                    direccionesButton.setStyleName("default");
                 }
             }
         });
 
         operadoresButton = new Button("Operadores");
         operadoresButton.addStyleName("default");
+        operadoresButton.addStyleName("down");
 
         operadoresButton.addClickListener(new ClickListener() {
 
@@ -465,16 +630,17 @@ public class VistaCliente extends CustomComponent implements View ,Button.ClickL
                     infoOperadores.setVisible(true);
                     infoMateriales.setVisible(false);
                     infoPrincipal.setVisible(false);
-                    principalButton.addStyleName("default");
+                    infoDirecciones.setVisible(false);
+                    principalButton.setStyleName("default");
                     materialesButton.setStyleName("default");
                     operadoresButton.setStyleName("down");
-                    modificarButton.setVisible(false);
-
+                    direccionesButton.setStyleName("default");
                 }
             }
         });
 
         botonesMenu.addComponent(principalButton);
+        botonesMenu.addComponent(direccionesButton);
         botonesMenu.addComponent(materialesButton);
         botonesMenu.addComponent(operadoresButton);
 
@@ -573,62 +739,6 @@ public class VistaCliente extends CustomComponent implements View ,Button.ClickL
 
         nClientes.setCif(value);
 
-        value = txtCiudad.getValue();
-
-        if (value == null && nClientes.getCiudad() != null) {
-            cambios = cambios + "\n Se le quita la ciudad, antes tenia: " + nClientes.getCiudad();
-        } else if (value != null && nClientes.getCiudad() == null) {
-            value = value.trim().toUpperCase();
-            cambios = cambios + "\n Se le asigna una nueva ciudad, antes no tenía tenia, ahora tiene:  " + value;
-        } else if (value != null && !value.equals(nClientes.getCiudad())) {
-            value = value.trim().toUpperCase();
-            cambios = cambios + "\n Se le cambia la ciudad, antes tenia: " + nClientes.getCiudad() + " y ahora tiene: " + value;
-        }
-
-        nClientes.setCiudad(value);
-
-        value = txtCp.getValue();
-
-        if (value == null && nClientes.getCodigoPostal() != null) {
-            cambios = cambios + "\n Se le quita el codigo postal, antes tenia: " + nClientes.getCodigoPostal();
-        } else if (value != null && nClientes.getCodigoPostal() == null) {
-            value = value.trim().toUpperCase();
-            cambios = cambios + "\n Se le asigna un nuevo codigo postal, antes no tenía tenia, ahora tiene:  " + value;
-        } else if (value != null && !value.equals(nClientes.getCodigoPostal())) {
-            value = value.trim().toUpperCase();
-            cambios = cambios + "\n Se le cambia el codigo postal, antes tenia: " + nClientes.getCodigoPostal() + " y ahora tiene: " + value;
-        }
-
-        nClientes.setCodigoPostal(value);
-
-        value = txtProvincia.getValue();
-
-        if (value == null && nClientes.getProvincia() != null) {
-            cambios = cambios + "\n Se le quita la provincia, antes tenia: " + nClientes.getProvincia();
-        } else if (value != null && nClientes.getProvincia() == null) {
-            value = value.trim().toUpperCase();
-            cambios = cambios + "\n Se le asigna una nueva provincia, antes no tenía tenia, ahora tiene:  " + value;
-        } else if (value != null && !value.equals(nClientes.getProvincia())) {
-            value = value.trim().toUpperCase();
-            cambios = cambios + "\n Se le cambia la provincia, antes tenia: " + nClientes.getProvincia() + " y ahora tiene: " + value;
-        }
-
-        nClientes.setProvincia(value);
-
-        value = txtDireccion.getValue();
-
-        if (value == null && nClientes.getDireccion() != null) {
-            cambios = cambios + "\n Se le quita la dirección, antes tenia: " + nClientes.getDireccion();
-        } else if (value != null && nClientes.getDireccion() == null) {
-            value = value.trim().toUpperCase();
-            cambios = cambios + "\n Se le asigna una nueva dirección, antes no tenía tenia, ahora tiene:  " + value;
-        } else if (value != null && !value.equals(nClientes.getDireccion())) {
-            value = value.trim().toUpperCase();
-            cambios = cambios + "\n Se le cambia la dirección, antes tenia: " + nClientes.getDireccion() + " y ahora tiene: " + value;
-        }
-
-        nClientes.setDireccion(value);
-
         if (!cambios.isEmpty()) {
             nClientes.setFechaModifica(Utils.generarFecha());
             nClientes.setUsuModifica(user);
@@ -641,7 +751,7 @@ public class VistaCliente extends CustomComponent implements View ,Button.ClickL
      * @return true si no se cumple la validación
      */
     private boolean validarCamposObligatorios() {
-        return !cbEstado.isValid() || !txtCif.isValid() || !txtRazonSocial.isValid() || !txtDireccion.isValid() || !txtCp.isValid() || !txtProvincia.isValid() || !txtCiudad.isValid();
+        return !cbEstado.isValid() || !txtCif.isValid() || !txtRazonSocial.isValid();
     }
 
     /**
@@ -670,6 +780,7 @@ public class VistaCliente extends CustomComponent implements View ,Button.ClickL
         body.setComponentAlignment(formulario1, Alignment.MIDDLE_CENTER);
 
         infoPrincipal.addComponent(body);
+        infoPrincipal.setComponentAlignment(body, Alignment.MIDDLE_CENTER);
     }
 
     /**
@@ -696,6 +807,8 @@ public class VistaCliente extends CustomComponent implements View ,Button.ClickL
             public void valueChange(ValueChangeEvent event) {
                 if (cbMateriales.getValue() != null) {
                     lsMateriales.addItem((TMateriales) cbMateriales.getValue());
+                    lIncluidosMateriales.add(((TMateriales) cbMateriales.getValue()).getId());
+                    cbMateriales.clear();
                 }
             }
         });
@@ -703,11 +816,17 @@ public class VistaCliente extends CustomComponent implements View ,Button.ClickL
         lsMateriales = new ListSelect("Materiales asignados");
         lsMateriales.setWidth(appWidth, Sizeable.Unit.EM);
         lsMateriales.removeAllItems();
+
+        for (TMateriales clMat : lMaterialesAsignados) {
+            lsMateriales.addItem(clMat);
+        }
+
         lsMateriales.addValueChangeListener(new ValueChangeListener() {
 
             @Override
             public void valueChange(ValueChangeEvent event) {
                 if (lsMateriales.getValue() != null) {
+                    lEliminadosMateriales.add((TMateriales) lsMateriales.getValue());
                     lsMateriales.removeItem(lsMateriales.getValue());
                 }
             }
@@ -719,6 +838,7 @@ public class VistaCliente extends CustomComponent implements View ,Button.ClickL
         body.setComponentAlignment(lsMateriales, Alignment.MIDDLE_CENTER);
 
         infoMateriales.addComponent(body);
+        infoMateriales.setComponentAlignment(body, Alignment.MIDDLE_CENTER);
     }
 
     /**
@@ -743,8 +863,10 @@ public class VistaCliente extends CustomComponent implements View ,Button.ClickL
 
             @Override
             public void valueChange(ValueChangeEvent event) {
-                if (cbMateriales.getValue() != null) {
-                    lsMateriales.addItem((TOperadores) cbOperadores.getValue());
+                if (cbOperadores.getValue() != null) {
+                    lsOperadores.addItem((TOperadores) cbOperadores.getValue());
+                    lIncluidosOperadores.add(((TOperadores) cbOperadores.getValue()).getId());
+                    cbOperadores.clear();
                 }
             }
         });
@@ -752,11 +874,17 @@ public class VistaCliente extends CustomComponent implements View ,Button.ClickL
         lsOperadores = new ListSelect("Operadores asignados");
         lsOperadores.setWidth(appWidth, Sizeable.Unit.EM);
         lsOperadores.removeAllItems();
+
+        for (TOperadores clOp : lOperadoresAsignados) {
+            lsOperadores.addItem(clOp);
+        }
+
         lsOperadores.addValueChangeListener(new ValueChangeListener() {
 
             @Override
             public void valueChange(ValueChangeEvent event) {
                 if (lsOperadores.getValue() != null) {
+                    lEliminadosOperadores.add((TOperadores) lsOperadores.getValue());
                     lsOperadores.removeItem(lsOperadores.getValue());
                 }
             }
@@ -768,6 +896,56 @@ public class VistaCliente extends CustomComponent implements View ,Button.ClickL
         body.setComponentAlignment(lsOperadores, Alignment.MIDDLE_CENTER);
 
         infoOperadores.addComponent(body);
+        infoOperadores.setComponentAlignment(body, Alignment.MIDDLE_CENTER);
+    }
+
+    private void generaInformacionDirecciones() {
+
+        infoDirecciones = new VerticalLayout();
+        infoDirecciones.setSpacing(true);
+        infoDirecciones.setMargin(true);
+
+        HorizontalLayout botonera = new HorizontalLayout();
+        botonera.setSpacing(true);
+
+        botonera.addComponent(crearDireccionButton);
+        botonera.addComponent(desactivarDireccionButton);
+
+        botonera.setMargin(true);
+
+        Label lblDirecciones = new Label("Direcciones");
+        lblDirecciones.setStyleName("tituloTamano12");
+        // Creamos el componente de filtro.
+        infoDirecciones.addComponent(botonera);
+        infoDirecciones.addComponent(lblDirecciones);
+        infoDirecciones.addComponent(tablaDirecciones);
+
+    }
+
+    /**
+     * Método que se encaerga de crear y montar el grid.
+     * @return El Grid con las columnas.
+     */
+    private void crearTablaDirecciones() {
+        tablaDirecciones = new TablaGenerica(new Object[] { "codDireccion", "direccion", "codigoPostal", "poblacion", "provincia", "fechaCrea", "estado" }, new String[] { "Código dirección", "Dirección", "Código postal", "Población", "Provincia", "Fecha alta", "Estado" }, bcDirecciones);
+        tablaDirecciones.addStyleName("big striped");
+        tablaDirecciones.setPageLength(20);
+
+        // Establecemos tamaño fijo en columnas específicas.
+        tablaDirecciones.setColumnWidth("referencia", 80);
+        tablaDirecciones.setColumnWidth("estado", 70);
+
+        tablaDirecciones.addItemClickListener(new ItemClickListener() {
+            @Override
+            public void itemClick(ItemClickEvent event) {
+                idDireccionSeleccionada = (String) event.getItemId();
+
+                if (event.isDoubleClick()) {
+                    getUI().getNavigator().navigateTo(VistaDireccionCliente.NAME + "/" + idDireccionSeleccionada);
+                }
+
+            }
+        });
     }
 
 }
