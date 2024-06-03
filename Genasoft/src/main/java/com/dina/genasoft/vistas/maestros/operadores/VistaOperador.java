@@ -207,7 +207,7 @@ public class VistaOperador extends CustomComponent implements View ,Button.Click
                     return;
                 }
 
-                if (!Utils.booleanFromInteger(permisos.getEntornoMaestros())) {
+                if (!Utils.booleanFromInteger(permisos.getModificarOperador())) {
                     Notification aviso = new Notification("No se tienen permisos para acceder a la pantalla indicada", Notification.Type.ERROR_MESSAGE);
                     aviso.setPosition(Position.MIDDLE_CENTER);
                     aviso.show(Page.getCurrent());

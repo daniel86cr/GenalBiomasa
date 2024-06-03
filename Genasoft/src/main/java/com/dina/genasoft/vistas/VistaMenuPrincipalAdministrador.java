@@ -16,6 +16,8 @@ import com.dina.genasoft.db.entity.TEmpleados;
 import com.dina.genasoft.db.entity.TPermisos;
 import com.dina.genasoft.exception.GenasoftException;
 import com.dina.genasoft.utils.Utils;
+import com.dina.genasoft.vistas.pesajes.VistaListadoPesajes;
+import com.dina.genasoft.vistas.pesajes.VistaNuevoPesaje;
 import com.vaadin.annotations.Theme;
 import com.vaadin.navigator.View;
 import com.vaadin.navigator.ViewChangeListener.ViewChangeEvent;
@@ -177,7 +179,7 @@ public class VistaMenuPrincipalAdministrador extends CustomComponent implements 
 
             public void buttonClick(ClickEvent event) {
 
-                getUI().getNavigator().navigateTo(VistaMenuPrincipalMaestros.NAME + "/" + empleado.getId());
+                getUI().getNavigator().navigateTo(VistaNuevoPesaje.NAME + "/" + empleado.getId());
 
             }
         });
@@ -187,18 +189,7 @@ public class VistaMenuPrincipalAdministrador extends CustomComponent implements 
 
             public void buttonClick(ClickEvent event) {
 
-                try {
-
-                    Thread.sleep(7 * 1000);
-
-                    new ProcessBuilder("C:\\Trazabilidades\\MySQLBackups\\mysqlbackup.bat").start();
-
-                    Notification aviso = new Notification("Copia realizada correctamente", Notification.Type.HUMANIZED_MESSAGE);
-                    aviso.setPosition(Position.MIDDLE_CENTER);
-                    aviso.show(Page.getCurrent());
-                } catch (Exception e) {
-
-                }
+                getUI().getNavigator().navigateTo(VistaListadoPesajes.NAME + "/" + empleado.getId());
 
             }
         });

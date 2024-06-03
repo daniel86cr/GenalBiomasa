@@ -12,9 +12,13 @@ package com.dina.genasoft.utils.enums;
 public enum PesajesEnum
 {
     /** Pesaje activo.*/
-    ACTIVO(1),
-    /** Pesaje no activo. */
-    DESACTIVADO(0);
+    ALBARAN(1),
+    /** Pesaje facturado.*/
+    FACTURADO(2),
+    /** Pesaje anulado. */
+    ANULADO(0),
+    /** TIPO DE PESAJE GENERICO. */
+    TIPO_GENERICO(1);
 
     /**String data type. */
     private int valor;

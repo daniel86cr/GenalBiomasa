@@ -224,7 +224,7 @@ public class VistaNuevaDireccionCliente extends CustomComponent implements View 
                     return;
                 }
 
-                if (!Utils.booleanFromInteger(permisos.getEntornoMaestros())) {
+                if (!Utils.booleanFromInteger(permisos.getModificarCliente())) {
                     Notification aviso = new Notification("No se tienen permisos para acceder a la pantalla indicada", Notification.Type.ERROR_MESSAGE);
                     aviso.setPosition(Position.MIDDLE_CENTER);
                     aviso.show(Page.getCurrent());
@@ -339,6 +339,9 @@ public class VistaNuevaDireccionCliente extends CustomComponent implements View 
     private void crearBotones() {
         // Creamos los botones.
         crearButton = new Button("Crear dirección", this);
+        crearButton.addStyleName("big");
+
+        listadoButton = new Button("Volver al cliente", this);
         crearButton.addStyleName("big");
 
     }

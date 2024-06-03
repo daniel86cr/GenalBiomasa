@@ -47,10 +47,18 @@ public final class Constants {
     public static String SESION_INVALIDA                        = "GBE-015";
     /** Constante de error que nos indica que el empleado ya está desactivado .*/
     public static String EMPL_DESACTIVADO                       = "GBE-016";
-    /** Constante con el texto activo para que sea uniforme en toda la aplicación. */
+    /** Constante con el texto 'activo' para que sea uniforme en toda la aplicación. */
     public static String ACTIVO                                 = "Activo";
-    /** Constante con el texto activo para que sea uniforme en toda la aplicación. */
+    /** Constante con el texto 'desactivado' para que sea uniforme en toda la aplicación. */
     public static String DESACTIVADO                            = "Desactivado";
+    /** Constante con el texto 'anulado' para que sea uniforme en toda la aplicación. */
+    public static String ANULADO                                = "Anulado";
+    /** Constante con el texto 'albarán' para que sea uniforme en toda la aplicación. */
+    public static String ALBARAN                                = "Albarán";
+    /** Constante con el texto 'facturado' para que sea uniforme en toda la aplicación. */
+    public static String FACTURADO                              = "Facturado";
+    /** Constante con el texto 'no facturado' para que sea uniforme en toda la aplicación. */
+    public static String NO_FACTURADO                           = "No Facturado";
     /** Constante de error que nos indica que el cliente ya existe con el CIF indicado. */
     public static String CLIENTE_EXISTE_CIF                     = "GBE-017";
     /** Constante de error que indica que no existe el cliente. */

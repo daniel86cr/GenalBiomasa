@@ -2531,8 +2531,8 @@ public class ControladorVistas implements Serializable {
         if (commonSetup.conexionValida(userId, t, estadoAplicacion)) {
             TPesajes pesaje = pesajesSetup.obtenerPesajePorId(idPesaje);
             if (pesaje != null) {
-                if (pesaje.getEstado().equals(PesajesEnum.ACTIVO.getValue())) {
-                    pesaje.setEstado(PesajesEnum.DESACTIVADO.getValue());
+                if (pesaje.getEstado().equals(PesajesEnum.ALBARAN.getValue())) {
+                    pesaje.setEstado(PesajesEnum.ANULADO.getValue());
                     pesaje.setUsuModifica(userId);
                     pesaje.setFechaModifica(Utils.generarFecha());
                     result = pesajesSetup.modificarPesaje(pesaje);
@@ -2808,6 +2808,29 @@ public class ControladorVistas implements Serializable {
             }
         }
 
+        return result;
+    }
+
+    /**
+     * Método que se encarga de obtener el número de albarán que le corresponde al nuevo pedido
+     * @param tipo El tipo de pedido a crear.
+     * @param userId El usuario que está activo.
+     * @param time El tiempo en milisegundos.
+     * @return El número de albarán adjundicado.
+     */
+    public String obtenerNumeroAlbaran(String tipo, Integer userId, long time) throws GenasoftException {
+        String result = "-1";
+        Timestamp t = new Timestamp(time);
+        if (commonSetup.conexionValida(userId, t, estadoAplicacion)) {
+            result = pesajesSetup.obtenerNumeroAlbaran(tipo);
+        } else {
+            if (estadoAplicacion == null || estadoAplicacion.equals(-1)) {
+                throw new GenasoftException(Constants.LICENCIA_NO_VALIDA);
+            } else {
+                throw new GenasoftException(Constants.SESION_INVALIDA);
+            }
+        }
+        // Retornamos el número del albarán
         return result;
     }
 

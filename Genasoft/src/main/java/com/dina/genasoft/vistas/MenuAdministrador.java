@@ -10,6 +10,8 @@ import org.springframework.beans.factory.annotation.Value;
 import com.dina.genasoft.db.entity.TPermisos;
 import com.dina.genasoft.utils.Utils;
 import com.dina.genasoft.vistas.maestros.empleados.VistaEmpleado;
+import com.dina.genasoft.vistas.pesajes.VistaListadoPesajes;
+import com.dina.genasoft.vistas.pesajes.VistaNuevoPesaje;
 import com.vaadin.server.Resource;
 import com.vaadin.server.ThemeResource;
 import com.vaadin.spring.annotation.SpringComponent;
@@ -50,6 +52,8 @@ public class MenuAdministrador extends CustomComponent {
     private MenuBar.Command listadoPesajes;
     /** Evento que muestra la vista de los productos. */
     private MenuBar.Command entornoFacturacion;
+    /** Evento que muestra la vista de las cajas. */
+    private MenuBar.Command registroPesajes;
     /** Evento que muestra la vista para crear pedidos de envases. */
     private MenuBar.Command acercaDe;
     /** El Id del empleado logado. */
@@ -129,6 +133,33 @@ public class MenuAdministrador extends CustomComponent {
             public void menuSelected(MenuItem selectedItem) {
 
                 getUI().getNavigator().navigateTo(VistaMenuPrincipalAdministrador.NAME + "/" + idEmpleado);
+            }
+
+        };
+
+        entornoMaestros = new MenuBar.Command() {
+
+            public void menuSelected(MenuItem selectedItem) {
+
+                getUI().getNavigator().navigateTo(VistaMenuPrincipalMaestros.NAME + "/" + idEmpleado);
+            }
+
+        };
+
+        registroPesajes = new MenuBar.Command() {
+
+            public void menuSelected(MenuItem selectedItem) {
+
+                getUI().getNavigator().navigateTo(VistaNuevoPesaje.NAME + "/" + idEmpleado);
+            }
+
+        };
+
+        inventarioPesajes = new MenuBar.Command() {
+
+            public void menuSelected(MenuItem selectedItem) {
+
+                getUI().getNavigator().navigateTo(VistaListadoPesajes.NAME + "/" + idEmpleado);
             }
 
         };

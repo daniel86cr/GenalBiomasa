@@ -545,7 +545,15 @@ public class TPesajesVista implements Serializable {
         DecimalFormat df = new DecimalFormat("#,##0.000");
         this.descMaterial = Utils.formatearValorString(p.getDescMaterial());
         this.destino = Utils.formatearValorString(p.getDestino());
-        this.estado = p.getEstado().equals(PesajesEnum.ACTIVO.getValue()) ? Constants.ACTIVO : Constants.DESACTIVADO;
+        String estado = "";
+        if (p.getEstado().equals(PesajesEnum.ALBARAN.getValue())) {
+            estado = Constants.ALBARAN;
+        } else if (p.getEstado().equals(PesajesEnum.FACTURADO.getValue())) {
+            estado = Constants.FACTURADO;
+        } else if (p.getEstado().equals(PesajesEnum.ANULADO.getValue())) {
+            estado = Constants.ANULADO;
+        }
+        this.estado = estado;
         this.fechaCrea = new SimpleDateFormat("dd/MM/yyyy hh:mm").format(p.getFechaCrea());
         this.fechaModifica = p.getFechaModifica() != null ? new SimpleDateFormat("dd/MM/yyyy hh:mm").format(p.getFechaModifica()) : "-";
         this.fechaPesaje = new SimpleDateFormat("dd/MM/yyyy").format(p.getFechaPesaje());

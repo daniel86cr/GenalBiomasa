@@ -319,9 +319,9 @@ public class VistaListadoMateriales extends CustomComponent implements View ,But
 
                     result = contrVista.obtenerDescripcionCodigo(result);
                     Item articulo = tablaMateriales.getItem("" + ids[i]);
-                    String est = "Desactivado";
+                    String est = Constants.DESACTIVADO;
                     if (articulo.getItemProperty("estado").getValue().equals("Activo")) {
-                        est = "Desactivado";
+                        est = Constants.DESACTIVADO;
                     }
                     articulo.getItemProperty("estado").setValue(est);
                     i++;
@@ -337,9 +337,9 @@ public class VistaListadoMateriales extends CustomComponent implements View ,But
                 aviso.setPosition(Position.MIDDLE_CENTER);
                 aviso.show(Page.getCurrent());
                 Item articulo = tablaMateriales.getItem("" + idSeleccionado);
-                String est = "Desactivado";
+                String est = Constants.DESACTIVADO;
                 if (articulo.getItemProperty("estado").getValue().equals("Activo")) {
-                    est = "Desactivado";
+                    est = Constants.DESACTIVADO;
                 }
                 articulo.getItemProperty("estado").setValue(est);
             }
@@ -393,7 +393,7 @@ public class VistaListadoMateriales extends CustomComponent implements View ,But
             @Override
             public void itemClick(ItemClickEvent event) {
                 idSeleccionado = (String) event.getItemId();
-                if (event.isDoubleClick()) {
+                if (event.isDoubleClick() && Utils.booleanFromInteger(permisos.getModificarMaterial())) {
                     getUI().getNavigator().navigateTo(VistaMaterial.NAME + "/" + idSeleccionado);
                 }
             }
@@ -756,13 +756,15 @@ public class VistaListadoMateriales extends CustomComponent implements View ,But
         //Botonera
         HorizontalLayout botonera = new HorizontalLayout();
         botonera.setSpacing(true);
-
-        botonera.addComponent(crearButton);
-
-        botonera.addComponent(modificarButton);
-
-        botonera.addComponent(eliminarButton);
-
+        if (Utils.booleanFromInteger(permisos.getCrearMateria())) {
+            botonera.addComponent(crearButton);
+        }
+        if (Utils.booleanFromInteger(permisos.getModificarMaterial())) {
+            botonera.addComponent(modificarButton);
+        }
+        if (Utils.booleanFromInteger(permisos.getEliminarMaterial())) {
+            botonera.addComponent(eliminarButton);
+        }
         botonera.setMargin(true);
 
         return botonera;

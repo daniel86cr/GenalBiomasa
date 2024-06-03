@@ -189,7 +189,7 @@ public class VistaNuevoTransportista extends CustomComponent implements View ,Bu
                     return;
                 }
 
-                if (!Utils.booleanFromInteger(permisos.getEntornoMaestros())) {
+                if (!Utils.booleanFromInteger(permisos.getCrearTransportista())) {
                     Notification aviso = new Notification("No se tienen permisos para acceder a la pantalla indicada", Notification.Type.ERROR_MESSAGE);
                     aviso.setPosition(Position.MIDDLE_CENTER);
                     aviso.show(Page.getCurrent());

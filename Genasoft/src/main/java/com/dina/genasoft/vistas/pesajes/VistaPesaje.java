@@ -5,6 +5,8 @@
  */
 package com.dina.genasoft.vistas.pesajes;
 
+import java.util.List;
+
 import javax.annotation.PostConstruct;
 
 import org.mybatis.spring.MyBatisSystemException;
@@ -13,9 +15,12 @@ import org.springframework.beans.factory.annotation.Value;
 
 import com.dina.genasoft.configuration.Constants;
 import com.dina.genasoft.controller.ControladorVistas;
+import com.dina.genasoft.db.entity.TClientes;
 import com.dina.genasoft.db.entity.TEmpleados;
+import com.dina.genasoft.db.entity.TMateriales;
 import com.dina.genasoft.db.entity.TPermisos;
-import com.dina.genasoft.db.entity.TRegistrosCambiosTransportistas;
+import com.dina.genasoft.db.entity.TPesajes;
+import com.dina.genasoft.db.entity.TRegistrosCambiosPesajes;
 import com.dina.genasoft.db.entity.TTransportistas;
 import com.dina.genasoft.exception.GenasoftException;
 import com.dina.genasoft.utils.Utils;
@@ -37,6 +42,7 @@ import com.vaadin.ui.Button;
 import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.ComboBox;
 import com.vaadin.ui.CustomComponent;
+import com.vaadin.ui.DateField;
 import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.Notification;
@@ -45,7 +51,7 @@ import com.vaadin.ui.VerticalLayout;
 
 /**
  * @author Daniel Carmona Romero
- * Vista para mostrar/visualizar un transportista.
+ * Vista para mostrar/visualizar el pesaje.
  */
 @SuppressWarnings("serial")
 @Theme("Genal")
@@ -61,12 +67,16 @@ public class VistaPesaje extends CustomComponent implements View ,Button.ClickLi
     private BeanFieldGroup<TTransportistas> binder;
     /** El boton para crear el transportista.*/
     private Button                          modificarButton;
-    /** El boton para volver al listado de transportistas.*/
+    /** El boton para volver al listado de pesajes.*/
     private Button                          listadoButton;
-    /** Combobox para los estados.*/
-    private ComboBox                        cbEstado;
-    /** El transportista a modificar.*/
-    private TTransportistas                 nTransportista;
+    /** Combobox para los clientes.*/
+    private ComboBox                        cbClientes;
+    /** Combobox para los materiales.*/
+    private ComboBox                        cbMateriales;
+    /** Combobox para las direcciones.*/
+    private ComboBox                        cbDirecciones;
+    /** El pesaje a modificar.*/
+    private TPesajes                        nPesajes;
     /** Contendrá el nombre de la aplicación.*/
     @Value("${app.name}")
     private String                          appName;
@@ -76,18 +86,27 @@ public class VistaPesaje extends CustomComponent implements View ,Button.ClickLi
     /** El log de la aplicación.*/
     private static final org.slf4j.Logger   log      = org.slf4j.LoggerFactory.getLogger(VistaPesaje.class);
     // Los campos obligatorios
-    /** La caja de texto para la referencia .*/
-    private TextField                       txtRazonSocial;
-    /** La caja de texto para el nombre.*/
-    private TextField                       txtCif;
-    /** La caja de texto para el LER.*/
-    private TextField                       txtDireccion;
-    /** La caja de texto para el precio.*/
-    private TextField                       txtCiudad;
-    /** La caja de texto para el precio.*/
-    private TextField                       txtCp;
-    /** La caja de texto para el precio.*/
-    private TextField                       txtProvincia;
+    // Los campos obligatorios
+    /** La caja de texto para la obra .*/
+    private TextField                       txtAlbaran;
+    /** La caja de texto para la obra .*/
+    private TextField                       txtObra;
+    /** La caja de texto para el origen.*/
+    private TextField                       txtOrigen;
+    /** La caja de texto para el destino.*/
+    private TextField                       txtDestino;
+    /** La caja de texto para la matrícula.*/
+    private TextField                       txtMatricula;
+    /** La caja de texto para el remolque.*/
+    private TextField                       txtRemolque;
+    /** La caja de texto para los kilos brutos.*/
+    private TextField                       txtKgsBrutos;
+    /** La caja de texto para la tara.*/
+    private TextField                       txtTara;
+    /** La caja de texto para los kilos netos.*/
+    private TextField                       txtKgsNetos;
+    /** La fecha del pesaje. */
+    private DateField                       fechaPesaje;
     /** Los permisos del empleado actual. */
     private TPermisos                       permisos = null;
     /** El usuario que está logado. */
@@ -97,6 +116,11 @@ public class VistaPesaje extends CustomComponent implements View ,Button.ClickLi
     /** Contendrá los cambios que se aplican al transportista. */
     private String                          cambios;
     private TEmpleados                      empleado;
+    /** Los clientes activos del sistema.*/
+    private List<TClientes>                 lClientes;
+    /** Los materiales activos del sistema.*/
+    private List<TMateriales>               lMateriales;
+    private Double                          bruto, tara, neto;
 
     @Override
     public void buttonClick(ClickEvent event) {
@@ -112,19 +136,19 @@ public class VistaPesaje extends CustomComponent implements View ,Button.ClickLi
 
                 // Construimos el objeto transportista a partir de los datos introducidos en el formulario.
                 construirBean();
-                String result = contrVista.modificarTransportista(nTransportista, user, time);
+                String result = contrVista.modificarPesaje(nPesajes, user, time);
                 if (result.equals(Constants.OPERACION_OK)) {
 
                     // Si hay cambios, guardamos los cambios en el registro de cambios
                     if (!cambios.isEmpty()) {
 
-                        TRegistrosCambiosTransportistas record = new TRegistrosCambiosTransportistas();
+                        TRegistrosCambiosPesajes record = new record();
                         record.setCambio(cambios);
                         record.setFechaCambio(Utils.generarFecha());
-                        record.setIdTransportista(nTransportista.getId());
+                        record.setIdPesaje(nPesajes.getId());
                         record.setUsuCrea(user);
 
-                        contrVista.crearRegistroCambioTransportista(record, user, time);
+                        contrVista.crearRegistroCambioPesaje(record, user, time);
                     }
                     result = contrVista.obtenerDescripcionCodigo(result);
                     Notification aviso = new Notification(result, Notification.Type.ASSISTIVE_NOTIFICATION);
@@ -226,12 +250,12 @@ public class VistaPesaje extends CustomComponent implements View ,Button.ClickLi
                 String parametros = event.getParameters();
 
                 if (parametros != null && !parametros.isEmpty()) {
-                    nTransportista = contrVista.obtenerTransportistaPorId(Integer.valueOf(parametros), user, time);
+                    nPesajes = contrVista.obtenerTransportistaPorId(Integer.valueOf(parametros), user, time);
                 } else {
                     parametros = null;
                 }
 
-                if (nTransportista == null) {
+                if (nPesajes == null) {
                     Notification aviso = new Notification("No se ha encontrado el transportista.", Notification.Type.ERROR_MESSAGE);
                     aviso.setPosition(Position.MIDDLE_CENTER);
                     aviso.show(Page.getCurrent());
@@ -239,7 +263,7 @@ public class VistaPesaje extends CustomComponent implements View ,Button.ClickLi
                     return;
                 }
 
-                binder.setItemDataSource(nTransportista);
+                binder.setItemDataSource(nPesajes);
 
                 // Creamos los botones de la pantalla.
                 crearBotones();
@@ -247,7 +271,7 @@ public class VistaPesaje extends CustomComponent implements View ,Button.ClickLi
                 // Creamos los componetes que conforman la pantalla.
                 crearComponentes(parametros);
 
-                Label texto = new Label(nTransportista.getNombre());
+                Label texto = new Label(nPesajes.getNombre());
                 texto.setStyleName("tituloTamano18");
                 texto.setHeight(4, Sizeable.Unit.EM);
                 Label texto2 = new Label(" ");
@@ -411,7 +435,7 @@ public class VistaPesaje extends CustomComponent implements View ,Button.ClickLi
         cbEstado.setCaption("Estado:");
         cbEstado.addItem(Constants.ACTIVO);
         cbEstado.addItem(Constants.DESACTIVADO);
-        cbEstado.setValue(nTransportista.getEstado().equals(TransportistaEnum.ACTIVO.getValue()) ? Constants.ACTIVO : Constants.DESACTIVADO);
+        cbEstado.setValue(nPesajes.getEstado().equals(TransportistaEnum.ACTIVO.getValue()) ? Constants.ACTIVO : Constants.DESACTIVADO);
         cbEstado.setFilteringMode(FilteringMode.CONTAINS);
         cbEstado.setRequired(true);
         cbEstado.setNullSelectionAllowed(false);
@@ -425,27 +449,27 @@ public class VistaPesaje extends CustomComponent implements View ,Button.ClickLi
     private void construirBean() throws GenasoftException {
         cambios = "";
         Integer estado = cbEstado.getValue().equals(Constants.ACTIVO) ? 1 : 0;
-        if (!nTransportista.getEstado().equals(estado)) {
-            cambios = "Se cambia el estado del transportista, pasa de " + nTransportista.getEstado() + " a " + estado;
+        if (!nPesajes.getEstado().equals(estado)) {
+            cambios = "Se cambia el estado del transportista, pasa de " + nPesajes.getEstado() + " a " + estado;
         }
-        nTransportista.setEstado(cbEstado.getValue().equals(Constants.ACTIVO) ? 1 : 0);
+        nPesajes.setEstado(cbEstado.getValue().equals(Constants.ACTIVO) ? 1 : 0);
         String value = txtRazonSocial.getValue();
 
         if (value != null) {
             value = value.trim().toUpperCase();
         }
-        if (value == null && nTransportista.getNombre() != null) {
-            cambios = cambios + "\n Se le quita el nombre, antes tenia: " + nTransportista.getNombre();
-        } else if (value != null && nTransportista.getNombre() == null) {
+        if (value == null && nPesajes.getNombre() != null) {
+            cambios = cambios + "\n Se le quita el nombre, antes tenia: " + nPesajes.getNombre();
+        } else if (value != null && nPesajes.getNombre() == null) {
             value = value.trim().toUpperCase();
             cambios = cambios + "\n Se le asigna una nuevo nombre, antes no tenía tenia, ahora tiene:  " + value;
-        } else if (value != null && !value.equals(nTransportista.getNombre())) {
+        } else if (value != null && !value.equals(nPesajes.getNombre())) {
             value = value.trim().toUpperCase();
-            cambios = cambios + "\n Se le cambia el nombre, antes tenia: " + nTransportista.getNombre() + " y ahora tiene: " + value;
+            cambios = cambios + "\n Se le cambia el nombre, antes tenia: " + nPesajes.getNombre() + " y ahora tiene: " + value;
         }
 
-        nTransportista.setNombre(value);
-        nTransportista.setRazonSocial(value);
+        nPesajes.setNombre(value);
+        nPesajes.setRazonSocial(value);
 
         value = txtCif.getValue().trim().toUpperCase();
 
@@ -453,75 +477,75 @@ public class VistaPesaje extends CustomComponent implements View ,Button.ClickLi
             value = value.trim().toUpperCase();
         }
 
-        if (value == null && nTransportista.getCif() != null) {
-            cambios = cambios + "\n Se le quita el CIF, antes tenia: " + nTransportista.getCif();
-        } else if (value != null && nTransportista.getCif() == null) {
+        if (value == null && nPesajes.getCif() != null) {
+            cambios = cambios + "\n Se le quita el CIF, antes tenia: " + nPesajes.getCif();
+        } else if (value != null && nPesajes.getCif() == null) {
             cambios = cambios + "\n Se le asigna un nuevo CIF,  antes no tenía tenia, ahora tiene:  " + value;
-        } else if (value != null && !value.equals(nTransportista.getCif())) {
-            cambios = cambios + "\n Se le cambia el CIF, antes tenia: " + nTransportista.getCif() + " y ahora tiene: " + value;
+        } else if (value != null && !value.equals(nPesajes.getCif())) {
+            cambios = cambios + "\n Se le cambia el CIF, antes tenia: " + nPesajes.getCif() + " y ahora tiene: " + value;
         }
 
-        nTransportista.setCif(value);
+        nPesajes.setCif(value);
 
         value = txtCiudad.getValue();
 
-        if (value == null && nTransportista.getCiudad() != null) {
-            cambios = cambios + "\n Se le quita la ciudad, antes tenia: " + nTransportista.getCiudad();
-        } else if (value != null && nTransportista.getCiudad() == null) {
+        if (value == null && nPesajes.getCiudad() != null) {
+            cambios = cambios + "\n Se le quita la ciudad, antes tenia: " + nPesajes.getCiudad();
+        } else if (value != null && nPesajes.getCiudad() == null) {
             value = value.trim().toUpperCase();
             cambios = cambios + "\n Se le asigna una nueva ciudad, antes no tenía tenia, ahora tiene:  " + value;
-        } else if (value != null && !value.equals(nTransportista.getCiudad())) {
+        } else if (value != null && !value.equals(nPesajes.getCiudad())) {
             value = value.trim().toUpperCase();
-            cambios = cambios + "\n Se le cambia la ciudad, antes tenia: " + nTransportista.getCiudad() + " y ahora tiene: " + value;
+            cambios = cambios + "\n Se le cambia la ciudad, antes tenia: " + nPesajes.getCiudad() + " y ahora tiene: " + value;
         }
 
-        nTransportista.setCiudad(value);
+        nPesajes.setCiudad(value);
 
         value = txtCp.getValue();
 
-        if (value == null && nTransportista.getCodigoPostal() != null) {
-            cambios = cambios + "\n Se le quita el codigo postal, antes tenia: " + nTransportista.getCodigoPostal();
-        } else if (value != null && nTransportista.getCodigoPostal() == null) {
+        if (value == null && nPesajes.getCodigoPostal() != null) {
+            cambios = cambios + "\n Se le quita el codigo postal, antes tenia: " + nPesajes.getCodigoPostal();
+        } else if (value != null && nPesajes.getCodigoPostal() == null) {
             value = value.trim().toUpperCase();
             cambios = cambios + "\n Se le asigna un nuevo codigo postal, antes no tenía tenia, ahora tiene:  " + value;
-        } else if (value != null && !value.equals(nTransportista.getCodigoPostal())) {
+        } else if (value != null && !value.equals(nPesajes.getCodigoPostal())) {
             value = value.trim().toUpperCase();
-            cambios = cambios + "\n Se le cambia el codigo postal, antes tenia: " + nTransportista.getCodigoPostal() + " y ahora tiene: " + value;
+            cambios = cambios + "\n Se le cambia el codigo postal, antes tenia: " + nPesajes.getCodigoPostal() + " y ahora tiene: " + value;
         }
 
-        nTransportista.setCodigoPostal(value);
+        nPesajes.setCodigoPostal(value);
 
         value = txtProvincia.getValue();
 
-        if (value == null && nTransportista.getProvincia() != null) {
-            cambios = cambios + "\n Se le quita la provincia, antes tenia: " + nTransportista.getProvincia();
-        } else if (value != null && nTransportista.getProvincia() == null) {
+        if (value == null && nPesajes.getProvincia() != null) {
+            cambios = cambios + "\n Se le quita la provincia, antes tenia: " + nPesajes.getProvincia();
+        } else if (value != null && nPesajes.getProvincia() == null) {
             value = value.trim().toUpperCase();
             cambios = cambios + "\n Se le asigna una nueva provincia, antes no tenía tenia, ahora tiene:  " + value;
-        } else if (value != null && !value.equals(nTransportista.getProvincia())) {
+        } else if (value != null && !value.equals(nPesajes.getProvincia())) {
             value = value.trim().toUpperCase();
-            cambios = cambios + "\n Se le cambia la provincia, antes tenia: " + nTransportista.getProvincia() + " y ahora tiene: " + value;
+            cambios = cambios + "\n Se le cambia la provincia, antes tenia: " + nPesajes.getProvincia() + " y ahora tiene: " + value;
         }
 
-        nTransportista.setProvincia(value);
+        nPesajes.setProvincia(value);
 
         value = txtDireccion.getValue();
 
-        if (value == null && nTransportista.getDireccion() != null) {
-            cambios = cambios + "\n Se le quita la dirección, antes tenia: " + nTransportista.getDireccion();
-        } else if (value != null && nTransportista.getDireccion() == null) {
+        if (value == null && nPesajes.getDireccion() != null) {
+            cambios = cambios + "\n Se le quita la dirección, antes tenia: " + nPesajes.getDireccion();
+        } else if (value != null && nPesajes.getDireccion() == null) {
             value = value.trim().toUpperCase();
             cambios = cambios + "\n Se le asigna una nueva dirección, antes no tenía tenia, ahora tiene:  " + value;
-        } else if (value != null && !value.equals(nTransportista.getDireccion())) {
+        } else if (value != null && !value.equals(nPesajes.getDireccion())) {
             value = value.trim().toUpperCase();
-            cambios = cambios + "\n Se le cambia la dirección, antes tenia: " + nTransportista.getDireccion() + " y ahora tiene: " + value;
+            cambios = cambios + "\n Se le cambia la dirección, antes tenia: " + nPesajes.getDireccion() + " y ahora tiene: " + value;
         }
 
-        nTransportista.setDireccion(value);
+        nPesajes.setDireccion(value);
 
         if (!cambios.isEmpty()) {
-            nTransportista.setFechaModifica(Utils.generarFecha());
-            nTransportista.setUsuModifica(user);
+            nPesajes.setFechaModifica(Utils.generarFecha());
+            nPesajes.setUsuModifica(user);
         }
 
     }

@@ -5,6 +5,9 @@
  */
 package com.dina.genasoft.vistas.pesajes;
 
+import java.text.DecimalFormat;
+import java.util.List;
+
 import javax.annotation.PostConstruct;
 
 import org.mybatis.spring.MyBatisSystemException;
@@ -13,15 +16,22 @@ import org.springframework.beans.factory.annotation.Value;
 
 import com.dina.genasoft.configuration.Constants;
 import com.dina.genasoft.controller.ControladorVistas;
+import com.dina.genasoft.db.entity.TClientes;
+import com.dina.genasoft.db.entity.TDireccionCliente;
 import com.dina.genasoft.db.entity.TEmpleados;
+import com.dina.genasoft.db.entity.TMateriales;
 import com.dina.genasoft.db.entity.TPermisos;
-import com.dina.genasoft.db.entity.TTransportistas;
+import com.dina.genasoft.db.entity.TPesajes;
 import com.dina.genasoft.exception.GenasoftException;
 import com.dina.genasoft.utils.Utils;
+import com.dina.genasoft.utils.enums.PesajesEnum;
 import com.dina.genasoft.vistas.Menu;
 import com.dina.genasoft.vistas.VistaInicioSesion;
 import com.vaadin.annotations.Theme;
-import com.vaadin.data.fieldgroup.BeanFieldGroup;
+import com.vaadin.data.Property.ReadOnlyException;
+import com.vaadin.data.Property.ValueChangeEvent;
+import com.vaadin.data.Property.ValueChangeListener;
+import com.vaadin.event.ShortcutListener;
 import com.vaadin.navigator.View;
 import com.vaadin.navigator.ViewChangeListener.ViewChangeEvent;
 import com.vaadin.server.Page;
@@ -35,6 +45,7 @@ import com.vaadin.ui.Button;
 import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.ComboBox;
 import com.vaadin.ui.CustomComponent;
+import com.vaadin.ui.DateField;
 import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.Notification;
@@ -43,7 +54,7 @@ import com.vaadin.ui.VerticalLayout;
 
 /**
  * @author Daniel Carmona Romero
- * Vista para crear un nuevo transportista.
+ * Vista para registrar un nuevo pesaje.
  */
 @SuppressWarnings("serial")
 @Theme("Genal")
@@ -52,45 +63,60 @@ import com.vaadin.ui.VerticalLayout;
 public class VistaNuevoPesaje extends CustomComponent implements View ,Button.ClickListener {
     /** El controlador de las vistas. */
     @Autowired
-    private ControladorVistas               contrVista;
+    private ControladorVistas             contrVista;
     /** El nombre de la vista.*/
-    public static final String              NAME     = "nuevoPesaje";
-    /** Para los campos que componen un transportista.*/
-    private BeanFieldGroup<TTransportistas> binder;
-    /** El boton para crear el transportista.*/
-    private Button                          crearButton;
-    /** Combobox para los estados.*/
-    private ComboBox                        cbEstado;
-    /** El transportista a crear.*/
-    private TTransportistas                 transportista;
+    public static final String            NAME     = "nuevoPesaje";
+    /** El boton para registrar el pesaje.*/
+    private Button                        crearButton;
+    /** Combobox para los clientes.*/
+    private ComboBox                      cbClientes;
+    /** Combobox para los materiales.*/
+    private ComboBox                      cbMateriales;
+    /** Combobox para las direcciones.*/
+    private ComboBox                      cbDirecciones;
+    /** El pesaje a registrar.*/
+    private TPesajes                      nPesaje;
     /** Contendrá el nombre de la aplicación.*/
     @Value("${app.name}")
-    private String                          appName;
+    private String                        appName;
     /** Contendrá el ancho de los componentes.*/
     @Value("${app.width}")
-    private Integer                         appWidth;
+    private Integer                       appWidth;
     /** El log de la aplicación.*/
-    private static final org.slf4j.Logger   log      = org.slf4j.LoggerFactory.getLogger(VistaNuevoPesaje.class);
+    private static final org.slf4j.Logger log      = org.slf4j.LoggerFactory.getLogger(VistaNuevoPesaje.class);
     // Los campos obligatorios
-    /** La caja de texto para la referencia .*/
-    private TextField                       txtRazonSocial;
-    /** La caja de texto para el nombre.*/
-    private TextField                       txtCif;
-    /** La caja de texto para el LER.*/
-    private TextField                       txtDireccion;
-    /** La caja de texto para el precio.*/
-    private TextField                       txtCiudad;
-    /** La caja de texto para el precio.*/
-    private TextField                       txtCp;
-    /** La caja de texto para el precio.*/
-    private TextField                       txtProvincia;
+    /** La caja de texto para la obra .*/
+    private TextField                     txtAlbaran;
+    /** La caja de texto para la obra .*/
+    private TextField                     txtObra;
+    /** La caja de texto para el origen.*/
+    private TextField                     txtOrigen;
+    /** La caja de texto para el destino.*/
+    private TextField                     txtDestino;
+    /** La caja de texto para la matrícula.*/
+    private TextField                     txtMatricula;
+    /** La caja de texto para el remolque.*/
+    private TextField                     txtRemolque;
+    /** La caja de texto para los kilos brutos.*/
+    private TextField                     txtKgsBrutos;
+    /** La caja de texto para la tara.*/
+    private TextField                     txtTara;
+    /** La caja de texto para los kilos netos.*/
+    private TextField                     txtKgsNetos;
+    /** La fecha del pesaje. */
+    private DateField                     fechaPesaje;
     /** Los permisos del empleado actual. */
-    private TPermisos                       permisos = null;
+    private TPermisos                     permisos = null;
     /** El usuario que está logado. */
-    private Integer                         user     = null;
+    private Integer                       user     = null;
     /** La fecha en que se inició sesión. */
-    private Long                            time     = null;
-    private TEmpleados                      empleado;
+    private Long                          time     = null;
+    private TEmpleados                    empleado;
+    /** Los clientes activos del sistema.*/
+    private List<TClientes>               lClientes;
+    /** Los materiales activos del sistema.*/
+    private List<TMateriales>             lMateriales;
+    private Double                        bruto, tara, neto;
 
     @Override
     public void buttonClick(ClickEvent event) {
@@ -104,9 +130,16 @@ public class VistaNuevoPesaje extends CustomComponent implements View ,Button.Cl
                     return;
                 }
 
+                if (neto < Double.valueOf(0)) {
+                    Notification aviso = new Notification("Los kilos brutos introducidos menos la tara da negativo", Notification.Type.WARNING_MESSAGE);
+                    aviso.setPosition(Position.MIDDLE_CENTER);
+                    aviso.show(Page.getCurrent());
+                    return;
+                }
+
                 // Construimos el objeto transportista a partir de los datos introducidos en el formulario.
                 construirBean();
-                String result = contrVista.crearTransportista(transportista, user, time);
+                String result = contrVista.crearPesaje(nPesaje, user, time);
                 if (result.equals(Constants.OPERACION_OK)) {
                     result = contrVista.obtenerDescripcionCodigo(result);
                     Notification aviso = new Notification(result, Notification.Type.HUMANIZED_MESSAGE);
@@ -174,11 +207,15 @@ public class VistaNuevoPesaje extends CustomComponent implements View ,Button.Cl
         if (time != null) {
             try {
 
-                binder = new BeanFieldGroup<>(TTransportistas.class);
-
                 empleado = contrVista.obtenerEmpleadoPorId(user, user, time);
 
                 permisos = contrVista.obtenerPermisosEmpleado(empleado, user, time);
+
+                lMateriales = Utils.generarListaGenerica();
+
+                bruto = Double.valueOf(0);
+                tara = Double.valueOf(0);
+                neto = Double.valueOf(0);
 
                 if (permisos == null) {
                     Notification aviso = new Notification("No se ha podido identificar los permisos asignados, contacta con el administrador.", Notification.Type.ERROR_MESSAGE);
@@ -189,7 +226,7 @@ public class VistaNuevoPesaje extends CustomComponent implements View ,Button.Cl
                     return;
                 }
 
-                if (!Utils.booleanFromInteger(permisos.getEntornoMaestros())) {
+                if (!Utils.booleanFromInteger(permisos.getCrearPesaje())) {
                     Notification aviso = new Notification("No se tienen permisos para acceder a la pantalla indicada", Notification.Type.ERROR_MESSAGE);
                     aviso.setPosition(Position.MIDDLE_CENTER);
                     aviso.show(Page.getCurrent());
@@ -199,11 +236,10 @@ public class VistaNuevoPesaje extends CustomComponent implements View ,Button.Cl
                     return;
                 }
 
+                lClientes = contrVista.obtenerClientesActivos(user, time);
+
                 // Creamos los botones de la pantalla.
                 crearBotones();
-
-                //El fieldgroup no es un componente
-                binder.setItemDataSource(new TTransportistas());
 
                 // Creamos los combos de la pantalla.
                 crearCombos();
@@ -214,7 +250,7 @@ public class VistaNuevoPesaje extends CustomComponent implements View ,Button.Cl
                 // Creamos los componetes que conforman la pantalla.
                 crearComponentes();
 
-                Label texto = new Label("Nuevo transportista");
+                Label texto = new Label("Registro de pesaje");
                 texto.setStyleName("tituloTamano18");
                 texto.setHeight(4, Sizeable.Unit.EM);
                 Label texto2 = new Label(" ");
@@ -238,28 +274,55 @@ public class VistaNuevoPesaje extends CustomComponent implements View ,Button.Cl
                 body.setSpacing(true);
                 body.setMargin(true);
 
+                HorizontalLayout horKgs = new HorizontalLayout();
+                horKgs.setSpacing(true);
+
+                horKgs.addComponent(txtKgsBrutos);
+                horKgs.addComponent(txtTara);
+
+                HorizontalLayout horCl = new HorizontalLayout();
+                horCl.setSpacing(true);
+
+                horCl.addComponent(cbClientes);
+                horCl.addComponent(cbDirecciones);
+
                 // Formulario con los campos que componen el empleado.
                 VerticalLayout formulario1 = new VerticalLayout();
                 formulario1.setSpacing(true);
 
-                formulario1.addComponent(txtRazonSocial);
-                formulario1.setComponentAlignment(txtRazonSocial, Alignment.MIDDLE_CENTER);
-                formulario1.addComponent(txtCif);
-                formulario1.setComponentAlignment(txtCif, Alignment.MIDDLE_CENTER);
-                formulario1.addComponent(txtDireccion);
-                formulario1.setComponentAlignment(txtDireccion, Alignment.MIDDLE_CENTER);
-                formulario1.addComponent(txtCp);
-                formulario1.setComponentAlignment(txtCp, Alignment.MIDDLE_CENTER);
-                formulario1.addComponent(txtCiudad);
-                formulario1.setComponentAlignment(txtCiudad, Alignment.MIDDLE_CENTER);
-                formulario1.addComponent(txtProvincia);
-                formulario1.setComponentAlignment(txtProvincia, Alignment.MIDDLE_CENTER);
-                formulario1.addComponent(cbEstado);
-                formulario1.setComponentAlignment(cbEstado, Alignment.MIDDLE_CENTER);
+                VerticalLayout formulario2 = new VerticalLayout();
+                formulario2.setSpacing(true);
+
+                viewLayout.addComponent(fechaPesaje);
+                viewLayout.setComponentAlignment(fechaPesaje, Alignment.MIDDLE_CENTER);
+                formulario1.addComponent(cbClientes);
+                formulario1.setComponentAlignment(cbClientes, Alignment.MIDDLE_CENTER);
+                formulario1.addComponent(cbDirecciones);
+                formulario1.setComponentAlignment(cbDirecciones, Alignment.MIDDLE_CENTER);
+                formulario1.addComponent(cbMateriales);
+                formulario1.setComponentAlignment(cbMateriales, Alignment.MIDDLE_CENTER);
+                formulario1.addComponent(txtObra);
+                formulario1.setComponentAlignment(txtObra, Alignment.MIDDLE_CENTER);
+                formulario1.addComponent(txtOrigen);
+                formulario1.setComponentAlignment(txtOrigen, Alignment.MIDDLE_CENTER);
+                formulario2.addComponent(txtDestino);
+                formulario2.setComponentAlignment(txtDestino, Alignment.MIDDLE_CENTER);
+                formulario2.addComponent(txtMatricula);
+                formulario2.setComponentAlignment(txtMatricula, Alignment.MIDDLE_CENTER);
+                formulario2.addComponent(txtRemolque);
+                formulario2.setComponentAlignment(txtRemolque, Alignment.MIDDLE_CENTER);
+                formulario2.addComponent(txtKgsBrutos);
+                formulario2.setComponentAlignment(txtKgsBrutos, Alignment.MIDDLE_CENTER);
+                formulario2.addComponent(txtTara);
+                formulario2.setComponentAlignment(txtTara, Alignment.MIDDLE_CENTER);
                 body.addComponent(formulario1);
                 body.setComponentAlignment(formulario1, Alignment.MIDDLE_CENTER);
+                body.addComponent(formulario2);
+                body.setComponentAlignment(formulario2, Alignment.MIDDLE_CENTER);
                 viewLayout.addComponent(body);
                 viewLayout.setComponentAlignment(body, Alignment.MIDDLE_CENTER);
+                viewLayout.addComponent(txtKgsNetos);
+                viewLayout.setComponentAlignment(txtKgsNetos, Alignment.MIDDLE_CENTER);
                 viewLayout.addComponent(crearButton);
                 viewLayout.setComponentAlignment(crearButton, Alignment.MIDDLE_CENTER);
 
@@ -304,7 +367,7 @@ public class VistaNuevoPesaje extends CustomComponent implements View ,Button.Cl
      */
     private void crearBotones() {
         // Creamos los botones.
-        crearButton = new Button("Crear transportista", this);
+        crearButton = new Button("Registrar pesaje", this);
         crearButton.addStyleName("big");
 
     }
@@ -313,68 +376,297 @@ public class VistaNuevoPesaje extends CustomComponent implements View ,Button.Cl
      * Método para crear los combos de la pantalla.
      */
     private void crearCombos() {
-        // Combo box para el estado.
-        cbEstado = new ComboBox();
-        cbEstado.addStyleName("big");
+        // ComboBox para los clientes.
+        cbClientes = new ComboBox();
+        cbClientes.addStyleName("big");
+        cbClientes.addValueChangeListener(new ValueChangeListener() {
+
+            @Override
+            public void valueChange(ValueChangeEvent event) {
+                if (cbClientes.getValue() != null) {
+                    try {
+                        TClientes cl = (TClientes) cbClientes.getValue();
+                        cbDirecciones.removeAllItems();
+                        List<TDireccionCliente> lDirs = contrVista.obtenerDireccionesClientePorIdCliente(cl.getId(), user, time);
+                        cbDirecciones.addItems(lDirs);
+                        if (lDirs.size() == 1) {
+                            cbDirecciones.setValue(lDirs.get(0));
+                        } else if (lDirs.isEmpty()) {
+                            Notification aviso = new Notification("No se han identificado direcciones del cliente seleccionado.", Notification.Type.ERROR_MESSAGE);
+                            aviso.setPosition(Position.MIDDLE_CENTER);
+                            aviso.show(Page.getCurrent());
+                        }
+
+                        lMateriales = contrVista.obtenerMaterialesAsignadosCliente(cl.getId(), user, time);
+                        cbMateriales.removeAllItems();
+                        cbMateriales.addItems(lMateriales);
+                        if (lMateriales.size() == 1) {
+                            cbMateriales.setValue(lMateriales.get(0));
+                        } else if (lMateriales.isEmpty()) {
+                            Notification aviso = new Notification("No se han identificado materiales asignados al cliente seleccionado", Notification.Type.ERROR_MESSAGE);
+                            aviso.setPosition(Position.MIDDLE_CENTER);
+                            aviso.show(Page.getCurrent());
+                        }
+
+                    } catch (MyBatisSystemException e) {
+                        Notification aviso = new Notification("No se ha podido establecer conexión con la base de datos.", Notification.Type.ERROR_MESSAGE);
+                        aviso.setPosition(Position.MIDDLE_CENTER);
+                        aviso.show(Page.getCurrent());
+                        log.error("Error al obtener datos de base de datos ", e);
+                    } catch (GenasoftException tbe) {
+                        if (tbe.getMessage().equals(Constants.SESION_INVALIDA)) {
+                            Notification aviso = new Notification(contrVista.obtenerDescripcionCodigo(tbe.getMessage()), Notification.Type.WARNING_MESSAGE);
+                            aviso.setPosition(Position.MIDDLE_CENTER);
+                            aviso.show(Page.getCurrent());
+                            getSession().setAttribute("user", null);
+                            getSession().setAttribute("fecha", null);
+                            // Redirigimos a la página de inicio.
+                            getUI().getNavigator().navigateTo(VistaInicioSesion.NAME);
+                        } else {
+                            Notification aviso = new Notification(tbe.getMessage(), Notification.Type.ERROR_MESSAGE);
+                            aviso.setPosition(Position.MIDDLE_CENTER);
+                            aviso.show(Page.getCurrent());
+                        }
+                    }
+                }
+            }
+        });
+
+        // ComboBox para los materiales.
+        cbMateriales = new ComboBox();
+        cbMateriales.addStyleName("big");
+
+        // ComboBox para las direcciones
+        cbDirecciones = new ComboBox("Dirección:");
+        cbDirecciones.addStyleName("big");
+        cbDirecciones.setFilteringMode(FilteringMode.CONTAINS);
+        cbDirecciones.setRequired(true);
+        cbDirecciones.setNullSelectionAllowed(false);
+        cbDirecciones.setWidth(appWidth, Sizeable.Unit.EM);
+
     }
 
     /**
      * Método que nos crea los componetes que conforman la pantalla.
      */
     private void crearComponentes() {
-        //Los campos que componen un empleado.
+        //Los campos que componen un pesaje.
 
-        // La razón social.
-        txtRazonSocial = (TextField) binder.buildAndBind("Razón social:", "nombre");
-        txtRazonSocial.setNullRepresentation("");
-        txtRazonSocial.setWidth(appWidth, Sizeable.Unit.EM);
-        txtRazonSocial.setMaxLength(445);
-        txtRazonSocial.setRequired(true);
+        fechaPesaje = new DateField("Fecha pesaje");
+        fechaPesaje.setValue(Utils.generarFecha());
+        fechaPesaje.setRequired(true);
+        fechaPesaje.setWidth(appWidth, Sizeable.Unit.EM);
 
-        // El CIF
-        txtCif = (TextField) binder.buildAndBind("CIF:", "cif");
-        txtCif.setNullRepresentation("");
-        txtCif.setRequired(true);
-        txtCif.setWidth(appWidth, Sizeable.Unit.EM);
-        txtCif.setMaxLength(45);
+        // La obra.
+        txtObra = new TextField("Obra:");
+        txtObra.setNullRepresentation("");
+        txtObra.setWidth(appWidth, Sizeable.Unit.EM);
+        txtObra.setMaxLength(445);
+        txtObra.setRequired(true);
 
-        // Dirección
-        txtDireccion = (TextField) binder.buildAndBind("Dirección:", "direccion");
-        txtDireccion.setNullRepresentation("");
-        txtDireccion.setRequired(true);
-        txtDireccion.setWidth(appWidth, Sizeable.Unit.EM);
-        txtDireccion.setMaxLength(445);
+        // El nº de albarán
+        txtAlbaran = new TextField("Nº Albarán:");
+        txtAlbaran.setNullRepresentation("");
+        txtAlbaran.setRequired(true);
+        txtAlbaran.setWidth(appWidth, Sizeable.Unit.EM);
+        txtAlbaran.setMaxLength(445);
 
-        // El código postal.
-        txtCp = (TextField) binder.buildAndBind("Código postal: ", "codigoPostal");
-        txtCp.setNullRepresentation("");
-        txtCp.setWidth(appWidth, Sizeable.Unit.EM);
-        txtCp.setRequired(true);
-        txtCp.setMaxLength(245);
+        // La obra
+        txtObra = new TextField("Obra:");
+        txtObra.setNullRepresentation("");
+        txtObra.setRequired(true);
+        txtObra.setWidth(appWidth, Sizeable.Unit.EM);
+        txtObra.setMaxLength(445);
 
-        // Ciudad.
-        txtCiudad = (TextField) binder.buildAndBind("Ciudad: ", "ciudad");
-        txtCiudad.setNullRepresentation("");
-        txtCiudad.setWidth(appWidth, Sizeable.Unit.EM);
-        txtCiudad.setRequired(true);
-        txtCiudad.setMaxLength(445);
+        // El origen
+        txtOrigen = new TextField("Origen:");
+        txtOrigen.setNullRepresentation("");
+        txtOrigen.setRequired(true);
+        txtOrigen.setWidth(appWidth, Sizeable.Unit.EM);
+        txtOrigen.setMaxLength(445);
 
-        // Provincia.
-        txtProvincia = (TextField) binder.buildAndBind("Provincia: ", "provincia");
-        txtProvincia.setNullRepresentation("");
-        txtProvincia.setWidth(appWidth, Sizeable.Unit.EM);
-        txtProvincia.setRequired(true);
-        txtProvincia.setMaxLength(445);
+        // El destino
+        txtDestino = new TextField("Destino:");
+        txtDestino.setNullRepresentation("");
+        txtDestino.setWidth(appWidth, Sizeable.Unit.EM);
+        txtDestino.setMaxLength(445);
 
-        // Los estados.
-        cbEstado.setCaption("Estado:");
-        cbEstado.addItem(Constants.ACTIVO);
-        cbEstado.addItem(Constants.DESACTIVADO);
-        cbEstado.setValue(Constants.ACTIVO);
-        cbEstado.setFilteringMode(FilteringMode.CONTAINS);
-        cbEstado.setRequired(true);
-        cbEstado.setNullSelectionAllowed(false);
-        cbEstado.setWidth(appWidth, Sizeable.Unit.EM);
+        // La matrícula.
+        txtMatricula = new TextField("Matrícula");
+        txtMatricula.setNullRepresentation("");
+        txtMatricula.setRequired(true);
+        txtMatricula.setWidth(appWidth, Sizeable.Unit.EM);
+        txtMatricula.setMaxLength(445);
+
+        // El remolque.
+        txtRemolque = new TextField("Remolque");
+        txtRemolque.setNullRepresentation("");
+        txtRemolque.setRequired(true);
+        txtRemolque.setWidth(appWidth, Sizeable.Unit.EM);
+        txtRemolque.setMaxLength(445);
+
+        // Los Kgs brutos.
+        txtKgsBrutos = new TextField("Kilos brutos:");
+        txtKgsBrutos.setNullRepresentation("");
+        txtKgsBrutos.setWidth(appWidth, Sizeable.Unit.EM);
+        txtKgsBrutos.setRequired(true);
+        txtKgsBrutos.addValueChangeListener(new ValueChangeListener() {
+
+            @Override
+            public void valueChange(ValueChangeEvent event) {
+                DecimalFormat df = new DecimalFormat("#,##0.000");
+                bruto = Double.valueOf(0);
+                tara = Double.valueOf(0);
+                neto = Double.valueOf(0);
+                if (txtKgsBrutos.getValue() != null) {
+                    try {
+                        bruto = Utils.formatearValorDouble(txtKgsBrutos.getValue().trim());
+                    } catch (Exception e) {
+                        bruto = Double.valueOf(0);
+                    }
+                }
+                if (txtTara.getValue() != null) {
+                    try {
+                        tara = Utils.formatearValorDouble(txtTara.getValue().trim());
+                    } catch (Exception e) {
+                        tara = Double.valueOf(0);
+                    }
+                }
+
+                neto = bruto - tara;
+
+                txtKgsNetos.setValue(df.format(neto));
+
+            }
+        });
+
+        // La tara.
+        txtTara = new TextField("Tara:");
+        txtTara.setNullRepresentation("");
+        txtTara.setWidth(appWidth, Sizeable.Unit.EM);
+        txtTara.setRequired(true);
+
+        txtTara.addValueChangeListener(new ValueChangeListener() {
+
+            @Override
+            public void valueChange(ValueChangeEvent event) {
+                DecimalFormat df = new DecimalFormat("#,##0.000");
+                bruto = Double.valueOf(0);
+                tara = Double.valueOf(0);
+                neto = Double.valueOf(0);
+                if (txtKgsBrutos.getValue() != null) {
+                    try {
+                        bruto = Utils.formatearValorDouble(txtKgsBrutos.getValue().trim());
+                    } catch (Exception e) {
+                        bruto = Double.valueOf(0);
+                    }
+                }
+                if (txtTara.getValue() != null) {
+                    try {
+                        tara = Utils.formatearValorDouble(txtTara.getValue().trim());
+                    } catch (Exception e) {
+                        tara = Double.valueOf(0);
+                    }
+                }
+
+                neto = bruto - tara;
+
+                if (neto < Double.valueOf(0)) {
+                    Notification aviso = new Notification("Los kilos brutos introducidos menos la tara da negativo", Notification.Type.WARNING_MESSAGE);
+                    aviso.setPosition(Position.MIDDLE_CENTER);
+                    aviso.show(Page.getCurrent());
+                }
+
+                txtKgsNetos.setValue(df.format(neto));
+
+            }
+        });
+
+        // Los kgs netos.
+        txtKgsNetos = new TextField("Kilos netos:");
+        txtKgsNetos.setNullRepresentation("");
+        txtKgsNetos.setWidth(appWidth / 2, Sizeable.Unit.EM);
+        txtKgsNetos.setRequired(true);
+        txtKgsNetos.setEnabled(false);
+
+        // El cliente.
+        cbClientes.setCaption("Cliente:");
+        cbClientes.addItems(lClientes);
+        cbClientes.setFilteringMode(FilteringMode.CONTAINS);
+        cbClientes.setRequired(true);
+        cbClientes.setNullSelectionAllowed(false);
+        cbClientes.setWidth(appWidth, Sizeable.Unit.EM);
+
+        // El cliente.
+        cbMateriales.setCaption("Material:");
+        cbMateriales.addItems(lMateriales);
+        cbMateriales.setFilteringMode(FilteringMode.CONTAINS);
+        cbMateriales.setRequired(true);
+        cbMateriales.setNullSelectionAllowed(false);
+        cbMateriales.setWidth(appWidth, Sizeable.Unit.EM);
+
+        // El 190 es el KEYCODE del punto "."
+        txtKgsNetos.addShortcutListener(new ShortcutListener(null, 190, null) {
+            private static final long serialVersionUID = 1L;
+
+            @Override
+            public void handleAction(Object sender, Object target) {
+
+            }
+
+        });
+
+        txtKgsNetos.addShortcutListener(new ShortcutListener(null, 110, null) {
+            private static final long serialVersionUID = 1L;
+
+            @Override
+            public void handleAction(Object sender, Object target) {
+
+            }
+
+        });
+
+        // El 190 es el KEYCODE del punto "."
+        txtKgsBrutos.addShortcutListener(new ShortcutListener(null, 190, null) {
+            private static final long serialVersionUID = 1L;
+
+            @Override
+            public void handleAction(Object sender, Object target) {
+
+            }
+
+        });
+
+        txtKgsBrutos.addShortcutListener(new ShortcutListener(null, 110, null) {
+            private static final long serialVersionUID = 1L;
+
+            @Override
+            public void handleAction(Object sender, Object target) {
+
+            }
+
+        });
+
+        // El 190 es el KEYCODE del punto "."
+        txtTara.addShortcutListener(new ShortcutListener(null, 190, null) {
+            private static final long serialVersionUID = 1L;
+
+            @Override
+            public void handleAction(Object sender, Object target) {
+
+            }
+
+        });
+
+        txtTara.addShortcutListener(new ShortcutListener(null, 110, null) {
+            private static final long serialVersionUID = 1L;
+
+            @Override
+            public void handleAction(Object sender, Object target) {
+
+            }
+
+        });
 
     }
 
@@ -382,32 +674,79 @@ public class VistaNuevoPesaje extends CustomComponent implements View ,Button.Cl
      * Método que es llamado para crear el objeto bean para la creación.
      */
     private void construirBean() throws GenasoftException {
-        transportista = new TTransportistas();
-        transportista.setDireccion(txtDireccion.getValue().trim().toUpperCase());
-        transportista.setEstado(cbEstado.getValue().equals(Constants.ACTIVO) ? 1 : 0);
-        transportista.setNombre(txtRazonSocial.getValue().trim().toUpperCase());
-        transportista.setCif(txtCif.getValue().trim().toUpperCase());
-        transportista.setCodigoPostal(txtCp.getValue().trim().toUpperCase());
-        transportista.setCiudad(txtCiudad.getValue().trim().toUpperCase());
-        transportista.setProvincia(txtProvincia.getValue().trim().toUpperCase());
-        transportista.setRazonSocial(txtRazonSocial.getValue().trim().toUpperCase());
-        transportista.setFechaCrea(Utils.generarFecha());
-        transportista.setUsuCrea(user);
-        transportista.setPais("ES");
-        transportista.setFechaCrea(Utils.generarFecha());
+
+        TMateriales mat = (TMateriales) cbMateriales.getValue();
+        TClientes cl = (TClientes) cbClientes.getValue();
+        TDireccionCliente dir = (TDireccionCliente) cbDirecciones.getValue();
+
+        nPesaje = new TPesajes();
+        nPesaje.setDescMaterial(mat.getDescripcion());
+        nPesaje.setDestino(txtDestino.getValue() != null ? txtDestino.getValue().trim().toUpperCase() : "");
+        nPesaje.setEstado(PesajesEnum.ALBARAN.getValue());
+        nPesaje.setFechaCrea(Utils.generarFecha());
+        nPesaje.setFechaPesaje(fechaPesaje.getValue());
+        nPesaje.setIdCliente(cl.getId());
+        nPesaje.setIdDireccion(dir.getId());
+        nPesaje.setIdFactura(-1);
+        nPesaje.setIdMaterial(mat.getId());
+        try {
+            nPesaje.setKgsBruto(Utils.formatearValorDouble(txtKgsBrutos.getValue().trim()));
+            if (nPesaje.getKgsBruto() <= Double.valueOf(0)) {
+                throw new GenasoftException("No se ha introducido un valor numérico válido en el campo: " + txtKgsBrutos.getCaption());
+            }
+        } catch (Exception e) {
+            throw new GenasoftException("No se ha introducido un valor numérico válido en el campo: " + txtKgsBrutos.getCaption());
+        }
+        try {
+            nPesaje.setKgsNeto(Utils.formatearValorDouble(txtKgsNetos.getValue().trim()));
+
+            if (nPesaje.getKgsNeto() <= Double.valueOf(0)) {
+                throw new GenasoftException("No se ha introducido un valor numérico válido en el campo: " + txtKgsNetos.getCaption());
+            }
+        } catch (Exception e) {
+            throw new GenasoftException("No se ha introducido un valor numérico válido en el campo: " + txtKgsNetos.getCaption());
+        }
+
+        try {
+            nPesaje.setTara(Utils.formatearValorDouble(txtTara.getValue().trim()));
+
+            if (nPesaje.getTara() <= Double.valueOf(0)) {
+                throw new GenasoftException("No se ha introducido un valor numérico válido en el campo: " + txtTara.getCaption());
+            }
+        } catch (Exception e) {
+            throw new GenasoftException("No se ha introducido un valor numérico válido en el campo: " + txtTara.getCaption());
+        }
+
+        nPesaje.setLerMaterial(mat.getLer());
+        nPesaje.setMatricula(txtMatricula.getValue() != null ? txtMatricula.getValue().trim().toUpperCase() : "");
+        nPesaje.setNumeroAlbaran(contrVista.obtenerNumeroAlbaran("" + PesajesEnum.TIPO_GENERICO.getValue(), user, time));
+        nPesaje.setObra(txtObra.getValue().trim().toUpperCase());
+        nPesaje.setOrigen(txtOrigen.getValue().trim().toUpperCase());
+        nPesaje.setRefMaterial(mat.getReferencia());
+        nPesaje.setRemolque(txtRemolque.getValue() != null ? txtRemolque.getValue().trim().toUpperCase() : "");
+        nPesaje.setUsuCrea(user);
+
     }
 
     /**
      * Método que es llamado para inicializar los valores de los componentes.
+     * @throws GenasoftException 
+     * @throws ReadOnlyException 
      */
-    private void inicializarCampos() {
-        txtDireccion.setValue(null);
-        txtCif.setValue(null);
-        txtCp.setValue(null);
-        txtRazonSocial.setValue(null);
-        cbEstado.setValue(Constants.ACTIVO);
-        txtCiudad.setValue(null);
-        txtProvincia.setValue(null);
+    private void inicializarCampos() throws ReadOnlyException, GenasoftException {
+        txtAlbaran.setValue(null);
+        txtOrigen.setValue(null);
+        txtRemolque.setValue(null);
+        txtObra.setValue(null);
+        cbClientes.setValue(Constants.ACTIVO);
+        txtMatricula.setValue(null);
+        txtKgsBrutos.setValue(null);
+        cbClientes.clear();
+        cbMateriales.clear();
+        cbDirecciones.removeAllItems();
+        txtDestino.setValue(null);
+        txtKgsBrutos.setValue(null);
+        txtTara.setValue(null);
     }
 
     /**
@@ -415,6 +754,7 @@ public class VistaNuevoPesaje extends CustomComponent implements View ,Button.Cl
      * @return true si no se cumple la validación
      */
     private boolean validarCamposObligatorios() {
-        return !cbEstado.isValid() || !txtCif.isValid() || !txtRazonSocial.isValid() || !txtDireccion.isValid() || !txtCp.isValid() || !txtProvincia.isValid() || !txtCiudad.isValid();
+        return !cbClientes.isValid() || !cbMateriales.isValid() || !txtOrigen.isValid() || !txtObra.isValid() || !txtRemolque.isValid() || !txtKgsBrutos.isValid() || !txtMatricula.isValid() || !fechaPesaje.isValid() || !cbDirecciones.isValid()
+                || !fechaPesaje.isValid();
     }
 }

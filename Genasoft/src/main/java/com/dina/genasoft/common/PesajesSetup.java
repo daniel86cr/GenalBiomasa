@@ -6,6 +6,7 @@
 package com.dina.genasoft.common;
 
 import java.io.Serializable;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -13,17 +14,22 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import com.dina.genasoft.configuration.Constants;
 import com.dina.genasoft.db.entity.TClientes;
 import com.dina.genasoft.db.entity.TEmpleados;
+import com.dina.genasoft.db.entity.TNumeroAlbaran;
 import com.dina.genasoft.db.entity.TPesajes;
 import com.dina.genasoft.db.entity.TPesajesVista;
 import com.dina.genasoft.db.entity.TRegistrosCambiosPesajes;
+import com.dina.genasoft.db.mapper.TNumeroAlbaranMapper;
 import com.dina.genasoft.db.mapper.TPesajesMapper;
 import com.dina.genasoft.db.mapper.TRegistrosCambiosPesajesMapper;
+import com.dina.genasoft.utils.EnvioCorreo;
 import com.dina.genasoft.utils.Utils;
+import com.dina.genasoft.utils.enums.PesajesEnum;
 
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
@@ -50,6 +56,15 @@ public class PesajesSetup implements Serializable {
     /** Inyección de Spring para poder acceder a la capa de datos de clientes. */
     @Autowired
     private ClientesSetup                  clientesSetup;
+    /** Inyección por Spring del mapper TNumeroAlbaran.*/
+    @Autowired
+    private TNumeroAlbaranMapper           tNumeroAlbaranMapper;
+    /** Contendrá el ID del usuario del administrador para recibir notificaciones.*/
+    @Value("${user.notificacions}")
+    private String                         userNotifications;
+    /** Inyección de Spring para poder acceder a la lógica de exportación de datos en Excel.*/
+    @Autowired
+    private EnvioCorreo                    envioCorreo;
     private static final long              serialVersionUID = 5701299788812594642L;
 
     /**
@@ -107,6 +122,14 @@ public class PesajesSetup implements Serializable {
     public int crearPesajeRetornaId(TPesajes record) {
 
         Integer id = -1;
+
+        // Buscamos el pesaje por nº de albarán por si ya existe uno con el mismo número.
+
+        TPesajes aux = obtenerPesajePorAlbaran(record.getNumeroAlbaran());
+
+        if (aux != null) {
+            aux.setNumeroAlbaran(obtenerNumeroAlbaran("" + PesajesEnum.TIPO_GENERICO.getValue()));
+        }
 
         try {
             // Rellenamos los datos necesarios para crear el cliente.
@@ -243,6 +266,133 @@ public class PesajesSetup implements Serializable {
         }
 
         return lResult;
+    }
+
+    /**
+     * Método que nos retorna el número de albaran que le corresponde
+     * @param tipoPesaje
+     * @return
+     */
+    public String obtenerNumeroAlbaran(String tipoPesaje) {
+        String result = "-1";
+
+        Calendar cal = Calendar.getInstance();
+
+        cal.setTime(Utils.generarFecha());
+        int year = cal.get(Calendar.YEAR);
+        Boolean entra = false;
+        if (tipoPesaje.equals("00")) {
+            year = cal.get(Calendar.YEAR) % 100;
+            entra = true;
+        }
+
+        TNumeroAlbaran nAlbaran = tNumeroAlbaranMapper.obtenerNumeroAlbaran(tipoPesaje, year);
+
+        if (nAlbaran == null) {
+            year = cal.get(Calendar.YEAR) % 100;
+            nAlbaran = tNumeroAlbaranMapper.obtenerNumeroAlbaran(tipoPesaje, year);
+        }
+
+        if (nAlbaran == null) {
+
+            year = cal.get(Calendar.YEAR) % 100;
+
+            int yearAnterior = year - 1;
+            // Buscamos el último número del año anterior
+            TNumeroAlbaran aux = tNumeroAlbaranMapper.obtenerNumeroAlbaran(tipoPesaje, yearAnterior);
+            if (aux == null) {
+                log.error("No se ha podido determinar el número de albaran con los siguientes datos: tipo de pedido: " + tipoPesaje + ", año anterior: " + yearAnterior);
+
+            }
+            result = "0000";
+            String resultado = "" + year;
+            // if (entra) {
+            //     resultado = resultado + year + "000000";
+            // } else {
+            resultado = resultado + "000001";
+            // }
+            result = resultado;
+            nAlbaran = new TNumeroAlbaran();
+            nAlbaran.setFechaUltimaConsulta(Utils.generarFecha());
+            nAlbaran.setTipoPesaje(tipoPesaje);
+            if (entra) {
+                nAlbaran.setUltimoNumero("00000" + 2);
+            } else {
+                nAlbaran.setUltimoNumero("00000" + 2);
+            }
+            nAlbaran.setYearActual(year);
+            int cont = 0;
+            boolean insert = false;
+            while (cont < 10) {
+                if (tNumeroAlbaranMapper.insert(nAlbaran) == 1) {
+                    cont = 10;
+                    insert = true;
+                } else {
+                    try {
+                        Thread.sleep(2000);
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+                    cont++;
+                }
+            }
+            if (!insert) {
+                if (userNotifications != null) {
+                    try {
+                        // Buscamos el empleado de las notificaciones
+                        TEmpleados empl = empleadosSetup.obtenerEmpleadoPorId(Integer.valueOf(userNotifications));
+                        envioCorreo.enviarCorreo(empl.getEmail(), "GENASOFT ERROR - No se ha podido generar el número de albarán", "No se ha podido realizar el insert", resultado);
+                    } catch (Exception e) {
+                        log.error("Se ha producido un error al enviar la notificación al usuario: " + userNotifications);
+                    }
+                }
+            }
+        } else {
+            String resultado = "" + year;
+            resultado = resultado + nAlbaran.getUltimoNumero();
+            result = resultado;
+            String valor = String.valueOf(Integer.valueOf(nAlbaran.getUltimoNumero()) + 1);
+            if (nAlbaran.getUltimoNumero().length() == 6) {
+                while (valor.length() < 6) {
+                    valor = "0" + valor;
+                }
+            } else {
+                while (valor.length() < 4) {
+                    valor = "0" + valor;
+                }
+            }
+            nAlbaran.setUltimoNumero(valor);
+            nAlbaran.setFechaUltimaConsulta(Utils.generarFecha());
+            int cont = 0;
+            boolean insert = false;
+            while (cont < 10) {
+
+                if (tNumeroAlbaranMapper.updateByPrimaryKey(nAlbaran) == 1) {
+                    insert = true;
+                    cont = 10;
+                } else {
+                    try {
+                        Thread.sleep(2000);
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+                    cont++;
+                }
+            }
+            if (!insert) {
+                if (userNotifications != null) {
+                    try {
+                        // Buscamos el empleado de las notificaciones
+                        TEmpleados empl = empleadosSetup.obtenerEmpleadoPorId(Integer.valueOf(userNotifications));
+                        envioCorreo.enviarCorreo(empl.getEmail(), "GENASOFT ERROR - No se ha podido generar el número de albarán", "No se ha podido realizar el insert", resultado);
+                    } catch (Exception e) {
+                        log.error("Se ha producido un error al enviar la notificación al usuario: " + userNotifications);
+                    }
+                }
+            }
+        }
+        // Retornamos el número del albaran encontrado
+        return result;
     }
 
 }

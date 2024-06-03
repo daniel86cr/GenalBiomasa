@@ -26,6 +26,7 @@
         		<typeAlias alias="TFacturas" type="com.dina.genasoft.db.entity.TFacturas" />
         		<typeAlias alias="TIva" type="com.dina.genasoft.db.entity.TIva" />
         		<typeAlias alias="TMateriales" type="com.dina.genasoft.db.entity.TMateriales" />
+        		<typeAlias alias="TNumeroAlbaran" type="com.dina.genasoft.db.entity.TNumeroAlbaran" />
         		<typeAlias alias="TOperadores" type="com.dina.genasoft.db.entity.TOperadores" />
         		<typeAlias alias="TPais" type="com.dina.genasoft.db.entity.TPais" />
         		<typeAlias alias="TPermisos" type="com.dina.genasoft.db.entity.TPermisos" />
@@ -61,6 +62,7 @@
         		<mapper resource="SqlMaps/TFacturasMapper.xml"></mapper>
         		<mapper resource="SqlMaps/TIvaMapper.xml"></mapper>
         		<mapper resource="SqlMaps/TMaterialesMapper.xml"></mapper>
+        		<mapper resource="SqlMaps/TNumeroAlbaranMapper.xml"></mapper>
         		<mapper resource="SqlMaps/TOperadoresMapper.xml"></mapper>
         		<mapper resource="SqlMaps/TPaisMapper.xml"></mapper>
         		<mapper resource="SqlMaps/TPermisosMapper.xml"></mapper>

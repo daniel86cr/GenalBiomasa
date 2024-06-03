@@ -65,7 +65,7 @@ import de.steinwedel.messagebox.MessageBox;
 @SpringView(name = VistaListadoTransportistas.NAME)
 public class VistaListadoTransportistas extends CustomComponent implements View ,Button.ClickListener {
     /** El nombre de la vista.*/
-    public static final String                          NAME            = "vTransportistas";
+    public static final String                          NAME                = "vTransportistas";
     /** Necesario para mostrar los transportistas*/
     private BeanContainer<String, TTransportistasVista> bcTransportistas;
     /** El controlador de las vistas. */
@@ -96,27 +96,27 @@ public class VistaListadoTransportistas extends CustomComponent implements View 
     /** El ID del empleado seleccionado.*/
     private String                                      idSeleccionado;
     /** El log de la aplicación.*/
-    private static final org.slf4j.Logger               log             = org.slf4j.LoggerFactory.getLogger(VistaListadoTransportistas.class);
+    private static final org.slf4j.Logger               log                 = org.slf4j.LoggerFactory.getLogger(VistaListadoTransportistas.class);
     /** El usuario que está logado. */
-    private Integer                                     user            = null;
+    private Integer                                     user                = null;
     /** La fecha en que se inició sesión. */
-    private Long                                        time            = null;
+    private Long                                        time                = null;
     /** El filtro que se le aplica al container. */
     private FiltroContainer                             filter;
     /** No tengo ni puta idea para que sirve. */
-    private final Label                                 status          = new Label("");
+    private final Label                                 status              = new Label("");
     /** Tabla para mostrar los empleados del sistema. */
     private Table                                       tablaTransportistas = null;
     /** Para indicar que se está filtrando por el campo NOMBRE. */
-    private final String                                NOMBRE          = "nombre";
+    private final String                                NOMBRE              = "nombre";
     /** Para indicar que se está filtrando por el campo CIF. */
-    private final String                                CIF             = "cif";
+    private final String                                CIF                 = "cif";
     /** Para indicar que se está filtrando por el campo CP. */
-    private final String                                CP              = "cp";
+    private final String                                CP                  = "cp";
     /** Para indicar que se está filtrando por el campo DIRECCIÓN. */
-    private final String                                DIRECCION       = "direccion";
+    private final String                                DIRECCION           = "direccion";
     /** Para indicar que se está filtrando por el campo CIUDAD. */
-    private final String                                CIUDAD          = "ciudad";
+    private final String                                CIUDAD              = "ciudad";
     private TEmpleados                                  empleado;
     private TPermisos                                   permisos;
 
@@ -327,9 +327,9 @@ public class VistaListadoTransportistas extends CustomComponent implements View 
 
                     result = contrVista.obtenerDescripcionCodigo(result);
                     Item articulo = tablaTransportistas.getItem("" + ids[i]);
-                    String est = "Desactivado";
+                    String est = Constants.DESACTIVADO;
                     if (articulo.getItemProperty("estado").getValue().equals("Activo")) {
-                        est = "Desactivado";
+                        est = Constants.DESACTIVADO;
                     }
                     articulo.getItemProperty("estado").setValue(est);
                     i++;
@@ -345,9 +345,9 @@ public class VistaListadoTransportistas extends CustomComponent implements View 
                 aviso.setPosition(Position.MIDDLE_CENTER);
                 aviso.show(Page.getCurrent());
                 Item articulo = tablaTransportistas.getItem("" + idSeleccionado);
-                String est = "Desactivado";
+                String est = Constants.DESACTIVADO;
                 if (articulo.getItemProperty("estado").getValue().equals("Activo")) {
-                    est = "Desactivado";
+                    est = Constants.DESACTIVADO;
                 }
                 articulo.getItemProperty("estado").setValue(est);
             }
@@ -401,7 +401,7 @@ public class VistaListadoTransportistas extends CustomComponent implements View 
             @Override
             public void itemClick(ItemClickEvent event) {
                 idSeleccionado = (String) event.getItemId();
-                if (event.isDoubleClick()) {
+                if (event.isDoubleClick() && Utils.booleanFromInteger(permisos.getModificarTransportista())) {
                     getUI().getNavigator().navigateTo(VistaTransportista.NAME + "/" + idSeleccionado);
                 }
             }
@@ -884,13 +884,15 @@ public class VistaListadoTransportistas extends CustomComponent implements View 
         //Botonera
         HorizontalLayout botonera = new HorizontalLayout();
         botonera.setSpacing(true);
-
-        botonera.addComponent(crearButton);
-
-        botonera.addComponent(modificarButton);
-
-        botonera.addComponent(eliminarButton);
-
+        if (Utils.booleanFromInteger(permisos.getCrearTransportista())) {
+            botonera.addComponent(crearButton);
+        }
+        if (Utils.booleanFromInteger(permisos.getModificarOperador())) {
+            botonera.addComponent(modificarButton);
+        }
+        if (Utils.booleanFromInteger(permisos.getEliminarOperador())) {
+            botonera.addComponent(eliminarButton);
+        }
         botonera.setMargin(true);
 
         return botonera;

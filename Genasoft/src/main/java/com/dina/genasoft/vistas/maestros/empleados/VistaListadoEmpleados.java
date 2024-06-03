@@ -318,9 +318,9 @@ public class VistaListadoEmpleados extends CustomComponent implements View ,Butt
 
                     result = contrVista.obtenerDescripcionCodigo(result);
                     Item articulo = tablaEmpleados.getItem("" + ids[i]);
-                    String est = "Desactivado";
+                    String est = Constants.DESACTIVADO;
                     if (articulo.getItemProperty("estado").getValue().equals("Activo")) {
-                        est = "Desactivado";
+                        est = Constants.DESACTIVADO;
                     }
                     articulo.getItemProperty("estado").setValue(est);
                     i++;
@@ -336,9 +336,9 @@ public class VistaListadoEmpleados extends CustomComponent implements View ,Butt
                 aviso.setPosition(Position.MIDDLE_CENTER);
                 aviso.show(Page.getCurrent());
                 Item articulo = tablaEmpleados.getItem("" + idSeleccionado);
-                String est = "Desactivado";
+                String est = Constants.DESACTIVADO;
                 if (articulo.getItemProperty("estado").getValue().equals("Activo")) {
-                    est = "Desactivado";
+                    est = Constants.DESACTIVADO;
                 }
                 articulo.getItemProperty("estado").setValue(est);
             }
