@@ -16,6 +16,7 @@ import com.dina.genasoft.db.entity.TEmpleados;
 import com.dina.genasoft.db.entity.TPermisos;
 import com.dina.genasoft.exception.GenasoftException;
 import com.dina.genasoft.utils.Utils;
+import com.dina.genasoft.vistas.facturas.VistaListadoFacturas;
 import com.dina.genasoft.vistas.pesajes.VistaListadoPesajes;
 import com.dina.genasoft.vistas.pesajes.VistaNuevoPesaje;
 import com.vaadin.annotations.Theme;
@@ -190,6 +191,16 @@ public class VistaMenuPrincipalAdministrador extends CustomComponent implements 
             public void buttonClick(ClickEvent event) {
 
                 getUI().getNavigator().navigateTo(VistaListadoPesajes.NAME + "/" + empleado.getId());
+
+            }
+        });
+
+        // Evento para crear un nuevo empleado.
+        bFacturacion.addClickListener(new ClickListener() {
+
+            public void buttonClick(ClickEvent event) {
+
+                getUI().getNavigator().navigateTo(VistaListadoFacturas.NAME + "/" + empleado.getId());
 
             }
         });

@@ -3,12 +3,11 @@
  *  
  *  Copyright (C) 2024
  */
-package com.dina.genasoft.vistas.pesajes;
+package com.dina.genasoft.vistas.facturas;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
-import java.util.Set;
 import java.util.regex.PatternSyntaxException;
 
 import javax.annotation.PostConstruct;
@@ -22,17 +21,20 @@ import com.dina.genasoft.controller.ControladorVistas;
 import com.dina.genasoft.db.entity.TClientes;
 import com.dina.genasoft.db.entity.TEmpleados;
 import com.dina.genasoft.db.entity.TFacturas;
+import com.dina.genasoft.db.entity.TFacturasVista;
 import com.dina.genasoft.db.entity.TLineasFactura;
+import com.dina.genasoft.db.entity.TLineasFacturaVista;
 import com.dina.genasoft.db.entity.TMateriales;
 import com.dina.genasoft.db.entity.TPermisos;
 import com.dina.genasoft.db.entity.TPesajes;
-import com.dina.genasoft.db.entity.TPesajesVista;
 import com.dina.genasoft.exception.GenasoftException;
 import com.dina.genasoft.utils.TablaGenerica;
 import com.dina.genasoft.utils.Utils;
 import com.dina.genasoft.utils.enums.PesajesEnum;
 import com.dina.genasoft.vistas.Menu;
 import com.dina.genasoft.vistas.VistaInicioSesion;
+import com.dina.genasoft.vistas.pesajes.VistaNuevoPesaje;
+import com.dina.genasoft.vistas.pesajes.VistaPesaje;
 import com.vaadin.annotations.Theme;
 import com.vaadin.data.Container;
 import com.vaadin.data.Item;
@@ -40,7 +42,6 @@ import com.vaadin.data.Property;
 import com.vaadin.data.Property.ValueChangeEvent;
 import com.vaadin.data.Property.ValueChangeListener;
 import com.vaadin.data.util.BeanContainer;
-import com.vaadin.data.util.BeanItem;
 import com.vaadin.event.FieldEvents.TextChangeEvent;
 import com.vaadin.event.FieldEvents.TextChangeListener;
 import com.vaadin.event.ItemClickEvent;
@@ -75,85 +76,89 @@ import de.steinwedel.messagebox.MessageBox;
 @SuppressWarnings("serial")
 @Theme("Genal")
 @UIScope
-@SpringView(name = VistaListadoPesajes.NAME)
-public class VistaListadoPesajes extends CustomComponent implements View ,Button.ClickListener {
+@SpringView(name = VistaListadoFacturas.NAME)
+public class VistaListadoFacturas extends CustomComponent implements View ,Button.ClickListener {
     /** El nombre de la vista.*/
-    public static final String                   NAME         = "vPesajes";
-    /** Necesario para mostrar los pesajes*/
-    private BeanContainer<String, TPesajesVista> bcPesajes;
+    public static final String                         NAME          = "vFatcuras";
+    /** Necesario para mostrar las facturas*/
+    private BeanContainer<String, TFacturasVista>      bcFacturas;
+    /** Necesario para mostrar las facturas*/
+    private BeanContainer<String, TLineasFacturaVista> bcLineas;
     /** El controlador de las vistas. */
     @Autowired
-    private ControladorVistas                    contrVista;
+    private ControladorVistas                          contrVista;
     /** El boton para crear un pesaje.*/
-    private Button                               crearButton;
+    private Button                                     crearButton;
     /** El boton para crear un pesaje.*/
-    private Button                               modificarButton;
+    private Button                                     modificarButton;
     /** El boton para eliminar un pesaje.*/
-    private Button                               eliminarButton;
+    private Button                                     eliminarButton;
     /** El boton para generar facturas.*/
-    private Button                               facturarButton;
+    private Button                                     facturarButton;
     /** El boton para generar multifacturas.*/
-    private Button                               facturar2Button;
+    private Button                                     facturar2Button;
     // Elementos para realizar busquedas
     /** Para filtrar por el nº de albarán del pesaje.*/
-    private TextField                            fAlbaran;
+    private TextField                                  fAlbaran;
     /** Para filtrar por la obra del pesaje.*/
-    private TextField                            fObra;
+    private TextField                                  fObra;
     /** Para filtrar por el origen del pesaje.*/
-    private TextField                            fOrigen;
+    private TextField                                  fOrigen;
     /** Para filtrar por el destino del pesaje.*/
-    private TextField                            fDestino;
+    private TextField                                  fDestino;
     /** Para filtrar por la matricula del pesaje.*/
-    private TextField                            fMatricula;
+    private TextField                                  fMatricula;
     /** Para filtrar por el remolque del pesaje.*/
-    private TextField                            fRemolque;
+    private TextField                                  fRemolque;
     /** Para filtrar por el cliente. */
-    private ComboBox                             fClientes;
+    private ComboBox                                   fClientes;
     /** Para filtrar por el material. */
-    private ComboBox                             fMaterial;
+    private ComboBox                                   fMaterial;
     /** Para filtrar por estado. */
-    private ComboBox                             fEstados;
+    private ComboBox                                   fEstados;
     /** Para el filtrado, la fecha desde. */
-    private DateField                            fDesde;
+    private DateField                                  fDesde;
     /** Para el filtrado, la fecha hasta. */
-    private DateField                            fHasta;
+    private DateField                                  fHasta;
     /** Contendrá el nombre de la aplicación.*/
     @Value("${app.name}")
-    private String                               appName;
+    private String                                     appName;
     /** El ID del empleado seleccionado.*/
-    private String                               idSeleccionado;
+    private String                                     idSeleccionado;
     /** El log de la aplicación.*/
-    private static final org.slf4j.Logger        log          = org.slf4j.LoggerFactory.getLogger(VistaListadoPesajes.class);
+    private static final org.slf4j.Logger              log           = org.slf4j.LoggerFactory.getLogger(VistaListadoFacturas.class);
     /** El usuario que está logado. */
-    private Integer                              user         = null;
+    private Integer                                    user          = null;
     /** La fecha en que se inició sesión. */
-    private Long                                 time         = null;
+    private Long                                       time          = null;
     /** El filtro que se le aplica al container. */
-    private FiltroContainer                      filter;
+    private FiltroContainer                            filter;
     /** No tengo ni puta idea para que sirve. */
-    private final Label                          status       = new Label("");
+    private final Label                                status        = new Label("");
     /** Tabla para mostrar los empleados del sistema. */
-    private Table                                tablaPesajes = null;
+    private Table                                      tablaFacturas = null;
+    /** Tabla para mostrar los empleados del sistema. */
+    private Table                                      tablaLineas   = null;
     /** Tabla para mostrar los pedidos del sistema. */
-    private Table                                tablaColores = null;
+    private Table                                      tablaColores  = null;
     /** Para indicar que se está filtrando por el campo ALBARAN. */
-    private final String                         ALBARAN      = "albaran";
+    private final String                               ALBARAN       = "albaran";
     /** Para indicar que se está filtrando por el campo OBRA. */
-    private final String                         OBRA         = "obra";
+    private final String                               OBRA          = "obra";
     /** Para indicar que se está filtrando por el campo ORIGEN. */
-    private final String                         ORIGEN       = "origen";
+    private final String                               ORIGEN        = "origen";
     /** Para indicar que se está filtrando por el campo DESTINO. */
-    private final String                         DESTINO      = "destino";
+    private final String                               DESTINO       = "destino";
     /** Para indicar que se está filtrando por el campo MATRICULA. */
-    private final String                         MATRICULA    = "matricula";
+    private final String                               MATRICULA     = "matricula";
     /** Para indicar que se está filtrando por el campo REMOLQUE. */
-    private final String                         REMOLQUE     = "remolque";
-    private TEmpleados                           empleado;
-    private TPermisos                            permisos;
-    private List<TClientes>                      lClientes;
-    private List<TMateriales>                    lMateriales;
+    private final String                               REMOLQUE      = "remolque";
+    private TEmpleados                                 empleado;
+    private TPermisos                                  permisos;
+    private List<TClientes>                            lClientes;
+    private List<TMateriales>                          lMateriales;
     /** El boton para imprimir la hoja de ruta.*/
-    private Button                               pdfButton;
+    private Button                                     pdfButton;
 
     /**
      * Se inicializan botones, eventos, etc.
@@ -183,10 +188,13 @@ public class VistaListadoPesajes extends CustomComponent implements View ,Button
             try {
                 idSeleccionado = null;
 
-                bcPesajes = new BeanContainer<>(TPesajesVista.class);
-                bcPesajes.setBeanIdProperty("id");
+                bcFacturas = new BeanContainer<>(TFacturasVista.class);
+                bcFacturas.setBeanIdProperty("id");
 
-                Label texto = new Label("Pesajes");
+                bcLineas = new BeanContainer<>(TLineasFacturaVista.class);
+                bcLineas.setBeanIdProperty("id");
+
+                Label texto = new Label("Facturas");
                 texto.setStyleName("tituloTamano18");
                 // Incluimos en el layout los componentes
                 VerticalLayout titulo = new VerticalLayout(texto);
@@ -229,7 +237,8 @@ public class VistaListadoPesajes extends CustomComponent implements View ,Button
                 // Creamos la tabla de colores
                 crearTablaColores();
                 // Creamos la tabla de pesajes
-                crearTablaPesajes(permisos);
+                crearTablaFacturas(permisos);
+                crearTablaLineas();
 
                 lClientes = contrVista.obtenerClientesActivos(user, time);
                 lMateriales = contrVista.obtenerMaterialesActivos(user, time);
@@ -240,22 +249,27 @@ public class VistaListadoPesajes extends CustomComponent implements View ,Button
                 cambiarFechas();
 
                 Label tituloFiltrar = new Label("Filtrar");
-                tituloFiltrar.setStyleName("tituloTamano12");
+                tituloFiltrar.setStyleName("tituloTamano18");
 
                 // Creamos la botonera.
                 HorizontalLayout botonera = crearBotonera(permisos);
 
                 viewLayout.addComponent(filtro);
                 viewLayout.addComponent(botonera);
-                if (Utils.booleanFromInteger(permisos.getCrearFactura())) {
-                    viewLayout.addComponent(crearBotonera2());
-                }
+                //if (Utils.booleanFromInteger(permisos.getCrearFactura())) {
+                //    viewLayout.addComponent(crearBotonera2());
+                //}
                 Label tituloTablaColores = new Label("Leyenda colores");
                 tituloTablaColores.setStyleName("tituloTamano12");
 
-                viewLayout.addComponent(tituloTablaColores);
-                viewLayout.addComponent(tablaColores);
-                viewLayout.addComponent(tablaPesajes);
+                //viewLayout.addComponent(tituloTablaColores);
+                //viewLayout.addComponent(tablaColores);
+                viewLayout.addComponent(tablaFacturas);
+
+                Label titulosAlbaranes = new Label("Pesajes");
+                titulosAlbaranes.setStyleName("tituloTamano12");
+                viewLayout.addComponent(titulosAlbaranes);
+                viewLayout.addComponent(tablaLineas);
                 // Añadimos el logo de GENAL BIOMASA
                 viewLayout.addComponent(contrVista.logoCliente());
                 setCompositionRoot(viewLayout);
@@ -295,7 +309,7 @@ public class VistaListadoPesajes extends CustomComponent implements View ,Button
         // Creamos los botones.
         crearButton = new Button("Registrar pesaje", this);
         modificarButton = new Button("Editar pesaje", this);
-        eliminarButton = new Button("Anular pesaje", this);
+        eliminarButton = new Button("Eliminar factura", this);
         facturarButton = new Button("Generar factura", this);
         facturar2Button = new Button("Generar multifactura", this);
 
@@ -388,7 +402,7 @@ public class VistaListadoPesajes extends CustomComponent implements View ,Button
 
                 if (idSeleccionado != null) {
 
-                    MessageBox.createQuestion().withCaption(appName).withMessage("¿Quieres desactivar el registro seleccionado?").withNoButton().withYesButton(() -> anularPesaje(idSeleccionado), ButtonOption.caption("Sí")).open();
+                    //MessageBox.createQuestion().withCaption(appName).withMessage("¿Quieres desactivar el registro seleccionado?").withNoButton().withYesButton(() -> anularPesaje(idSeleccionado), ButtonOption.caption("Sí")).open();
 
                 } else {
                     Notification aviso = new Notification("Se debe seleccionar un registro del listado", Notification.Type.ASSISTIVE_NOTIFICATION);
@@ -402,121 +416,49 @@ public class VistaListadoPesajes extends CustomComponent implements View ,Button
     }
 
     /**
-     * Método que nos realiza la desactivación del empleado.
-     * @param idSeleccionado El Id del empleado a desactivar.
-     */
-    @SuppressWarnings("unchecked")
-    private void anularPesaje(String idSeleccionado) {
-
-        try {
-            if (idSeleccionado.contains(",")) {
-                String[] ids = idSeleccionado.split(",");
-                int i = 0;
-                String result = "";
-                while (i < ids.length) {
-                    result = contrVista.desactivarPesaje(Integer.valueOf(ids[i]), user, time);
-
-                    result = contrVista.obtenerDescripcionCodigo(result);
-                    Item articulo = tablaPesajes.getItem("" + ids[i]);
-                    String est = Constants.ANULADO;
-                    if (articulo.getItemProperty("estado").getValue().equals("Activo")) {
-                        est = Constants.ANULADO;
-                    }
-                    articulo.getItemProperty("estado").setValue(est);
-                    i++;
-                }
-                Notification aviso = new Notification(result, Notification.Type.ASSISTIVE_NOTIFICATION);
-                aviso.setPosition(Position.MIDDLE_CENTER);
-                aviso.show(Page.getCurrent());
-            } else {
-                String result = contrVista.desactivarPesaje(Integer.valueOf(idSeleccionado), user, time);
-
-                result = contrVista.obtenerDescripcionCodigo(result);
-                Notification aviso = new Notification(result, Notification.Type.ASSISTIVE_NOTIFICATION);
-                aviso.setPosition(Position.MIDDLE_CENTER);
-                aviso.show(Page.getCurrent());
-                Item articulo = tablaPesajes.getItem("" + idSeleccionado);
-                String est = Constants.ANULADO;
-                if (articulo.getItemProperty("estado").getValue().equals("Activo")) {
-                    est = Constants.ANULADO;
-                }
-                articulo.getItemProperty("estado").setValue(est);
-            }
-
-        } catch (GenasoftException tbe) {
-            log.error("La sesión es inválida, se ha iniciado sesión en otro dispositivo.");
-            // Si no se encuentran permisos con el rol especificado, informamos al empleado y cerramos sesión.
-            Notification aviso = new Notification(contrVista.obtenerDescripcionCodigo(tbe.getMessage()), Notification.Type.WARNING_MESSAGE);
-            aviso.setPosition(Position.MIDDLE_CENTER);
-            aviso.show(Page.getCurrent());
-            getSession().setAttribute("user", null);
-            getSession().setAttribute("fecha", null);
-            // Redirigimos a la página de inicio.
-            getUI().getNavigator().navigateTo(VistaInicioSesion.NAME);
-        }
-    }
-
-    /**
      * Método que se encaerga de crear y montar el grid.
      * @return El Grid con las columnas.
      */
-    private void crearTablaPesajes(TPermisos permisos) {
-        tablaPesajes = new TablaGenerica(new Object[] { "numeroAlbaran", "idCliente", "idDireccion", "idOperador", "idTransportista", "fechaPesaje", "obra", "origen", "idMaterial", "kgsBruto", "tara", "kgsNeto", "fechaCrea", "estado" }, new String[] { "Nº Albarán", "Cliente", "Dirección", "Operador", "Transportista", "Fecha", "Obra", "Origen", "Material", "Kilos brutos", "TARA", "Kilos netos", "Registrado por", "Estado" }, bcPesajes);
-        tablaPesajes.addStyleName("big striped");
-        tablaPesajes.setPageLength(25);
+    private void crearTablaFacturas(TPermisos permisos) {
+        tablaFacturas = new TablaGenerica(new Object[] { "numeroFactura", "idCliente", "idDireccion", "fechaFactura", "obra", "subtotal", "total", }, new String[] { "Nº Factura", "Cliente", "Dirección", "Fecha factura", "Obra", "SubTotal", "Importe factura" }, bcFacturas);
+        tablaFacturas.addStyleName("big striped");
+        tablaFacturas.setPageLength(25);
 
         // Establecemos tamaño fijo en columnas específicas.
-
-        tablaPesajes.setMultiSelect(true);
-        tablaPesajes.addValueChangeListener(new Property.ValueChangeListener() {
-            @Override
-            public void valueChange(ValueChangeEvent event) {
-                @SuppressWarnings("unchecked")
-                Set<String> values = (Set<String>) tablaPesajes.getValue();
-                idSeleccionado = "";
-                for (String v : values) {
-                    if (v.isEmpty())
-                        continue;
-                    if (!idSeleccionado.isEmpty()) {
-                        idSeleccionado = idSeleccionado + "," + v;
-                    } else {
-                        idSeleccionado = v;
-                    }
-
-                }
-            }
-        });
-
-        tablaPesajes.addItemClickListener(new ItemClickListener() {
+        tablaFacturas.addItemClickListener(new ItemClickListener() {
 
             @Override
             public void itemClick(ItemClickEvent event) {
                 idSeleccionado = (String) event.getItemId();
-                if (event.isDoubleClick() && Utils.booleanFromInteger(permisos.getModificarPesaje())) {
-                    getUI().getNavigator().navigateTo(VistaPesaje.NAME + "/" + idSeleccionado);
+
+                bcLineas.removeAllItems();
+                try {
+                    bcLineas.addAll(contrVista.obtenerLineasFacturaPorIdFacturaVista(Integer.valueOf(idSeleccionado), user, time));
+                } catch (GenasoftException tbe) {
+                    log.error("La sesión es inválida, se ha iniciado sesión en otro dispositivo.");
+                    // Si no se encuentran permisos con el rol especificado, informamos al empleado y cerramos sesión.
+                    Notification aviso = new Notification(contrVista.obtenerDescripcionCodigo(tbe.getMessage()), Notification.Type.WARNING_MESSAGE);
+                    aviso.setPosition(Position.MIDDLE_CENTER);
+                    aviso.show(Page.getCurrent());
+                    getSession().setAttribute("user", null);
+                    getSession().setAttribute("fecha", null);
+                    // Redirigimos a la página de inicio.
+                    getUI().getNavigator().navigateTo(VistaInicioSesion.NAME);
+                } catch (MyBatisSystemException e) {
+                    Notification aviso = new Notification("No se ha podido establecer conexión con la base de datos.", Notification.Type.ERROR_MESSAGE);
+                    aviso.setPosition(Position.MIDDLE_CENTER);
+                    aviso.show(Page.getCurrent());
+                    log.error("Error al obtener datos de base de datos ", e);
                 }
             }
         });
+    }
 
-        tablaPesajes.setCellStyleGenerator(new Table.CellStyleGenerator() {
+    private void crearTablaLineas() {
+        tablaLineas = new TablaGenerica(new Object[] { "numeroAlbaran", "kgsBrutos", "tara", "kgsNetos", "importe", "total", }, new String[] { "Nº Albarán", "Kilos brutos", "TARA", "Kilos netos", "SubTotal", "Total" }, bcLineas);
+        tablaLineas.addStyleName("big striped");
+        tablaLineas.setPageLength(25);
 
-            @SuppressWarnings("unchecked")
-            @Override
-            public String getStyle(Table source, Object itemId, Object propertyId) {
-                BeanItem<TPesajesVista> aux = (BeanItem<TPesajesVista>) source.getItem(itemId);
-
-                TPesajesVista pedido = aux.getBean();
-                if (pedido.getEstado().equals(Constants.FACTURADO)) {
-                    return "green";
-                } else if (pedido.getEstado().equals(Constants.ALBARAN)) {
-                    return "orange";
-                } else if (pedido.getEstado().equals(Constants.ANULADO)) {
-                    return "gris_1";
-                } else {
-                    return "";
-                }
-            }
-        });
     }
 
     /**
@@ -587,7 +529,7 @@ public class VistaListadoPesajes extends CustomComponent implements View ,Button
                 // Remove old filter
                 if (event.getText() != null && !event.getText().isEmpty()) {
                     // Set new filter for the "Name" column
-                    bcPesajes.removeAllContainerFilters();
+                    bcFacturas.removeAllContainerFilters();
                     String[] params = event.getText().trim().split(" ");
                     String filtro = "";
                     for (int i = 0; i < params.length; i++) {
@@ -595,7 +537,7 @@ public class VistaListadoPesajes extends CustomComponent implements View ,Button
                     }
                     filtro = filtro.toLowerCase();
                     filter = new FiltroContainer("numeroAlbaran", filtro, status);
-                    bcPesajes.addContainerFilter(filter);
+                    bcFacturas.addContainerFilter(filter);
                     aplicarFiltro2(ALBARAN);
                 } else {
                     fAlbaran.setValue(null);
@@ -617,7 +559,7 @@ public class VistaListadoPesajes extends CustomComponent implements View ,Button
                 // Remove old filter
                 if (event.getText() != null && !event.getText().isEmpty()) {
                     // Set new filter for the "Name" column
-                    bcPesajes.removeAllContainerFilters();
+                    bcFacturas.removeAllContainerFilters();
                     String[] params = event.getText().trim().split(" ");
                     String filtro = "";
                     for (int i = 0; i < params.length; i++) {
@@ -625,7 +567,7 @@ public class VistaListadoPesajes extends CustomComponent implements View ,Button
                     }
                     filtro = filtro.toLowerCase();
                     filter = new FiltroContainer("obra", filtro, status);
-                    bcPesajes.addContainerFilter(filter);
+                    bcFacturas.addContainerFilter(filter);
                     aplicarFiltro2(OBRA);
                 } else {
                     fObra.setValue(null);
@@ -647,7 +589,7 @@ public class VistaListadoPesajes extends CustomComponent implements View ,Button
                 // Remove old filter
                 if (event.getText() != null && !event.getText().isEmpty()) {
                     // Set new filter for the "Name" column
-                    bcPesajes.removeAllContainerFilters();
+                    bcFacturas.removeAllContainerFilters();
                     String[] params = event.getText().trim().split(" ");
                     String filtro = "";
                     for (int i = 0; i < params.length; i++) {
@@ -655,7 +597,7 @@ public class VistaListadoPesajes extends CustomComponent implements View ,Button
                     }
                     filtro = filtro.toLowerCase();
                     filter = new FiltroContainer("origen", filtro, status);
-                    bcPesajes.addContainerFilter(filter);
+                    bcFacturas.addContainerFilter(filter);
                     aplicarFiltro2(ORIGEN);
                 } else {
                     fOrigen.setValue(null);
@@ -677,7 +619,7 @@ public class VistaListadoPesajes extends CustomComponent implements View ,Button
                 // Remove old filter
                 if (event.getText() != null && !event.getText().isEmpty()) {
                     // Set new filter for the "Name" column
-                    bcPesajes.removeAllContainerFilters();
+                    bcFacturas.removeAllContainerFilters();
                     String[] params = event.getText().trim().split(" ");
                     String filtro = "";
                     for (int i = 0; i < params.length; i++) {
@@ -685,7 +627,7 @@ public class VistaListadoPesajes extends CustomComponent implements View ,Button
                     }
                     filtro = filtro.toLowerCase();
                     filter = new FiltroContainer("cp", filtro, status);
-                    bcPesajes.addContainerFilter(filter);
+                    bcFacturas.addContainerFilter(filter);
                     aplicarFiltro2(ORIGEN);
                 } else {
                     fDestino.setValue(null);
@@ -707,7 +649,7 @@ public class VistaListadoPesajes extends CustomComponent implements View ,Button
                 // Remove old filter
                 if (event.getText() != null && !event.getText().isEmpty()) {
                     // Set new filter for the "Name" column
-                    bcPesajes.removeAllContainerFilters();
+                    bcFacturas.removeAllContainerFilters();
                     String[] params = event.getText().trim().split(" ");
                     String filtro = "";
                     for (int i = 0; i < params.length; i++) {
@@ -715,7 +657,7 @@ public class VistaListadoPesajes extends CustomComponent implements View ,Button
                     }
                     filtro = filtro.toLowerCase();
                     filter = new FiltroContainer("matricula", filtro, status);
-                    bcPesajes.addContainerFilter(filter);
+                    bcFacturas.addContainerFilter(filter);
                     aplicarFiltro2(MATRICULA);
                 } else {
                     fMatricula.setValue(null);
@@ -737,7 +679,7 @@ public class VistaListadoPesajes extends CustomComponent implements View ,Button
                 // Remove old filter
                 if (event.getText() != null && !event.getText().isEmpty()) {
                     // Set new filter for the "Name" column
-                    bcPesajes.removeAllContainerFilters();
+                    bcFacturas.removeAllContainerFilters();
                     String[] params = event.getText().trim().split(" ");
                     String filtro = "";
                     for (int i = 0; i < params.length; i++) {
@@ -745,7 +687,7 @@ public class VistaListadoPesajes extends CustomComponent implements View ,Button
                     }
                     filtro = filtro.toLowerCase();
                     filter = new FiltroContainer("remolque", filtro, status);
-                    bcPesajes.addContainerFilter(filter);
+                    bcFacturas.addContainerFilter(filter);
                     aplicarFiltro2(REMOLQUE);
                 } else {
                     fRemolque.setValue(null);
@@ -857,7 +799,7 @@ public class VistaListadoPesajes extends CustomComponent implements View ,Button
      */
     private void aplicarFiltro() {
         boolean entra = false;
-        bcPesajes.removeAllContainerFilters();
+        bcFacturas.removeAllContainerFilters();
         if (fAlbaran.getValue() != null && !fAlbaran.getValue().isEmpty()) {
             // Set new filter for the "Name" column
             String[] params = fAlbaran.getValue().split(" ");
@@ -867,7 +809,7 @@ public class VistaListadoPesajes extends CustomComponent implements View ,Button
             }
             filtro = filtro.toLowerCase();
             filter = new FiltroContainer("nombre", filtro, status);
-            bcPesajes.addContainerFilter(filter);
+            bcFacturas.addContainerFilter(filter);
             entra = true;
         }
 
@@ -880,7 +822,7 @@ public class VistaListadoPesajes extends CustomComponent implements View ,Button
             }
             filtro = filtro.toLowerCase();
             filter = new FiltroContainer("referencia", filtro, status);
-            bcPesajes.addContainerFilter(filter);
+            bcFacturas.addContainerFilter(filter);
             entra = true;
         }
 
@@ -893,7 +835,7 @@ public class VistaListadoPesajes extends CustomComponent implements View ,Button
             }
             filtro = filtro.toLowerCase();
             filter = new FiltroContainer("ler", filtro, status);
-            bcPesajes.addContainerFilter(filter);
+            bcFacturas.addContainerFilter(filter);
             entra = true;
         }
 
@@ -906,7 +848,7 @@ public class VistaListadoPesajes extends CustomComponent implements View ,Button
             }
             filtro = filtro.toLowerCase();
             filter = new FiltroContainer("cif", filtro, status);
-            bcPesajes.addContainerFilter(filter);
+            bcFacturas.addContainerFilter(filter);
             entra = true;
         }
 
@@ -919,7 +861,7 @@ public class VistaListadoPesajes extends CustomComponent implements View ,Button
             }
             filtro = filtro.toLowerCase();
             filter = new FiltroContainer("provincia", filtro, status);
-            bcPesajes.addContainerFilter(filter);
+            bcFacturas.addContainerFilter(filter);
             entra = true;
         }
 
@@ -932,7 +874,7 @@ public class VistaListadoPesajes extends CustomComponent implements View ,Button
             }
             filtro = filtro.toLowerCase();
             filter = new FiltroContainer("remolque", filtro, status);
-            bcPesajes.addContainerFilter(filter);
+            bcFacturas.addContainerFilter(filter);
             entra = true;
         }
 
@@ -946,7 +888,7 @@ public class VistaListadoPesajes extends CustomComponent implements View ,Button
             }
             // Set new filter for the "Name" column
             filter = new FiltroContainer("idCliente", (String) ".*(" + nombreCliente + ").*", status);
-            bcPesajes.addContainerFilter(filter);
+            bcFacturas.addContainerFilter(filter);
             entra = true;
         }
 
@@ -960,26 +902,26 @@ public class VistaListadoPesajes extends CustomComponent implements View ,Button
             }
             // Set new filter for the "Name" column
             filter = new FiltroContainer("idMaterial", (String) ".*(" + nombreMaterial + ").*", status);
-            bcPesajes.addContainerFilter(filter);
+            bcFacturas.addContainerFilter(filter);
             entra = true;
         }
 
         if (!fEstados.getValue().equals("Todos")) {
             // Set new filter for the "Name" column
             filter = new FiltroContainer("estado", (String) ".*(" + fEstados.getValue().toString().toLowerCase() + ").*", status);
-            bcPesajes.addContainerFilter(filter);
+            bcFacturas.addContainerFilter(filter);
             entra = true;
         }
 
         if (!entra) {
-            bcPesajes.removeAllItems();
+            bcFacturas.removeAllItems();
             try {
                 if (fDesde.getValue() != null && fHasta.getValue() != null) {
                     String f1 = new SimpleDateFormat("dd/MM/yyyy").format(fDesde.getValue());
                     String f2 = new SimpleDateFormat("dd/MM/yyyy").format(fHasta.getValue());
 
-                    bcPesajes.removeAllItems();
-                    bcPesajes.addAll(contrVista.obtenerPesajesFechasVista(f1, f2, user, time));
+                    bcFacturas.removeAllItems();
+                    bcFacturas.addAll(contrVista.obtenerFacturasFechasVista(f1, f2, user, time));
 
                 } else {
                     Notification aviso = new Notification("Se debe indica la fecha 'desde' y 'hasta' para mostrar resultados", Notification.Type.WARNING_MESSAGE);
@@ -1021,7 +963,7 @@ public class VistaListadoPesajes extends CustomComponent implements View ,Button
             }
             filtr = filtr.toLowerCase();
             filter = new FiltroContainer("nombre", filtr, status);
-            bcPesajes.addContainerFilter(filter);
+            bcFacturas.addContainerFilter(filter);
             entra = true;
         }
         if (fAlbaran.getValue() != null && !fAlbaran.getValue().isEmpty()) {
@@ -1037,7 +979,7 @@ public class VistaListadoPesajes extends CustomComponent implements View ,Button
             }
             filtr = filtr.toLowerCase();
             filter = new FiltroContainer("direccion", filtr, status);
-            bcPesajes.addContainerFilter(filter);
+            bcFacturas.addContainerFilter(filter);
             entra = true;
         }
         if (fOrigen.getValue() != null && !fOrigen.getValue().isEmpty()) {
@@ -1053,7 +995,7 @@ public class VistaListadoPesajes extends CustomComponent implements View ,Button
             }
             filtr = filtr.toLowerCase();
             filter = new FiltroContainer("cp", filtr, status);
-            bcPesajes.addContainerFilter(filter);
+            bcFacturas.addContainerFilter(filter);
             entra = true;
         }
         if (fDestino.getValue() != null && !fDestino.getValue().isEmpty()) {
@@ -1069,7 +1011,7 @@ public class VistaListadoPesajes extends CustomComponent implements View ,Button
             }
             filtr = filtr.toLowerCase();
             filter = new FiltroContainer("cif", filtr, status);
-            bcPesajes.addContainerFilter(filter);
+            bcFacturas.addContainerFilter(filter);
             entra = true;
         }
         if (fDestino.getValue() != null && !fDestino.getValue().isEmpty()) {
@@ -1085,7 +1027,7 @@ public class VistaListadoPesajes extends CustomComponent implements View ,Button
             }
             filtr = filtr.toLowerCase();
             filter = new FiltroContainer("matricula", filtr, status);
-            bcPesajes.addContainerFilter(filter);
+            bcFacturas.addContainerFilter(filter);
             entra = true;
         }
         if (fMatricula.getValue() != null && !fMatricula.getValue().isEmpty()) {
@@ -1101,14 +1043,14 @@ public class VistaListadoPesajes extends CustomComponent implements View ,Button
             }
             filtr = filtr.toLowerCase();
             filter = new FiltroContainer("remolque", filtr, status);
-            bcPesajes.addContainerFilter(filter);
+            bcFacturas.addContainerFilter(filter);
             entra = true;
         }
 
         if (!fEstados.getValue().equals("Todos")) {
             // Set new filter for the "Name" column
             filter = new FiltroContainer("estado", (String) ".*(" + fEstados.getValue().toString().toLowerCase() + ").*", status);
-            bcPesajes.addContainerFilter(filter);
+            bcFacturas.addContainerFilter(filter);
             entra = true;
         }
 
@@ -1118,8 +1060,8 @@ public class VistaListadoPesajes extends CustomComponent implements View ,Button
                     String f1 = new SimpleDateFormat("dd/MM/yyyy").format(fDesde.getValue());
                     String f2 = new SimpleDateFormat("dd/MM/yyyy").format(fHasta.getValue());
 
-                    bcPesajes.removeAllItems();
-                    bcPesajes.addAll(contrVista.obtenerPesajesFechasVista(f1, f2, user, time));
+                    bcFacturas.removeAllItems();
+                    bcFacturas.addAll(contrVista.obtenerFacturasFechasVista(f1, f2, user, time));
 
                 } else {
                     Notification aviso = new Notification("Se debe indica la fecha 'desde' y 'hasta' para mostrar resultados", Notification.Type.WARNING_MESSAGE);
@@ -1153,8 +1095,8 @@ public class VistaListadoPesajes extends CustomComponent implements View ,Button
                 f1 = new SimpleDateFormat("dd/MM/yyyy").format(fDesde.getValue());
                 f2 = new SimpleDateFormat("dd/MM/yyyy").format(fHasta.getValue());
 
-                bcPesajes.removeAllItems();
-                bcPesajes.addAll(contrVista.obtenerPesajesFechasVista(f1, f2, user, time));
+                bcFacturas.removeAllItems();
+                bcFacturas.addAll(contrVista.obtenerFacturasFechasVista(f1, f2, user, time));
 
             } else {
                 Notification aviso = new Notification("Se debe indica la fecha 'desde' y 'hasta' para mostrar resultados", Notification.Type.WARNING_MESSAGE);
@@ -1188,8 +1130,8 @@ public class VistaListadoPesajes extends CustomComponent implements View ,Button
         //Botonera
         HorizontalLayout botonera = new HorizontalLayout();
         botonera.setSpacing(true);
-        botonera.addComponent(crearButton);
-        botonera.addComponent(modificarButton);
+        //botonera.addComponent(crearButton);
+        //botonera.addComponent(modificarButton);
         botonera.addComponent(eliminarButton);
         botonera.addComponent(pdfButton);
         botonera.setMargin(true);
@@ -1321,7 +1263,7 @@ public class VistaListadoPesajes extends CustomComponent implements View ,Button
                             p.setEstado(PesajesEnum.FACTURADO.getValue());
                             p.setIdFactura(fac.getId());
                             contrVista.modificarPesaje(p, user, time);
-                            Item articulo = tablaPesajes.getItem("" + ids[cnt]);
+                            Item articulo = tablaFacturas.getItem("" + ids[cnt]);
                             articulo.getItemProperty("estado").setValue(Constants.FACTURADO);
 
                         } else if (fac.getId().equals(-2)) {

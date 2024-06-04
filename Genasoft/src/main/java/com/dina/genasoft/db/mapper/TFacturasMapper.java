@@ -54,5 +54,5 @@ public interface TFacturasMapper {
 
     TFacturas obtenerFacturaPorNumeroFactura(@Param("numeroFactura") String num);
 
-    List<TFacturas> obtenerFacturasFechas(@Param("fecha1") Date fecha1, @Param("fecha1") Date fecha2);
+    List<TFacturas> obtenerFacturasFechas(@Param("fecha1") Date fecha1, @Param("fecha2") Date fecha2);
 }

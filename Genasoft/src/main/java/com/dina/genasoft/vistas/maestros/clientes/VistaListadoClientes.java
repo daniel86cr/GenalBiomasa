@@ -366,7 +366,7 @@ public class VistaListadoClientes extends CustomComponent implements View ,Butto
 
         // Establecemos tamaño fijo en columnas específicas.
 
-        tablaClientes.setMultiSelect(true);
+        //tablaClientes.setMultiSelect(true);
         tablaClientes.addValueChangeListener(new Property.ValueChangeListener() {
             @Override
             public void valueChange(ValueChangeEvent event) {
