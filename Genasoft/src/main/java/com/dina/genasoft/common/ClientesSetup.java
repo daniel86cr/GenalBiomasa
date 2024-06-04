@@ -127,6 +127,15 @@ public class ClientesSetup implements Serializable {
      * @param id El ID de la dirección de cliente.
      * @return Las direcciones de cliente encontradas.
      */
+    public List<TDireccionCliente> obtenerTodasDireccionesCliente() {
+        return tDireccionClienteMapper.obtenerTodasDireccionesCliente();
+    }
+
+    /**
+     * Método que nos retorna las direcciones de cliente a partir del ID.
+     * @param id El ID de la dirección de cliente.
+     * @return Las direcciones de cliente encontradas.
+     */
     public List<TDireccionClienteVista> obtenerDireccionesClientePorIdClienteVista(Integer idCliente) {
         return convertirDireccionClientesVista(obtenerDireccionesClientePorIdCliente(idCliente));
     }

@@ -446,7 +446,7 @@ public class VistaOperador extends CustomComponent implements View ,Button.Click
         nOperador.setNombre(value);
         nOperador.setRazonSocial(value);
 
-        value = txtCif.getValue().trim().toUpperCase();
+        value = txtCif.getValue();
 
         if (value != null) {
             value = value.trim().toUpperCase();

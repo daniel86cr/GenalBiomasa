@@ -19,11 +19,14 @@ import org.springframework.stereotype.Component;
 
 import com.dina.genasoft.configuration.Constants;
 import com.dina.genasoft.db.entity.TClientes;
+import com.dina.genasoft.db.entity.TDireccionCliente;
 import com.dina.genasoft.db.entity.TEmpleados;
 import com.dina.genasoft.db.entity.TNumeroAlbaran;
+import com.dina.genasoft.db.entity.TOperadores;
 import com.dina.genasoft.db.entity.TPesajes;
 import com.dina.genasoft.db.entity.TPesajesVista;
 import com.dina.genasoft.db.entity.TRegistrosCambiosPesajes;
+import com.dina.genasoft.db.entity.TTransportistas;
 import com.dina.genasoft.db.mapper.TNumeroAlbaranMapper;
 import com.dina.genasoft.db.mapper.TPesajesMapper;
 import com.dina.genasoft.db.mapper.TRegistrosCambiosPesajesMapper;
@@ -56,6 +59,12 @@ public class PesajesSetup implements Serializable {
     /** Inyección de Spring para poder acceder a la capa de datos de clientes. */
     @Autowired
     private ClientesSetup                  clientesSetup;
+    /** Inyección de Spring para poder acceder a la capa de datos de operadores. */
+    @Autowired
+    private OperadoresSetup                operadoresSetup;
+    /** Inyección de Spring para poder acceder a la capa de datos de transportistas. */
+    @Autowired
+    private TransportistasSetup            transportistasSetup;
     /** Inyección por Spring del mapper TNumeroAlbaran.*/
     @Autowired
     private TNumeroAlbaranMapper           tNumeroAlbaranMapper;
@@ -154,6 +163,12 @@ public class PesajesSetup implements Serializable {
             map.put("fechaModifica", record.getFechaModifica());
             map.put("idFactura", record.getIdFactura());
             map.put("estado", record.getEstado());
+            map.put("idOperador", record.getIdOperador());
+            map.put("idTransportista", record.getIdTransportista());
+            map.put("iva", record.getIva());
+            map.put("base", record.getBase());
+            map.put("precioKg", record.getPrecioKg());
+            map.put("importe", record.getImporte());
 
             tPesajesMapper.insertRecord(map);
 
@@ -237,11 +252,20 @@ public class PesajesSetup implements Serializable {
 
         List<TEmpleados> lEmpl = empleadosSetup.obtenerTodosEmpleados();
         List<TClientes> lClient = clientesSetup.obtenerTodosClientes();
+        List<TDireccionCliente> lDirs = clientesSetup.obtenerTodasDireccionesCliente();
+        List<TOperadores> lOpers = operadoresSetup.obtenerTodosOperadores();
+        List<TTransportistas> lTrans = transportistasSetup.obtenerTodosTransportistas();
 
         // Nutrimos el diccionario con los empleados
         Map<Integer, String> mEmpleados = lEmpl.stream().collect(Collectors.toMap(TEmpleados::getId, TEmpleados::getNombre));
         // Nutrimos el diccionario con los clientes
         Map<Integer, String> mClientes = lClient.stream().collect(Collectors.toMap(TClientes::getId, TClientes::getNombre));
+        // Nutrimos el diccionario con las direcciones
+        Map<Integer, String> mDirs = lDirs.stream().collect(Collectors.toMap(TDireccionCliente::getId, TDireccionCliente::getDireccion));
+        // Nutrimos el diccionario con los operadores
+        Map<Integer, String> mOpers = lOpers.stream().collect(Collectors.toMap(TOperadores::getId, TOperadores::getNombre));
+        // Nutrimos el diccionario con los transportistas
+        Map<Integer, String> mTrans = lTrans.stream().collect(Collectors.toMap(TTransportistas::getId, TTransportistas::getNombre));
 
         TPesajesVista aux = null;
         String campo = "";
@@ -261,6 +285,22 @@ public class PesajesSetup implements Serializable {
             // Cliente
             campo = mClientes.get(p.getIdCliente());
             aux.setIdCliente(campo != null ? campo : "N/D; ID: " + p.getIdCliente());
+
+            // Dirección
+            campo = mDirs.get(p.getIdDireccion());
+            aux.setIdDireccion(campo != null ? campo : "N/D; ID: " + p.getIdDireccion());
+
+            // Operador
+            if (p.getIdOperador() != null) {
+                campo = mOpers.get(p.getIdOperador());
+                aux.setIdOperador(campo != null ? campo : "N/D; ID: " + p.getIdOperador());
+            }
+
+            // Transportista
+            if (p.getIdTransportista() != null) {
+                campo = mTrans.get(p.getIdTransportista());
+                aux.setIdTransportista(campo != null ? campo : "N/D; ID: " + p.getIdTransportista());
+            }
 
             lResult.add(aux);
         }

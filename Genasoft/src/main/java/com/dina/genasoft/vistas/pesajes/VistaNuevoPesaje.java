@@ -19,9 +19,12 @@ import com.dina.genasoft.controller.ControladorVistas;
 import com.dina.genasoft.db.entity.TClientes;
 import com.dina.genasoft.db.entity.TDireccionCliente;
 import com.dina.genasoft.db.entity.TEmpleados;
+import com.dina.genasoft.db.entity.TIva;
 import com.dina.genasoft.db.entity.TMateriales;
+import com.dina.genasoft.db.entity.TOperadores;
 import com.dina.genasoft.db.entity.TPermisos;
 import com.dina.genasoft.db.entity.TPesajes;
+import com.dina.genasoft.db.entity.TTransportistas;
 import com.dina.genasoft.exception.GenasoftException;
 import com.dina.genasoft.utils.Utils;
 import com.dina.genasoft.utils.enums.PesajesEnum;
@@ -74,6 +77,10 @@ public class VistaNuevoPesaje extends CustomComponent implements View ,Button.Cl
     private ComboBox                      cbMateriales;
     /** Combobox para las direcciones.*/
     private ComboBox                      cbDirecciones;
+    /** Combobox para los operadores.*/
+    private ComboBox                      cbOperadores;
+    /** Combobox para los operadores.*/
+    private ComboBox                      cbTransportistas;
     /** El pesaje a registrar.*/
     private TPesajes                      nPesaje;
     /** Contendrá el nombre de la aplicación.*/
@@ -116,6 +123,10 @@ public class VistaNuevoPesaje extends CustomComponent implements View ,Button.Cl
     private List<TClientes>               lClientes;
     /** Los materiales activos del sistema.*/
     private List<TMateriales>             lMateriales;
+    /** Los operadores activos del sistema.*/
+    private List<TOperadores>             lOperadores;
+    /** Los transportistas activos del sistema.*/
+    private List<TTransportistas>         lTransportistas;
     private Double                        bruto, tara, neto;
 
     @Override
@@ -213,6 +224,8 @@ public class VistaNuevoPesaje extends CustomComponent implements View ,Button.Cl
 
                 lMateriales = Utils.generarListaGenerica();
 
+                lTransportistas = contrVista.obtenerTransportistasActivos(user, time);
+
                 bruto = Double.valueOf(0);
                 tara = Double.valueOf(0);
                 neto = Double.valueOf(0);
@@ -301,6 +314,8 @@ public class VistaNuevoPesaje extends CustomComponent implements View ,Button.Cl
                 formulario1.setComponentAlignment(cbDirecciones, Alignment.MIDDLE_CENTER);
                 formulario1.addComponent(cbMateriales);
                 formulario1.setComponentAlignment(cbMateriales, Alignment.MIDDLE_CENTER);
+                formulario1.addComponent(cbOperadores);
+                formulario1.setComponentAlignment(cbOperadores, Alignment.MIDDLE_CENTER);
                 formulario1.addComponent(txtObra);
                 formulario1.setComponentAlignment(txtObra, Alignment.MIDDLE_CENTER);
                 formulario1.addComponent(txtOrigen);
@@ -311,6 +326,8 @@ public class VistaNuevoPesaje extends CustomComponent implements View ,Button.Cl
                 formulario2.setComponentAlignment(txtMatricula, Alignment.MIDDLE_CENTER);
                 formulario2.addComponent(txtRemolque);
                 formulario2.setComponentAlignment(txtRemolque, Alignment.MIDDLE_CENTER);
+                formulario2.addComponent(cbTransportistas);
+                formulario2.setComponentAlignment(cbTransportistas, Alignment.MIDDLE_CENTER);
                 formulario2.addComponent(txtKgsBrutos);
                 formulario2.setComponentAlignment(txtKgsBrutos, Alignment.MIDDLE_CENTER);
                 formulario2.addComponent(txtTara);
@@ -408,6 +425,17 @@ public class VistaNuevoPesaje extends CustomComponent implements View ,Button.Cl
                             aviso.show(Page.getCurrent());
                         }
 
+                        lOperadores = contrVista.obtenerOperadoresAsignadosCliente(cl.getId(), user, time);
+                        cbOperadores.removeAllItems();
+                        cbOperadores.addItems(lOperadores);
+                        if (lOperadores.size() == 1) {
+                            cbOperadores.setValue(lOperadores.get(0));
+                        } else if (lMateriales.isEmpty()) {
+                            Notification aviso = new Notification("No se han identificado operadores asignados al cliente seleccionado", Notification.Type.ERROR_MESSAGE);
+                            aviso.setPosition(Position.MIDDLE_CENTER);
+                            aviso.show(Page.getCurrent());
+                        }
+
                     } catch (MyBatisSystemException e) {
                         Notification aviso = new Notification("No se ha podido establecer conexión con la base de datos.", Notification.Type.ERROR_MESSAGE);
                         aviso.setPosition(Position.MIDDLE_CENTER);
@@ -444,6 +472,21 @@ public class VistaNuevoPesaje extends CustomComponent implements View ,Button.Cl
         cbDirecciones.setNullSelectionAllowed(false);
         cbDirecciones.setWidth(appWidth, Sizeable.Unit.EM);
 
+        cbOperadores = new ComboBox("Operador:");
+        cbOperadores.addStyleName("big");
+        cbOperadores.setFilteringMode(FilteringMode.CONTAINS);
+        cbOperadores.setRequired(true);
+        cbOperadores.setNullSelectionAllowed(false);
+        cbOperadores.setWidth(appWidth, Sizeable.Unit.EM);
+
+        cbTransportistas = new ComboBox("Transportista:");
+        cbTransportistas.addItems(lTransportistas);
+        cbTransportistas.addStyleName("big");
+        cbTransportistas.setFilteringMode(FilteringMode.CONTAINS);
+        cbTransportistas.setRequired(true);
+        cbTransportistas.setNullSelectionAllowed(false);
+        cbTransportistas.setWidth(appWidth, Sizeable.Unit.EM);
+
     }
 
     /**
@@ -456,13 +499,6 @@ public class VistaNuevoPesaje extends CustomComponent implements View ,Button.Cl
         fechaPesaje.setValue(Utils.generarFecha());
         fechaPesaje.setRequired(true);
         fechaPesaje.setWidth(appWidth, Sizeable.Unit.EM);
-
-        // La obra.
-        txtObra = new TextField("Obra:");
-        txtObra.setNullRepresentation("");
-        txtObra.setWidth(appWidth, Sizeable.Unit.EM);
-        txtObra.setMaxLength(445);
-        txtObra.setRequired(true);
 
         // El nº de albarán
         txtAlbaran = new TextField("Nº Albarán:");
@@ -725,6 +761,17 @@ public class VistaNuevoPesaje extends CustomComponent implements View ,Button.Cl
         nPesaje.setRefMaterial(mat.getReferencia());
         nPesaje.setRemolque(txtRemolque.getValue() != null ? txtRemolque.getValue().trim().toUpperCase() : "");
         nPesaje.setUsuCrea(user);
+        nPesaje.setIdOperador(((TOperadores) cbOperadores.getValue()).getId());
+        nPesaje.setIdTransportista(((TTransportistas) cbTransportistas.getValue()).getId());
+
+        TIva iva = contrVista.obtenerIvaPorId(mat.getIva(), user, time);
+
+        nPesaje.setBase(Utils.redondeoDecimales(2, mat.getPrecio() * nPesaje.getKgsNeto()));
+        nPesaje.setIva(iva.getImporte());
+        Double val = (nPesaje.getBase() * nPesaje.getIva()) / 100;
+        val = Utils.redondeoDecimales(2, val + nPesaje.getBase());
+        nPesaje.setImporte(val);
+        nPesaje.setPrecioKg(mat.getPrecio());
 
     }
 
@@ -747,6 +794,8 @@ public class VistaNuevoPesaje extends CustomComponent implements View ,Button.Cl
         txtDestino.setValue(null);
         txtKgsBrutos.setValue(null);
         txtTara.setValue(null);
+        cbOperadores.removeAllItems();
+        cbTransportistas.removeAllItems();
     }
 
     /**
@@ -755,6 +804,6 @@ public class VistaNuevoPesaje extends CustomComponent implements View ,Button.Cl
      */
     private boolean validarCamposObligatorios() {
         return !cbClientes.isValid() || !cbMateriales.isValid() || !txtOrigen.isValid() || !txtObra.isValid() || !txtRemolque.isValid() || !txtKgsBrutos.isValid() || !txtMatricula.isValid() || !fechaPesaje.isValid() || !cbDirecciones.isValid()
-                || !fechaPesaje.isValid();
+                || !fechaPesaje.isValid() || !cbTransportistas.isValid() || !cbOperadores.isValid();
     }
 }

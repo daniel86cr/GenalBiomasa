@@ -447,7 +447,7 @@ public class VistaTransportista extends CustomComponent implements View ,Button.
         nTransportista.setNombre(value);
         nTransportista.setRazonSocial(value);
 
-        value = txtCif.getValue().trim().toUpperCase();
+        value = txtCif.getValue();
 
         if (value != null) {
             value = value.trim().toUpperCase();

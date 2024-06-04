@@ -457,7 +457,7 @@ public class VistaMaterial extends CustomComponent implements View ,Button.Click
 
         nMaterial.setReferencia(value);
 
-        value = txtNombre.getValue().trim().toUpperCase();
+        value = txtNombre.getValue();
 
         if (value != null) {
             value = value.trim().toUpperCase();
