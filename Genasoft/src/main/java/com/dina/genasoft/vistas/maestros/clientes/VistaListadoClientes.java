@@ -6,7 +6,6 @@
 package com.dina.genasoft.vistas.maestros.clientes;
 
 import java.util.List;
-import java.util.Set;
 import java.util.regex.PatternSyntaxException;
 
 import javax.annotation.PostConstruct;
@@ -365,26 +364,6 @@ public class VistaListadoClientes extends CustomComponent implements View ,Butto
         tablaClientes.setPageLength(25);
 
         // Establecemos tamaño fijo en columnas específicas.
-
-        //tablaClientes.setMultiSelect(true);
-        tablaClientes.addValueChangeListener(new Property.ValueChangeListener() {
-            @Override
-            public void valueChange(ValueChangeEvent event) {
-                @SuppressWarnings("unchecked")
-                Set<String> values = (Set<String>) tablaClientes.getValue();
-                idSeleccionado = "";
-                for (String v : values) {
-                    if (v.isEmpty())
-                        continue;
-                    if (!idSeleccionado.isEmpty()) {
-                        idSeleccionado = idSeleccionado + "," + v;
-                    } else {
-                        idSeleccionado = v;
-                    }
-
-                }
-            }
-        });
 
         tablaClientes.addItemClickListener(new ItemClickListener() {
 
