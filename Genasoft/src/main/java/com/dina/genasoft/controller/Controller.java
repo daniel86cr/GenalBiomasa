@@ -9,6 +9,7 @@ import java.net.InetAddress;
 import java.net.NetworkInterface;
 import java.net.SocketException;
 import java.net.UnknownHostException;
+import java.util.Calendar;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Configurable;
@@ -22,7 +23,6 @@ import com.dina.genasoft.exception.GenasoftException;
 import com.dina.genasoft.utils.EnvioCorreo;
 import com.dina.genasoft.utils.GeneradorZip;
 import com.dina.genasoft.utils.Utils;
-import com.ibm.icu.util.Calendar;
 
 /**
  * @author Daniel Carmona Romero
