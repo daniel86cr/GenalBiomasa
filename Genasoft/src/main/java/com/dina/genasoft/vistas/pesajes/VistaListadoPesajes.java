@@ -1468,9 +1468,9 @@ public class VistaListadoPesajes extends CustomComponent implements View ,Button
                         aviso.show(Page.getCurrent());
                         return;
                     }
-                    base += p.getBase();
-                    iva += p.getImporte() - p.getBase();
-                    total += p.getImporte();
+                    base = Utils.redondeoDecimales(2, base + p.getBase());
+                    iva = Utils.redondeoDecimales(2, iva + p.getImporte() - p.getBase());
+                    total = Utils.redondeoDecimales(2, total + p.getImporte());
                 }
 
                 // Por cada registro seleccionado, creamos una factura
@@ -1516,7 +1516,7 @@ public class VistaListadoPesajes extends CustomComponent implements View ,Button
                         p.setEstado(PesajesEnum.FACTURADO.getValue());
                         p.setIdFactura(fac.getId());
                         contrVista.modificarPesaje(p, user, time);
-                        Item articulo = tablaPesajes.getItem("" + ids[cnt]);
+                        Item articulo = tablaPesajes.getItem("" + p.getId());
                         articulo.getItemProperty("estado").setValue(Constants.FACTURADO);
 
                     } else if (fac.getId().equals(-2)) {

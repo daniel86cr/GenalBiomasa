@@ -7,6 +7,7 @@ package com.dina.genasoft.vistas.facturas;
 
 import java.text.SimpleDateFormat;
 import java.util.List;
+import java.util.Set;
 import java.util.regex.PatternSyntaxException;
 
 import javax.annotation.PostConstruct;
@@ -19,13 +20,19 @@ import com.dina.genasoft.configuration.Constants;
 import com.dina.genasoft.controller.ControladorVistas;
 import com.dina.genasoft.db.entity.TClientes;
 import com.dina.genasoft.db.entity.TEmpleados;
+import com.dina.genasoft.db.entity.TFacturas;
 import com.dina.genasoft.db.entity.TFacturasVista;
+import com.dina.genasoft.db.entity.TLineasFactura;
 import com.dina.genasoft.db.entity.TLineasFacturaVista;
 import com.dina.genasoft.db.entity.TMateriales;
 import com.dina.genasoft.db.entity.TPermisos;
+import com.dina.genasoft.db.entity.TPesajes;
+import com.dina.genasoft.db.entity.TRegistrosCambiosFacturas;
+import com.dina.genasoft.db.entity.TRegistrosCambiosPesajes;
 import com.dina.genasoft.exception.GenasoftException;
 import com.dina.genasoft.utils.TablaGenerica;
 import com.dina.genasoft.utils.Utils;
+import com.dina.genasoft.utils.enums.PesajesEnum;
 import com.dina.genasoft.vistas.Menu;
 import com.dina.genasoft.vistas.VistaInicioSesion;
 import com.dina.genasoft.vistas.pesajes.VistaNuevoPesaje;
@@ -64,6 +71,9 @@ import com.vaadin.ui.Table.ColumnHeaderMode;
 import com.vaadin.ui.TextField;
 import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.themes.BaseTheme;
+
+import de.steinwedel.messagebox.ButtonOption;
+import de.steinwedel.messagebox.MessageBox;
 
 @SuppressWarnings("serial")
 @Theme("Genal")
@@ -349,7 +359,7 @@ public class VistaListadoFacturas extends CustomComponent implements View ,Butto
 
                 if (idSeleccionado != null) {
 
-                    //MessageBox.createQuestion().withCaption(appName).withMessage("¿Quieres desactivar el registro seleccionado?").withNoButton().withYesButton(() -> anularPesaje(idSeleccionado), ButtonOption.caption("Sí")).open();
+                    MessageBox.createQuestion().withCaption(appName).withMessage("Esta acción no se puede deshacer. ¿Quieres continuar?").withNoButton().withYesButton(() -> eliminarFacturas(), ButtonOption.caption("Sí")).open();
 
                 } else {
                     Notification aviso = new Notification("Se debe seleccionar al menos un registro del listado", Notification.Type.ASSISTIVE_NOTIFICATION);
@@ -370,6 +380,26 @@ public class VistaListadoFacturas extends CustomComponent implements View ,Butto
         tablaFacturas = new TablaGenerica(new Object[] { "numeroFactura", "idCliente", "idDireccion", "fechaFactura", "obra", "base", "subtotal", "total", }, new String[] { "Nº Factura", "Cliente", "Dirección", "Fecha factura", "Obra", "Base imponible", "IVA", "Importe factura" }, bcFacturas);
         tablaFacturas.addStyleName("big striped");
         tablaFacturas.setPageLength(25);
+        tablaFacturas.setMultiSelect(true);
+
+        tablaFacturas.addValueChangeListener(new Property.ValueChangeListener() {
+            @Override
+            public void valueChange(ValueChangeEvent event) {
+                @SuppressWarnings("unchecked")
+                Set<String> values = (Set<String>) tablaFacturas.getValue();
+                idSeleccionado = "";
+                for (String v : values) {
+                    if (v.isEmpty())
+                        continue;
+                    if (!idSeleccionado.isEmpty()) {
+                        idSeleccionado = idSeleccionado + "," + v;
+                    } else {
+                        idSeleccionado = v;
+                    }
+
+                }
+            }
+        });
 
         // Establecemos tamaño fijo en columnas específicas.
         tablaFacturas.addItemClickListener(new ItemClickListener() {
@@ -1128,6 +1158,79 @@ public class VistaListadoFacturas extends CustomComponent implements View ,Butto
         estado1.getItemProperty("Estado2").setValue(Constants.FACTURADO);
         estado1.getItemProperty("Estado3").setValue(Constants.ANULADO);
 
+    }
+
+    private void eliminarFacturas() {
+        try {
+            if (!idSeleccionado.contains(",")) {
+                idSeleccionado = idSeleccionado + ",";
+            }
+
+            int cnt = 0;
+            String[] ids = idSeleccionado.split(",");
+
+            List<Integer> lIds = Utils.generarListaGenerica();
+            while (cnt < ids.length) {
+                lIds.add(Integer.valueOf(ids[cnt]));
+                cnt++;
+            }
+
+            TPesajes p = null;
+            TFacturas f = null;
+            List<TLineasFactura> lLineas = null;
+            TRegistrosCambiosPesajes cambioP;
+            TRegistrosCambiosFacturas cambioF;
+            cnt = 0;
+            while (cnt < ids.length) {
+                f = contrVista.obtenerFacturaPorId(Integer.valueOf(ids[cnt]), user, time);
+
+                lLineas = contrVista.obtenerLineasFacturaPorIdFactura(f.getId(), user, time);
+
+                for (TLineasFactura lf : lLineas) {
+                    p = contrVista.obtenerPesajePorNumeroAlbaran(lf.getNumeroAlbaran(), user, time);
+                    p.setEstado(PesajesEnum.ALBARAN.getValue());
+                    p.setIdFactura(-1);
+                    cambioP = new TRegistrosCambiosPesajes();
+                    cambioP.setCambio("Se elimina la factura del pesaje; ID de la factura: " + f.getId() + ", pasa a estar en estado albarán ");
+                    cambioP.setFechaCambio(Utils.generarFecha());
+                    cambioP.setIdPesaje(p.getId());
+                    cambioP.setUsuCrea(user);
+                    contrVista.crearRegistroCambioPesaje(cambioP, user, time);
+                    contrVista.modificarPesaje(p, user, time);
+                    contrVista.eliminarLineaFactura(lf.getId(), user, time);
+                }
+
+                cambioF = new TRegistrosCambiosFacturas();
+                cambioF.setCambio("Se elimina la factura");
+                cambioF.setFechaCambio(Utils.generarFecha());
+                cambioF.setIdFactura(f.getId());
+                cambioF.setUsuCrea(user);
+                contrVista.eliminarFactura(f.getId(), user, time);
+                contrVista.crearRegistroCambioFactura(cambioF, user, time);
+                tablaFacturas.removeItem("" + ids[cnt]);
+
+                cnt++;
+            }
+
+            Notification aviso = new Notification(contrVista.obtenerDescripcionCodigo(Constants.OPERACION_OK), Notification.Type.ASSISTIVE_NOTIFICATION);
+            aviso.setPosition(Position.MIDDLE_CENTER);
+            aviso.show(Page.getCurrent());
+        } catch (GenasoftException tbe) {
+            log.error("La sesión es inválida, se ha iniciado sesión en otro dispositivo.");
+            // Si no se encuentran permisos con el rol especificado, informamos al empleado y cerramos sesión.
+            Notification aviso = new Notification(contrVista.obtenerDescripcionCodigo(tbe.getMessage()), Notification.Type.WARNING_MESSAGE);
+            aviso.setPosition(Position.MIDDLE_CENTER);
+            aviso.show(Page.getCurrent());
+            getSession().setAttribute("user", null);
+            getSession().setAttribute("fecha", null);
+            // Redirigimos a la página de inicio.
+            getUI().getNavigator().navigateTo(VistaInicioSesion.NAME);
+        } catch (MyBatisSystemException e) {
+            Notification aviso = new Notification("No se ha podido establecer conexión con la base de datos.", Notification.Type.ERROR_MESSAGE);
+            aviso.setPosition(Position.MIDDLE_CENTER);
+            aviso.show(Page.getCurrent());
+            log.error("Error al obtener datos de base de datos ", e);
+        }
     }
 
 }

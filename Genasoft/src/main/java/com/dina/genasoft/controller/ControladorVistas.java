@@ -3060,4 +3060,50 @@ public class ControladorVistas implements Serializable {
         return result;
     }
 
+    /**
+     * Método que se encarga de obtener el número de albarán que le corresponde al nuevo pedido
+     * @param tipo El tipo de pedido a crear.
+     * @param userId El usuario que está activo.
+     * @param time El tiempo en milisegundos.
+     * @return El número de albarán adjundicado.
+     */
+    public String eliminarLineaFactura(Integer idLinea, Integer userId, long time) throws GenasoftException {
+        String result = Constants.OPERACION_OK;
+        Timestamp t = new Timestamp(time);
+        if (commonSetup.conexionValida(userId, t, estadoAplicacion)) {
+            facturasSetup.eliminarLineaFactura(idLinea);
+        } else {
+            if (estadoAplicacion == null || estadoAplicacion.equals(-1)) {
+                throw new GenasoftException(Constants.LICENCIA_NO_VALIDA);
+            } else {
+                throw new GenasoftException(Constants.SESION_INVALIDA);
+            }
+        }
+        // Retornamos el número del albarán
+        return result;
+    }
+
+    /**
+     * Método que se encarga de obtener el número de albarán que le corresponde al nuevo pedido
+     * @param tipo El tipo de pedido a crear.
+     * @param userId El usuario que está activo.
+     * @param time El tiempo en milisegundos.
+     * @return El número de albarán adjundicado.
+     */
+    public String eliminarFactura(Integer idFactura, Integer userId, long time) throws GenasoftException {
+        String result = Constants.OPERACION_OK;
+        Timestamp t = new Timestamp(time);
+        if (commonSetup.conexionValida(userId, t, estadoAplicacion)) {
+            facturasSetup.eliminarFactura(idFactura);
+        } else {
+            if (estadoAplicacion == null || estadoAplicacion.equals(-1)) {
+                throw new GenasoftException(Constants.LICENCIA_NO_VALIDA);
+            } else {
+                throw new GenasoftException(Constants.SESION_INVALIDA);
+            }
+        }
+        // Retornamos el número del albarán
+        return result;
+    }
+
 }

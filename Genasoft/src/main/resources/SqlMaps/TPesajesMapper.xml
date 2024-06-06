@@ -481,7 +481,7 @@
     	]]>
   </select>
 
-  <select id="obtenerPesajePorAlbaran" parameterType="java.lang.Integer" resultMap="BaseResultMap">
+  <select id="obtenerPesajePorAlbaran" parameterType="java.lang.String" resultMap="BaseResultMap">
     <!--
       
     -->
@@ -492,7 +492,7 @@
     	numero_albaran = #{numeroAlbaran,jdbcType=VARCHAR}
   </select>
   
-  <select id="obtenerPesajesIds" resultType="java.lang.Double">
+  <select id="obtenerPesajesIds" resultMap="BaseResultMap">
     <!--
       Elemento que nos retorna los pedidos pendiente de finalizar
     -->

@@ -470,4 +470,12 @@ public class FacturasSetup implements Serializable {
         return result;
     }
 
+    public void eliminarLineaFactura(Integer id) {
+        tLineasFacturaMapper.deleteByPrimaryKey(id);
+    }
+
+    public void eliminarFactura(Integer id) {
+        tFacturasMapper.deleteByPrimaryKey(id);
+    }
+
 }
