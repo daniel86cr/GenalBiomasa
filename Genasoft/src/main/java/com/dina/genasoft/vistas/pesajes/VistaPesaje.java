@@ -31,6 +31,9 @@ import com.dina.genasoft.utils.Utils;
 import com.dina.genasoft.utils.enums.PesajesEnum;
 import com.dina.genasoft.vistas.Menu;
 import com.dina.genasoft.vistas.VistaInicioSesion;
+import com.dina.genasoft.vistas.maestros.clientes.VistaNuevoCliente;
+import com.dina.genasoft.vistas.maestros.operadores.VistaNuevoOperador;
+import com.dina.genasoft.vistas.maestros.transportistas.VistaNuevoTransportista;
 import com.vaadin.annotations.Theme;
 import com.vaadin.data.Property.ValueChangeEvent;
 import com.vaadin.data.Property.ValueChangeListener;
@@ -54,6 +57,9 @@ import com.vaadin.ui.Label;
 import com.vaadin.ui.Notification;
 import com.vaadin.ui.TextField;
 import com.vaadin.ui.VerticalLayout;
+
+import de.steinwedel.messagebox.ButtonOption;
+import de.steinwedel.messagebox.MessageBox;
 
 /**
  * @author Daniel Carmona Romero
@@ -136,6 +142,7 @@ public class VistaPesaje extends CustomComponent implements View ,Button.ClickLi
     private List<TTransportistas>         lTransportistas;
     private Double                        bruto, tara, neto;
     private List<TDireccionCliente>       lTodasDirs;
+    private String                        name;
 
     @Override
     public void buttonClick(ClickEvent event) {
@@ -341,8 +348,8 @@ public class VistaPesaje extends CustomComponent implements View ,Button.ClickLi
                 formulario1.setComponentAlignment(txtObra, Alignment.MIDDLE_CENTER);
                 formulario1.addComponent(txtOrigen);
                 formulario1.setComponentAlignment(txtOrigen, Alignment.MIDDLE_CENTER);
-                formulario2.addComponent(txtDestino);
-                formulario2.setComponentAlignment(txtDestino, Alignment.MIDDLE_CENTER);
+                //formulario2.addComponent(txtDestino);
+                //formulario2.setComponentAlignment(txtDestino, Alignment.MIDDLE_CENTER);
                 formulario2.addComponent(txtMatricula);
                 formulario2.setComponentAlignment(txtMatricula, Alignment.MIDDLE_CENTER);
                 formulario2.addComponent(txtRemolque);
@@ -353,6 +360,8 @@ public class VistaPesaje extends CustomComponent implements View ,Button.ClickLi
                 formulario2.setComponentAlignment(txtKgsBrutos, Alignment.MIDDLE_CENTER);
                 formulario2.addComponent(txtTara);
                 formulario2.setComponentAlignment(txtTara, Alignment.MIDDLE_CENTER);
+                formulario2.addComponent(txtKgsNetos);
+                formulario2.setComponentAlignment(txtKgsNetos, Alignment.MIDDLE_CENTER);
                 body.addComponent(formulario1);
                 body.setComponentAlignment(formulario1, Alignment.MIDDLE_CENTER);
                 body.addComponent(formulario2);
@@ -364,8 +373,6 @@ public class VistaPesaje extends CustomComponent implements View ,Button.ClickLi
                 viewLayout.setComponentAlignment(body, Alignment.MIDDLE_CENTER);
                 viewLayout.addComponent(body);
                 viewLayout.setComponentAlignment(body, Alignment.MIDDLE_CENTER);
-                viewLayout.addComponent(txtKgsNetos);
-                viewLayout.setComponentAlignment(txtKgsNetos, Alignment.MIDDLE_CENTER);
                 viewLayout.addComponent(cbEstados);
                 viewLayout.setComponentAlignment(cbEstados, Alignment.MIDDLE_CENTER);
                 viewLayout.addComponent(lblSpace);
@@ -448,72 +455,154 @@ public class VistaPesaje extends CustomComponent implements View ,Button.ClickLi
             @Override
             public void valueChange(ValueChangeEvent event) {
                 if (cbClientes.getValue() != null) {
-                    try {
-                        TClientes cl = (TClientes) cbClientes.getValue();
-                        cbDirecciones.removeAllItems();
-                        List<TDireccionCliente> lDirs = contrVista.obtenerDireccionesClientePorIdCliente(cl.getId(), user, time);
-                        cbDirecciones.addItems(lDirs);
-                        if (lDirs.size() == 1) {
-                            cbDirecciones.setValue(lDirs.get(0));
-                        } else if (lDirs.isEmpty()) {
-                            Notification aviso = new Notification("No se han identificado direcciones del cliente seleccionado.", Notification.Type.ERROR_MESSAGE);
-                            aviso.setPosition(Position.MIDDLE_CENTER);
-                            aviso.show(Page.getCurrent());
-                        }
+                    if (cbClientes.getValue().getClass().equals(TClientes.class)) {
+                        try {
+                            TClientes cl = (TClientes) cbClientes.getValue();
+                            txtMatricula.setValue(cl.getMatricula());
+                            txtRemolque.setValue(cl.getRemolque());
+                            cbDirecciones.removeAllItems();
+                            List<TDireccionCliente> lDirs = contrVista.obtenerDireccionesClientePorIdCliente(cl.getId(), user, time);
+                            cbDirecciones.addItems(lDirs);
+                            if (lDirs.size() == 1) {
+                                cbDirecciones.setValue(lDirs.get(0));
+                            } else if (lDirs.isEmpty()) {
+                                Notification aviso = new Notification("No se han identificado direcciones del cliente seleccionado.", Notification.Type.ERROR_MESSAGE);
+                                aviso.setPosition(Position.MIDDLE_CENTER);
+                                aviso.show(Page.getCurrent());
+                            }
 
-                        lMateriales = contrVista.obtenerMaterialesAsignadosCliente(cl.getId(), user, time);
-                        cbMateriales.removeAllItems();
-                        cbMateriales.addItems(lMateriales);
-                        if (lMateriales.size() == 1) {
-                            cbMateriales.setValue(lMateriales.get(0));
-                        } else if (lMateriales.isEmpty()) {
-                            Notification aviso = new Notification("No se han identificado materiales asignados al cliente seleccionado", Notification.Type.ERROR_MESSAGE);
-                            aviso.setPosition(Position.MIDDLE_CENTER);
-                            aviso.show(Page.getCurrent());
-                        }
+                            lMateriales = contrVista.obtenerMaterialesAsignadosCliente(cl.getId(), user, time);
+                            cbMateriales.removeAllItems();
+                            cbMateriales.addItems(lMateriales);
+                            if (lMateriales.size() == 1) {
+                                cbMateriales.setValue(lMateriales.get(0));
+                            } else if (lMateriales.isEmpty()) {
+                                Notification aviso = new Notification("No se han identificado materiales asignados al cliente seleccionado", Notification.Type.ERROR_MESSAGE);
+                                aviso.setPosition(Position.MIDDLE_CENTER);
+                                aviso.show(Page.getCurrent());
+                            }
 
-                        lOperadores = contrVista.obtenerOperadoresAsignadosCliente(cl.getId(), user, time);
-                        cbOperadores.removeAllItems();
-                        cbOperadores.addItems(lOperadores);
-                        if (lOperadores.size() == 1) {
-                            cbOperadores.setValue(lOperadores.get(0));
-                        } else if (lOperadores.isEmpty()) {
-                            Notification aviso = new Notification("No se han identificado operadores asignados al cliente seleccionado", Notification.Type.ERROR_MESSAGE);
-                            aviso.setPosition(Position.MIDDLE_CENTER);
-                            aviso.show(Page.getCurrent());
-                        }
-                        
-                        permitir crear materiales, operadores y transportistas
+                            lOperadores = contrVista.obtenerOperadoresAsignadosCliente(cl.getId(), user, time);
+                            cbOperadores.removeAllItems();
+                            cbOperadores.addItems(lOperadores);
+                            if (lOperadores.size() == 1) {
+                                cbOperadores.setValue(lOperadores.get(0));
+                            } else if (lOperadores.isEmpty()) {
+                                Notification aviso = new Notification("No se han identificado operadores asignados al cliente seleccionado", Notification.Type.ERROR_MESSAGE);
+                                aviso.setPosition(Position.MIDDLE_CENTER);
+                                aviso.show(Page.getCurrent());
+                            }
 
-                        lTransportistas = contrVista.obtenerTransportistasAsignadosCliente(cl.getId(), user, time);
-                        cbTransportistas.removeAllItems();
-                        cbTransportistas.addItems(lTransportistas);
-                        if (lTransportistas.size() == 1) {
-                            cbTransportistas.setValue(lTransportistas.get(0));
-                        } else if (lTransportistas.isEmpty()) {
-                            Notification aviso = new Notification("No se han identificado transportistas asignados al cliente seleccionado", Notification.Type.ERROR_MESSAGE);
-                            aviso.setPosition(Position.MIDDLE_CENTER);
-                            aviso.show(Page.getCurrent());
-                        }
+                            lTransportistas = contrVista.obtenerTransportistasAsignadosCliente(cl.getId(), user, time);
+                            cbTransportistas.removeAllItems();
+                            cbTransportistas.addItems(lTransportistas);
+                            if (lTransportistas.size() == 1) {
+                                cbTransportistas.setValue(lTransportistas.get(0));
+                            } else if (lTransportistas.isEmpty()) {
+                                Notification aviso = new Notification("No se han identificado transportistas asignados al cliente seleccionado", Notification.Type.ERROR_MESSAGE);
+                                aviso.setPosition(Position.MIDDLE_CENTER);
+                                aviso.show(Page.getCurrent());
+                            }
 
-                    } catch (MyBatisSystemException e) {
-                        Notification aviso = new Notification("No se ha podido establecer conexión con la base de datos.", Notification.Type.ERROR_MESSAGE);
-                        aviso.setPosition(Position.MIDDLE_CENTER);
-                        aviso.show(Page.getCurrent());
-                        log.error("Error al obtener datos de base de datos ", e);
-                    } catch (GenasoftException tbe) {
-                        if (tbe.getMessage().equals(Constants.SESION_INVALIDA)) {
-                            Notification aviso = new Notification(contrVista.obtenerDescripcionCodigo(tbe.getMessage()), Notification.Type.WARNING_MESSAGE);
+                        } catch (MyBatisSystemException e) {
+                            Notification aviso = new Notification("No se ha podido establecer conexión con la base de datos.", Notification.Type.ERROR_MESSAGE);
                             aviso.setPosition(Position.MIDDLE_CENTER);
                             aviso.show(Page.getCurrent());
-                            getSession().setAttribute("user", null);
-                            getSession().setAttribute("fecha", null);
-                            // Redirigimos a la página de inicio.
-                            getUI().getNavigator().navigateTo(VistaInicioSesion.NAME);
-                        } else {
-                            Notification aviso = new Notification(tbe.getMessage(), Notification.Type.ERROR_MESSAGE);
+                            log.error("Error al obtener datos de base de datos ", e);
+                        } catch (GenasoftException tbe) {
+                            if (tbe.getMessage().equals(Constants.SESION_INVALIDA)) {
+                                Notification aviso = new Notification(contrVista.obtenerDescripcionCodigo(tbe.getMessage()), Notification.Type.WARNING_MESSAGE);
+                                aviso.setPosition(Position.MIDDLE_CENTER);
+                                aviso.show(Page.getCurrent());
+                                getSession().setAttribute("user", null);
+                                getSession().setAttribute("fecha", null);
+                                // Redirigimos a la página de inicio.
+                                getUI().getNavigator().navigateTo(VistaInicioSesion.NAME);
+                            } else {
+                                Notification aviso = new Notification(tbe.getMessage(), Notification.Type.ERROR_MESSAGE);
+                                aviso.setPosition(Position.MIDDLE_CENTER);
+                                aviso.show(Page.getCurrent());
+                            }
+                        }
+                    } else {
+                        try {
+                            name = (String) cbClientes.getValue();
+                            // Buscamos si existe el cliente por nombre
+                            TClientes cl = contrVista.obtenerClientePorNombre(name.trim().toUpperCase(), user, time);
+                            if (cl == null) {
+                                if (name.contains(" ")) {
+                                    name = name.replaceAll(" ", "_");
+                                }
+                                MessageBox.createQuestion().withCaption(appName).withMessage("¿Quieres crear un nuevo cliente?").withNoButton().withYesButton(() ->
+
+                                Page.getCurrent().open("#!" + VistaNuevoCliente.NAME + "/" + user + "," + name, "_blank"), ButtonOption.caption("Sí")).open();
+                                cbOperadores.clear();
+                            } else {
+                                txtMatricula.setValue(cl.getMatricula());
+                                txtRemolque.setValue(cl.getRemolque());
+                                cbDirecciones.removeAllItems();
+                                List<TDireccionCliente> lDirs = contrVista.obtenerDireccionesClientePorIdCliente(cl.getId(), user, time);
+                                cbDirecciones.addItems(lDirs);
+                                if (lDirs.size() == 1) {
+                                    cbDirecciones.setValue(lDirs.get(0));
+                                } else if (lDirs.isEmpty()) {
+                                    Notification aviso = new Notification("No se han identificado direcciones del cliente seleccionado.", Notification.Type.ERROR_MESSAGE);
+                                    aviso.setPosition(Position.MIDDLE_CENTER);
+                                    aviso.show(Page.getCurrent());
+                                }
+
+                                lMateriales = contrVista.obtenerMaterialesAsignadosCliente(cl.getId(), user, time);
+                                cbMateriales.removeAllItems();
+                                cbMateriales.addItems(lMateriales);
+                                if (lMateriales.size() == 1) {
+                                    cbMateriales.setValue(lMateriales.get(0));
+                                } else if (lMateriales.isEmpty()) {
+                                    Notification aviso = new Notification("No se han identificado materiales asignados al cliente seleccionado", Notification.Type.ERROR_MESSAGE);
+                                    aviso.setPosition(Position.MIDDLE_CENTER);
+                                    aviso.show(Page.getCurrent());
+                                }
+
+                                lOperadores = contrVista.obtenerOperadoresAsignadosCliente(cl.getId(), user, time);
+                                cbOperadores.removeAllItems();
+                                cbOperadores.addItems(lOperadores);
+                                if (lOperadores.size() == 1) {
+                                    cbOperadores.setValue(lOperadores.get(0));
+                                } else if (lOperadores.isEmpty()) {
+                                    Notification aviso = new Notification("No se han identificado operadores asignados al cliente seleccionado", Notification.Type.ERROR_MESSAGE);
+                                    aviso.setPosition(Position.MIDDLE_CENTER);
+                                    aviso.show(Page.getCurrent());
+                                }
+
+                                lTransportistas = contrVista.obtenerTransportistasAsignadosCliente(cl.getId(), user, time);
+                                cbTransportistas.removeAllItems();
+                                cbTransportistas.addItems(lTransportistas);
+                                if (lTransportistas.size() == 1) {
+                                    cbTransportistas.setValue(lTransportistas.get(0));
+                                } else if (lTransportistas.isEmpty()) {
+                                    Notification aviso = new Notification("No se han identificado transportistas asignados al cliente seleccionado", Notification.Type.ERROR_MESSAGE);
+                                    aviso.setPosition(Position.MIDDLE_CENTER);
+                                    aviso.show(Page.getCurrent());
+                                }
+                            }
+                        } catch (MyBatisSystemException e) {
+                            Notification aviso = new Notification("No se ha podido establecer conexión con la base de datos.", Notification.Type.ERROR_MESSAGE);
                             aviso.setPosition(Position.MIDDLE_CENTER);
                             aviso.show(Page.getCurrent());
+                            log.error("Error al obtener datos de base de datos ", e);
+                        } catch (GenasoftException tbe) {
+                            if (tbe.getMessage().equals(Constants.SESION_INVALIDA)) {
+                                Notification aviso = new Notification(contrVista.obtenerDescripcionCodigo(tbe.getMessage()), Notification.Type.WARNING_MESSAGE);
+                                aviso.setPosition(Position.MIDDLE_CENTER);
+                                aviso.show(Page.getCurrent());
+                                getSession().setAttribute("user", null);
+                                getSession().setAttribute("fecha", null);
+                                // Redirigimos a la página de inicio.
+                                getUI().getNavigator().navigateTo(VistaInicioSesion.NAME);
+                            } else {
+                                Notification aviso = new Notification(tbe.getMessage(), Notification.Type.ERROR_MESSAGE);
+                                aviso.setPosition(Position.MIDDLE_CENTER);
+                                aviso.show(Page.getCurrent());
+                            }
                         }
                     }
                 }
@@ -546,7 +635,6 @@ public class VistaPesaje extends CustomComponent implements View ,Button.ClickLi
         txtObra.setNullRepresentation("");
         txtObra.setWidth(appWidth, Sizeable.Unit.EM);
         txtObra.setMaxLength(445);
-        txtObra.setRequired(true);
         txtObra.setValue(nPesajes.getObra());
 
         // El nº de albarán
@@ -560,7 +648,6 @@ public class VistaPesaje extends CustomComponent implements View ,Button.ClickLi
         // El origen
         txtOrigen = new TextField("Origen:");
         txtOrigen.setNullRepresentation("");
-        txtOrigen.setRequired(true);
         txtOrigen.setWidth(appWidth, Sizeable.Unit.EM);
         txtOrigen.setMaxLength(445);
         txtOrigen.setValue(nPesajes.getOrigen());
@@ -670,7 +757,7 @@ public class VistaPesaje extends CustomComponent implements View ,Button.ClickLi
         // Los kgs netos.
         txtKgsNetos = new TextField("Kilos netos:");
         txtKgsNetos.setNullRepresentation("");
-        txtKgsNetos.setWidth(appWidth / 2, Sizeable.Unit.EM);
+        txtKgsNetos.setWidth(appWidth, Sizeable.Unit.EM);
         txtKgsNetos.setRequired(true);
         txtKgsNetos.setEnabled(false);
         txtKgsNetos.setValue(df.format(nPesajes.getKgsNeto()));
@@ -718,6 +805,49 @@ public class VistaPesaje extends CustomComponent implements View ,Button.ClickLi
             }
         }
 
+        cbOperadores.addValueChangeListener(new ValueChangeListener() {
+
+            @Override
+            public void valueChange(ValueChangeEvent event) {
+                if (cbOperadores.getValue() != null) {
+                    if (cbOperadores.getValue().getClass().equals(TOperadores.class)) {
+                        cbOperadores.clear();
+                    } else {
+                        try {
+                            name = (String) cbOperadores.getValue();
+                            TOperadores mat = contrVista.obtenerOperadorPorNombre(name.trim().toUpperCase(), user, time);
+                            // Buscamos el material por si aca...
+                            if (mat == null) {
+                                if (name.contains(" ")) {
+                                    name = name.replaceAll(" ", "_");
+                                }
+                                MessageBox.createQuestion().withCaption(appName).withMessage("¿Quieres crear un nuevo operador?").withNoButton().withYesButton(() ->
+
+                                Page.getCurrent().open("#!" + VistaNuevoOperador.NAME + "/" + user + "," + name, "_blank"), ButtonOption.caption("Sí")).open();
+                                cbOperadores.clear();
+                            } else {
+                                cbOperadores.clear();
+                            }
+                        } catch (GenasoftException tbe) {
+                            if (tbe.getMessage().equals(Constants.SESION_INVALIDA)) {
+                                Notification aviso = new Notification(contrVista.obtenerDescripcionCodigo(tbe.getMessage()), Notification.Type.WARNING_MESSAGE);
+                                aviso.setPosition(Position.MIDDLE_CENTER);
+                                aviso.show(Page.getCurrent());
+                                getSession().setAttribute("user", null);
+                                getSession().setAttribute("fecha", null);
+                                // Redirigimos a la página de inicio.
+                                getUI().getNavigator().navigateTo(VistaInicioSesion.NAME);
+                            } else {
+                                Notification aviso = new Notification(tbe.getMessage(), Notification.Type.ERROR_MESSAGE);
+                                aviso.setPosition(Position.MIDDLE_CENTER);
+                                aviso.show(Page.getCurrent());
+                            }
+                        }
+                    }
+                }
+            }
+        });
+
         // El transportista.
         cbTransportistas.setCaption("Transportista:");
         cbTransportistas.addItems(lTransportistas);
@@ -731,6 +861,49 @@ public class VistaPesaje extends CustomComponent implements View ,Button.ClickLi
                 break;
             }
         }
+
+        cbTransportistas.addValueChangeListener(new ValueChangeListener() {
+
+            @Override
+            public void valueChange(ValueChangeEvent event) {
+                if (cbTransportistas.getValue() != null) {
+                    if (cbTransportistas.getValue().getClass().equals(TTransportistas.class)) {
+                        cbTransportistas.clear();
+                    } else {
+                        try {
+                            name = (String) cbOperadores.getValue();
+                            TTransportistas mat = contrVista.obtenerTransportistaPorNombre(name.trim().toUpperCase(), user, time);
+                            // Buscamos el material por si aca...
+                            if (mat == null) {
+                                if (name.contains(" ")) {
+                                    name = name.replaceAll(" ", "_");
+                                }
+                                MessageBox.createQuestion().withCaption(appName).withMessage("¿Quieres crear un nuevo transportista?").withNoButton().withYesButton(() ->
+
+                                Page.getCurrent().open("#!" + VistaNuevoTransportista.NAME + "/" + user + "," + name, "_blank"), ButtonOption.caption("Sí")).open();
+                                cbTransportistas.clear();
+                            } else {
+                                cbTransportistas.clear();
+                            }
+                        } catch (GenasoftException tbe) {
+                            if (tbe.getMessage().equals(Constants.SESION_INVALIDA)) {
+                                Notification aviso = new Notification(contrVista.obtenerDescripcionCodigo(tbe.getMessage()), Notification.Type.WARNING_MESSAGE);
+                                aviso.setPosition(Position.MIDDLE_CENTER);
+                                aviso.show(Page.getCurrent());
+                                getSession().setAttribute("user", null);
+                                getSession().setAttribute("fecha", null);
+                                // Redirigimos a la página de inicio.
+                                getUI().getNavigator().navigateTo(VistaInicioSesion.NAME);
+                            } else {
+                                Notification aviso = new Notification(tbe.getMessage(), Notification.Type.ERROR_MESSAGE);
+                                aviso.setPosition(Position.MIDDLE_CENTER);
+                                aviso.show(Page.getCurrent());
+                            }
+                        }
+                    }
+                }
+            }
+        });
 
         cbEstados.setCaption("Estado:");
         cbEstados.addItem(Constants.ALBARAN);
@@ -1008,8 +1181,8 @@ public class VistaPesaje extends CustomComponent implements View ,Button.ClickLi
      * @return true si no se cumple la validación
      */
     private boolean validarCamposObligatorios() {
-        return !cbClientes.isValid() || !cbMateriales.isValid() || !txtOrigen.isValid() || !txtObra.isValid() || !txtRemolque.isValid() || !txtKgsBrutos.isValid() || !txtMatricula.isValid() || !fechaPesaje.isValid() || !cbDirecciones.isValid()
-                || !fechaPesaje.isValid();
+        return !cbClientes.isValid() || !cbMateriales.isValid() || !txtRemolque.isValid() || !txtKgsBrutos.isValid() || !txtMatricula.isValid() || !fechaPesaje.isValid() || !cbDirecciones.isValid() || !fechaPesaje.isValid()
+                || !cbTransportistas.isValid() || !cbOperadores.isValid();
     }
 
 }

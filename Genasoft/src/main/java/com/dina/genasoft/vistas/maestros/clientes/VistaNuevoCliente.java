@@ -328,6 +328,21 @@ public class VistaNuevoCliente extends CustomComponent implements View ,Button.C
                     return;
                 }
 
+                String parametros = event.getParameters();
+
+                if (parametros != null && !parametros.isEmpty()) {
+                    if (parametros.split(",").length == 2) {
+                        parametros = parametros.split(",")[1];
+                        if (parametros.contains("_")) {
+                            parametros = parametros.replaceAll("_", " ");
+                        }
+                    } else {
+                        parametros = null;
+                    }
+                } else {
+                    parametros = null;
+                }
+
                 // Obtenemos los materiales activos del sistema.
                 lMateriales = contrVista.obtenerMaterialesActivos(user, time);
 
@@ -353,7 +368,7 @@ public class VistaNuevoCliente extends CustomComponent implements View ,Button.C
                 crearBotonesMenu();
 
                 // Creamos los componetes que conforman la pantalla.
-                crearComponentes();
+                crearComponentes(parametros);
 
                 // Generamos las partes de la intefaz.
 
@@ -569,7 +584,7 @@ public class VistaNuevoCliente extends CustomComponent implements View ,Button.C
     /**
      * Método que nos crea los componetes que conforman la pantalla.
      */
-    private void crearComponentes() {
+    private void crearComponentes(String nombre) {
         //Los campos que componen un empleado.
 
         // La razón social.
@@ -578,6 +593,9 @@ public class VistaNuevoCliente extends CustomComponent implements View ,Button.C
         txtRazonSocial.setWidth(appWidth, Sizeable.Unit.EM);
         txtRazonSocial.setMaxLength(445);
         txtRazonSocial.setRequired(true);
+        if (nombre != null) {
+            txtRazonSocial.setValue(nombre);
+        }
 
         // El CIF
         txtCif = (TextField) binder.buildAndBind("CIF:", "cif");
@@ -789,38 +807,40 @@ public class VistaNuevoCliente extends CustomComponent implements View ,Button.C
             @Override
             public void valueChange(ValueChangeEvent event) {
                 if (cbOperadores.getValue() != null) {
-                    lsOperadores.addItem((TOperadores) cbOperadores.getValue());
-                    cbOperadores.clear();
-                } else {
-                    try {
-                        name = (String) cbOperadores.getValue();
-                        TOperadores mat = contrVista.obtenerOperadorPorNombre(name.trim().toUpperCase(), user, time);
-                        // Buscamos el material por si aca...
-                        if (mat == null) {
-                            if (name.contains(" ")) {
-                                name = name.replaceAll(" ", "_");
-                            }
-                            MessageBox.createQuestion().withCaption(appName).withMessage("¿Quieres crear un nuevo operador?").withNoButton().withYesButton(() ->
+                    if (cbOperadores.getValue().getClass().equals(TOperadores.class)) {
+                        lsOperadores.addItem((TOperadores) cbOperadores.getValue());
+                        cbOperadores.clear();
+                    } else {
+                        try {
+                            name = (String) cbOperadores.getValue();
+                            TOperadores mat = contrVista.obtenerOperadorPorNombre(name.trim().toUpperCase(), user, time);
+                            // Buscamos el material por si aca...
+                            if (mat == null) {
+                                if (name.contains(" ")) {
+                                    name = name.replaceAll(" ", "_");
+                                }
+                                MessageBox.createQuestion().withCaption(appName).withMessage("¿Quieres crear un nuevo operador?").withNoButton().withYesButton(() ->
 
-                            Page.getCurrent().open("#!" + VistaNuevoOperador.NAME + "/" + user + "," + name, "_blank"), ButtonOption.caption("Sí")).open();
-                            cbOperadores.clear();
-                        } else {
-                            lsOperadores.addItem(mat);
-                            cbOperadores.clear();
-                        }
-                    } catch (GenasoftException tbe) {
-                        if (tbe.getMessage().equals(Constants.SESION_INVALIDA)) {
-                            Notification aviso = new Notification(contrVista.obtenerDescripcionCodigo(tbe.getMessage()), Notification.Type.WARNING_MESSAGE);
-                            aviso.setPosition(Position.MIDDLE_CENTER);
-                            aviso.show(Page.getCurrent());
-                            getSession().setAttribute("user", null);
-                            getSession().setAttribute("fecha", null);
-                            // Redirigimos a la página de inicio.
-                            getUI().getNavigator().navigateTo(VistaInicioSesion.NAME);
-                        } else {
-                            Notification aviso = new Notification(tbe.getMessage(), Notification.Type.ERROR_MESSAGE);
-                            aviso.setPosition(Position.MIDDLE_CENTER);
-                            aviso.show(Page.getCurrent());
+                                Page.getCurrent().open("#!" + VistaNuevoOperador.NAME + "/" + user + "," + name, "_blank"), ButtonOption.caption("Sí")).open();
+                                cbOperadores.clear();
+                            } else {
+                                lsOperadores.addItem(mat);
+                                cbOperadores.clear();
+                            }
+                        } catch (GenasoftException tbe) {
+                            if (tbe.getMessage().equals(Constants.SESION_INVALIDA)) {
+                                Notification aviso = new Notification(contrVista.obtenerDescripcionCodigo(tbe.getMessage()), Notification.Type.WARNING_MESSAGE);
+                                aviso.setPosition(Position.MIDDLE_CENTER);
+                                aviso.show(Page.getCurrent());
+                                getSession().setAttribute("user", null);
+                                getSession().setAttribute("fecha", null);
+                                // Redirigimos a la página de inicio.
+                                getUI().getNavigator().navigateTo(VistaInicioSesion.NAME);
+                            } else {
+                                Notification aviso = new Notification(tbe.getMessage(), Notification.Type.ERROR_MESSAGE);
+                                aviso.setPosition(Position.MIDDLE_CENTER);
+                                aviso.show(Page.getCurrent());
+                            }
                         }
                     }
                 }
@@ -872,38 +892,40 @@ public class VistaNuevoCliente extends CustomComponent implements View ,Button.C
             @Override
             public void valueChange(ValueChangeEvent event) {
                 if (cbTransportistas.getValue() != null) {
-                    lsTransportistas.addItem((TTransportistas) cbTransportistas.getValue());
-                    cbTransportistas.clear();
-                } else {
-                    try {
-                        name = (String) cbOperadores.getValue();
-                        TTransportistas mat = contrVista.obtenerTransportistaPorNombre(name.trim().toUpperCase(), user, time);
-                        // Buscamos el material por si aca...
-                        if (mat == null) {
-                            if (name.contains(" ")) {
-                                name = name.replaceAll(" ", "_");
-                            }
-                            MessageBox.createQuestion().withCaption(appName).withMessage("¿Quieres crear un nuevo transportista?").withNoButton().withYesButton(() ->
+                    if (cbTransportistas.getValue().getClass().equals(TTransportistas.class)) {
+                        lsTransportistas.addItem((TTransportistas) cbTransportistas.getValue());
+                        cbTransportistas.clear();
+                    } else {
+                        try {
+                            name = (String) cbOperadores.getValue();
+                            TTransportistas mat = contrVista.obtenerTransportistaPorNombre(name.trim().toUpperCase(), user, time);
+                            // Buscamos el material por si aca...
+                            if (mat == null) {
+                                if (name.contains(" ")) {
+                                    name = name.replaceAll(" ", "_");
+                                }
+                                MessageBox.createQuestion().withCaption(appName).withMessage("¿Quieres crear un nuevo transportista?").withNoButton().withYesButton(() ->
 
-                            Page.getCurrent().open("#!" + VistaNuevoTransportista.NAME + "/" + user + "," + name, "_blank"), ButtonOption.caption("Sí")).open();
-                            cbTransportistas.clear();
-                        } else {
-                            lsTransportistas.addItem(mat);
-                            cbTransportistas.clear();
-                        }
-                    } catch (GenasoftException tbe) {
-                        if (tbe.getMessage().equals(Constants.SESION_INVALIDA)) {
-                            Notification aviso = new Notification(contrVista.obtenerDescripcionCodigo(tbe.getMessage()), Notification.Type.WARNING_MESSAGE);
-                            aviso.setPosition(Position.MIDDLE_CENTER);
-                            aviso.show(Page.getCurrent());
-                            getSession().setAttribute("user", null);
-                            getSession().setAttribute("fecha", null);
-                            // Redirigimos a la página de inicio.
-                            getUI().getNavigator().navigateTo(VistaInicioSesion.NAME);
-                        } else {
-                            Notification aviso = new Notification(tbe.getMessage(), Notification.Type.ERROR_MESSAGE);
-                            aviso.setPosition(Position.MIDDLE_CENTER);
-                            aviso.show(Page.getCurrent());
+                                Page.getCurrent().open("#!" + VistaNuevoTransportista.NAME + "/" + user + "," + name, "_blank"), ButtonOption.caption("Sí")).open();
+                                cbTransportistas.clear();
+                            } else {
+                                lsTransportistas.addItem(mat);
+                                cbTransportistas.clear();
+                            }
+                        } catch (GenasoftException tbe) {
+                            if (tbe.getMessage().equals(Constants.SESION_INVALIDA)) {
+                                Notification aviso = new Notification(contrVista.obtenerDescripcionCodigo(tbe.getMessage()), Notification.Type.WARNING_MESSAGE);
+                                aviso.setPosition(Position.MIDDLE_CENTER);
+                                aviso.show(Page.getCurrent());
+                                getSession().setAttribute("user", null);
+                                getSession().setAttribute("fecha", null);
+                                // Redirigimos a la página de inicio.
+                                getUI().getNavigator().navigateTo(VistaInicioSesion.NAME);
+                            } else {
+                                Notification aviso = new Notification(tbe.getMessage(), Notification.Type.ERROR_MESSAGE);
+                                aviso.setPosition(Position.MIDDLE_CENTER);
+                                aviso.show(Page.getCurrent());
+                            }
                         }
                     }
                 }

@@ -947,12 +947,24 @@ public class VistaCliente extends CustomComponent implements View ,Button.ClickL
 
         cbMateriales.addValueChangeListener(new ValueChangeListener() {
 
+            @SuppressWarnings("unchecked")
             @Override
             public void valueChange(ValueChangeEvent event) {
                 if (cbMateriales.getValue() != null) {
                     if (cbMateriales.getValue().getClass().equals(TMateriales.class)) {
-                        lsMateriales.addItem((TMateriales) cbMateriales.getValue());
-                        lIncluidosMateriales.add(((TMateriales) cbMateriales.getValue()).getId());
+
+                        Boolean entra = false;
+                        List<TMateriales> lOperadoresAsig = (List<TMateriales>) lsMateriales.getItemIds();
+                        for (TMateriales op : lOperadoresAsig) {
+                            if (op.getId().equals(((TMateriales) cbMateriales.getValue()).getId())) {
+                                entra = true;
+                            }
+                        }
+                        if (!entra) {
+                            lsMateriales.addItem((TMateriales) cbMateriales.getValue());
+                            lIncluidosMateriales.add(((TMateriales) cbMateriales.getValue()).getId());
+                        }
+
                         cbMateriales.clear();
                     } else {
                         try {
@@ -1040,41 +1052,53 @@ public class VistaCliente extends CustomComponent implements View ,Button.ClickL
 
         cbOperadores.addValueChangeListener(new ValueChangeListener() {
 
+            @SuppressWarnings("unchecked")
             @Override
             public void valueChange(ValueChangeEvent event) {
                 if (cbOperadores.getValue() != null) {
-                    lsOperadores.addItem((TOperadores) cbOperadores.getValue());
-                    cbOperadores.clear();
-                } else {
-                    try {
-                        name = (String) cbOperadores.getValue();
-                        TOperadores mat = contrVista.obtenerOperadorPorNombre(name.trim().toUpperCase(), user, time);
-                        // Buscamos el material por si aca...
-                        if (mat == null) {
-                            if (name.contains(" ")) {
-                                name = name.replaceAll(" ", "_");
+                    if (cbOperadores.getValue().getClass().equals(TOperadores.class)) {
+                        Boolean entra = false;
+                        List<TOperadores> lOperadoresAsig = (List<TOperadores>) lsOperadores.getItemIds();
+                        for (TOperadores op : lOperadoresAsig) {
+                            if (op.getId().equals(((TOperadores) cbOperadores.getValue()).getId())) {
+                                entra = true;
                             }
-                            MessageBox.createQuestion().withCaption(appName).withMessage("¿Quieres crear un nuevo operador?").withNoButton().withYesButton(() ->
-
-                            Page.getCurrent().open("#!" + VistaNuevoOperador.NAME + "/" + user + "," + name, "_blank"), ButtonOption.caption("Sí")).open();
-                            cbOperadores.clear();
-                        } else {
-                            lsOperadores.addItem(mat);
-                            cbOperadores.clear();
                         }
-                    } catch (GenasoftException tbe) {
-                        if (tbe.getMessage().equals(Constants.SESION_INVALIDA)) {
-                            Notification aviso = new Notification(contrVista.obtenerDescripcionCodigo(tbe.getMessage()), Notification.Type.WARNING_MESSAGE);
-                            aviso.setPosition(Position.MIDDLE_CENTER);
-                            aviso.show(Page.getCurrent());
-                            getSession().setAttribute("user", null);
-                            getSession().setAttribute("fecha", null);
-                            // Redirigimos a la página de inicio.
-                            getUI().getNavigator().navigateTo(VistaInicioSesion.NAME);
-                        } else {
-                            Notification aviso = new Notification(tbe.getMessage(), Notification.Type.ERROR_MESSAGE);
-                            aviso.setPosition(Position.MIDDLE_CENTER);
-                            aviso.show(Page.getCurrent());
+                        if (!entra) {
+                            lsOperadores.addItem((TOperadores) cbOperadores.getValue());
+                        }
+                        cbOperadores.clear();
+                    } else {
+                        try {
+                            name = (String) cbOperadores.getValue();
+                            TOperadores mat = contrVista.obtenerOperadorPorNombre(name.trim().toUpperCase(), user, time);
+                            // Buscamos el material por si aca...
+                            if (mat == null) {
+                                if (name.contains(" ")) {
+                                    name = name.replaceAll(" ", "_");
+                                }
+                                MessageBox.createQuestion().withCaption(appName).withMessage("¿Quieres crear un nuevo operador?").withNoButton().withYesButton(() ->
+
+                                Page.getCurrent().open("#!" + VistaNuevoOperador.NAME + "/" + user + "," + name, "_blank"), ButtonOption.caption("Sí")).open();
+                                cbOperadores.clear();
+                            } else {
+                                lsOperadores.addItem(mat);
+                                cbOperadores.clear();
+                            }
+                        } catch (GenasoftException tbe) {
+                            if (tbe.getMessage().equals(Constants.SESION_INVALIDA)) {
+                                Notification aviso = new Notification(contrVista.obtenerDescripcionCodigo(tbe.getMessage()), Notification.Type.WARNING_MESSAGE);
+                                aviso.setPosition(Position.MIDDLE_CENTER);
+                                aviso.show(Page.getCurrent());
+                                getSession().setAttribute("user", null);
+                                getSession().setAttribute("fecha", null);
+                                // Redirigimos a la página de inicio.
+                                getUI().getNavigator().navigateTo(VistaInicioSesion.NAME);
+                            } else {
+                                Notification aviso = new Notification(tbe.getMessage(), Notification.Type.ERROR_MESSAGE);
+                                aviso.setPosition(Position.MIDDLE_CENTER);
+                                aviso.show(Page.getCurrent());
+                            }
                         }
                     }
                 }
@@ -1129,41 +1153,53 @@ public class VistaCliente extends CustomComponent implements View ,Button.ClickL
 
         cbTransportistas.addValueChangeListener(new ValueChangeListener() {
 
+            @SuppressWarnings("unchecked")
             @Override
             public void valueChange(ValueChangeEvent event) {
                 if (cbTransportistas.getValue() != null) {
-                    lsTransportistas.addItem((TTransportistas) cbTransportistas.getValue());
-                    cbTransportistas.clear();
-                } else {
-                    try {
-                        name = (String) cbOperadores.getValue();
-                        TTransportistas mat = contrVista.obtenerTransportistaPorNombre(name.trim().toUpperCase(), user, time);
-                        // Buscamos el material por si aca...
-                        if (mat == null) {
-                            if (name.contains(" ")) {
-                                name = name.replaceAll(" ", "_");
+                    if (cbTransportistas.getValue().getClass().equals(TTransportistas.class)) {
+                        Boolean entra = false;
+                        List<TTransportistas> lOperadoresAsig = (List<TTransportistas>) lsTransportistas.getItemIds();
+                        for (TTransportistas op : lOperadoresAsig) {
+                            if (op.getId().equals(((TTransportistas) cbTransportistas.getValue()).getId())) {
+                                entra = true;
                             }
-                            MessageBox.createQuestion().withCaption(appName).withMessage("¿Quieres crear un nuevo transportista?").withNoButton().withYesButton(() ->
-
-                            Page.getCurrent().open("#!" + VistaNuevoTransportista.NAME + "/" + user + "," + name, "_blank"), ButtonOption.caption("Sí")).open();
-                            cbTransportistas.clear();
-                        } else {
-                            lsTransportistas.addItem(mat);
-                            cbTransportistas.clear();
                         }
-                    } catch (GenasoftException tbe) {
-                        if (tbe.getMessage().equals(Constants.SESION_INVALIDA)) {
-                            Notification aviso = new Notification(contrVista.obtenerDescripcionCodigo(tbe.getMessage()), Notification.Type.WARNING_MESSAGE);
-                            aviso.setPosition(Position.MIDDLE_CENTER);
-                            aviso.show(Page.getCurrent());
-                            getSession().setAttribute("user", null);
-                            getSession().setAttribute("fecha", null);
-                            // Redirigimos a la página de inicio.
-                            getUI().getNavigator().navigateTo(VistaInicioSesion.NAME);
-                        } else {
-                            Notification aviso = new Notification(tbe.getMessage(), Notification.Type.ERROR_MESSAGE);
-                            aviso.setPosition(Position.MIDDLE_CENTER);
-                            aviso.show(Page.getCurrent());
+                        if (!entra) {
+                            lsTransportistas.addItem((TTransportistas) cbTransportistas.getValue());
+                        }
+                        cbTransportistas.clear();
+                    } else {
+                        try {
+                            name = (String) cbOperadores.getValue();
+                            TTransportistas mat = contrVista.obtenerTransportistaPorNombre(name.trim().toUpperCase(), user, time);
+                            // Buscamos el material por si aca...
+                            if (mat == null) {
+                                if (name.contains(" ")) {
+                                    name = name.replaceAll(" ", "_");
+                                }
+                                MessageBox.createQuestion().withCaption(appName).withMessage("¿Quieres crear un nuevo transportista?").withNoButton().withYesButton(() ->
+
+                                Page.getCurrent().open("#!" + VistaNuevoTransportista.NAME + "/" + user + "," + name, "_blank"), ButtonOption.caption("Sí")).open();
+                                cbTransportistas.clear();
+                            } else {
+                                lsTransportistas.addItem(mat);
+                                cbTransportistas.clear();
+                            }
+                        } catch (GenasoftException tbe) {
+                            if (tbe.getMessage().equals(Constants.SESION_INVALIDA)) {
+                                Notification aviso = new Notification(contrVista.obtenerDescripcionCodigo(tbe.getMessage()), Notification.Type.WARNING_MESSAGE);
+                                aviso.setPosition(Position.MIDDLE_CENTER);
+                                aviso.show(Page.getCurrent());
+                                getSession().setAttribute("user", null);
+                                getSession().setAttribute("fecha", null);
+                                // Redirigimos a la página de inicio.
+                                getUI().getNavigator().navigateTo(VistaInicioSesion.NAME);
+                            } else {
+                                Notification aviso = new Notification(tbe.getMessage(), Notification.Type.ERROR_MESSAGE);
+                                aviso.setPosition(Position.MIDDLE_CENTER);
+                                aviso.show(Page.getCurrent());
+                            }
                         }
                     }
                 }
