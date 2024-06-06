@@ -104,6 +104,15 @@ public class PesajesSetup implements Serializable {
     }
 
     /**
+     * Método que nos retorna los pesajes que están dentro de la factura con ID pasado por parámetro.
+     * @param idFactura El ID de la factura a consultar
+     * @return Los pesajes existentes en la factura.
+     */
+    public List<TPesajes> obtenerPesajesIds(List<Integer> lIds) {
+        return tPesajesMapper.obtenerPesajesIds(lIds);
+    }
+
+    /**
      * Método que nos retorna los pesajes que tienen como fecha las comprendidas por las de los parámetros.
      * @param fecha1 Fecha desde
      * @param fecha1 Fecha Hasta

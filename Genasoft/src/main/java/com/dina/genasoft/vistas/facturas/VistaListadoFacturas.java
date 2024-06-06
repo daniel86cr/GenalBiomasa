@@ -6,7 +6,6 @@
 package com.dina.genasoft.vistas.facturas;
 
 import java.text.SimpleDateFormat;
-import java.util.Date;
 import java.util.List;
 import java.util.regex.PatternSyntaxException;
 
@@ -20,17 +19,13 @@ import com.dina.genasoft.configuration.Constants;
 import com.dina.genasoft.controller.ControladorVistas;
 import com.dina.genasoft.db.entity.TClientes;
 import com.dina.genasoft.db.entity.TEmpleados;
-import com.dina.genasoft.db.entity.TFacturas;
 import com.dina.genasoft.db.entity.TFacturasVista;
-import com.dina.genasoft.db.entity.TLineasFactura;
 import com.dina.genasoft.db.entity.TLineasFacturaVista;
 import com.dina.genasoft.db.entity.TMateriales;
 import com.dina.genasoft.db.entity.TPermisos;
-import com.dina.genasoft.db.entity.TPesajes;
 import com.dina.genasoft.exception.GenasoftException;
 import com.dina.genasoft.utils.TablaGenerica;
 import com.dina.genasoft.utils.Utils;
-import com.dina.genasoft.utils.enums.PesajesEnum;
 import com.dina.genasoft.vistas.Menu;
 import com.dina.genasoft.vistas.VistaInicioSesion;
 import com.dina.genasoft.vistas.pesajes.VistaNuevoPesaje;
@@ -70,9 +65,6 @@ import com.vaadin.ui.TextField;
 import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.themes.BaseTheme;
 
-import de.steinwedel.messagebox.ButtonOption;
-import de.steinwedel.messagebox.MessageBox;
-
 @SuppressWarnings("serial")
 @Theme("Genal")
 @UIScope
@@ -93,10 +85,6 @@ public class VistaListadoFacturas extends CustomComponent implements View ,Butto
     private Button                                     modificarButton;
     /** El boton para eliminar un pesaje.*/
     private Button                                     eliminarButton;
-    /** El boton para generar facturas.*/
-    private Button                                     facturarButton;
-    /** El boton para generar multifacturas.*/
-    private Button                                     facturar2Button;
     // Elementos para realizar busquedas
     /** Para filtrar por el nº de albarán del pesaje.*/
     private TextField                                  fAlbaran;
@@ -310,8 +298,6 @@ public class VistaListadoFacturas extends CustomComponent implements View ,Butto
         crearButton = new Button("Registrar pesaje", this);
         modificarButton = new Button("Editar pesaje", this);
         eliminarButton = new Button("Eliminar factura", this);
-        facturarButton = new Button("Generar factura", this);
-        facturar2Button = new Button("Generar multifactura", this);
 
         pdfButton = new Button("", this);
         pdfButton.setIcon(new ThemeResource("icons/pdf-32.ico"));
@@ -356,45 +342,6 @@ public class VistaListadoFacturas extends CustomComponent implements View ,Butto
 
         });
 
-        // Evento para modificar un empleado.
-        facturarButton.addClickListener(new ClickListener() {
-
-            public void buttonClick(ClickEvent event) {
-
-                if (idSeleccionado != null) {
-
-                    Label lbl = new Label("Se van a generar tantas facturas como pesajes seleccionados. ¿Quieres continuar?");
-                    lbl.setStyleName("tituloTamano18Rojo");
-
-                    DateField date;
-
-                    if (idSeleccionado.contains(",")) {
-                        date = new DateField("Fecha facturas: ");
-                    } else {
-                        date = new DateField("Fecha factura: ");
-                    }
-                    date.setValue(Utils.generarFecha());
-
-                    VerticalLayout ver = new VerticalLayout();
-                    ver.setSpacing(true);
-                    if (idSeleccionado.contains(",")) {
-                        ver.addComponent(lbl);
-                    }
-                    ver.addComponent(date);
-                    ver.setComponentAlignment(date, Alignment.TOP_CENTER);
-                    MessageBox.createQuestion().withCaption(appName).withMessage(ver).withNoButton().withYesButton(() ->
-
-                    generarFactura(date.getValue()), ButtonOption.caption("Generar")).open();
-
-                } else {
-                    Notification aviso = new Notification("Se debe seleccionar al menos un registro del listado", Notification.Type.ASSISTIVE_NOTIFICATION);
-                    aviso.setPosition(Position.MIDDLE_CENTER);
-                    aviso.show(Page.getCurrent());
-                }
-            }
-
-        });
-
         // Evento para eliminar un empleado empleado.
         eliminarButton.addClickListener(new ClickListener() {
 
@@ -405,7 +352,7 @@ public class VistaListadoFacturas extends CustomComponent implements View ,Butto
                     //MessageBox.createQuestion().withCaption(appName).withMessage("¿Quieres desactivar el registro seleccionado?").withNoButton().withYesButton(() -> anularPesaje(idSeleccionado), ButtonOption.caption("Sí")).open();
 
                 } else {
-                    Notification aviso = new Notification("Se debe seleccionar un registro del listado", Notification.Type.ASSISTIVE_NOTIFICATION);
+                    Notification aviso = new Notification("Se debe seleccionar al menos un registro del listado", Notification.Type.ASSISTIVE_NOTIFICATION);
                     aviso.setPosition(Position.MIDDLE_CENTER);
                     aviso.show(Page.getCurrent());
                 }
@@ -420,7 +367,7 @@ public class VistaListadoFacturas extends CustomComponent implements View ,Butto
      * @return El Grid con las columnas.
      */
     private void crearTablaFacturas(TPermisos permisos) {
-        tablaFacturas = new TablaGenerica(new Object[] { "numeroFactura", "idCliente", "idDireccion", "fechaFactura", "obra", "subtotal", "total", }, new String[] { "Nº Factura", "Cliente", "Dirección", "Fecha factura", "Obra", "SubTotal", "Importe factura" }, bcFacturas);
+        tablaFacturas = new TablaGenerica(new Object[] { "numeroFactura", "idCliente", "idDireccion", "fechaFactura", "obra", "base", "subtotal", "total", }, new String[] { "Nº Factura", "Cliente", "Dirección", "Fecha factura", "Obra", "Base imponible", "IVA", "Importe factura" }, bcFacturas);
         tablaFacturas.addStyleName("big striped");
         tablaFacturas.setPageLength(25);
 
@@ -455,7 +402,7 @@ public class VistaListadoFacturas extends CustomComponent implements View ,Butto
     }
 
     private void crearTablaLineas() {
-        tablaLineas = new TablaGenerica(new Object[] { "numeroAlbaran", "kgsBrutos", "tara", "kgsNetos", "importe", "total", }, new String[] { "Nº Albarán", "Kilos brutos", "TARA", "Kilos netos", "SubTotal", "Total" }, bcLineas);
+        tablaLineas = new TablaGenerica(new Object[] { "numeroAlbaran", "descMaterial", "lerMaterial", "kgsNetos", "total", "iva", "importe", }, new String[] { "Nº Albarán", "Material", "LER", "Kilos netos", "Base imponible", "IVA", "Total" }, bcLineas);
         tablaLineas.addStyleName("big striped");
         tablaLineas.setPageLength(25);
 
@@ -1139,17 +1086,6 @@ public class VistaListadoFacturas extends CustomComponent implements View ,Butto
         return botonera;
     }
 
-    private HorizontalLayout crearBotonera2() {
-        HorizontalLayout hor = new HorizontalLayout();
-        hor.setSpacing(true);
-        hor.setMargin(true);
-
-        hor.addComponent(facturarButton);
-        hor.addComponent(facturar2Button);
-
-        return hor;
-    }
-
     /**
      * Método que nos crea una tabla leyenda de colores.
      */
@@ -1192,124 +1128,6 @@ public class VistaListadoFacturas extends CustomComponent implements View ,Butto
         estado1.getItemProperty("Estado2").setValue(Constants.FACTURADO);
         estado1.getItemProperty("Estado3").setValue(Constants.ANULADO);
 
-    }
-
-    /**
-     * En este método se generan tantas facturas como diferentes registros se han seleccionado.
-     */
-    @SuppressWarnings("unchecked")
-    private void generarFactura(Date fechaFactura) {
-        if (fechaFactura != null) {
-            try {
-                if (!idSeleccionado.contains(",")) {
-                    idSeleccionado.concat(",");
-                }
-
-                String ids[] = idSeleccionado.split(",");
-
-                int cnt = 0;
-                TPesajes p;
-                TFacturas fac;
-                TLineasFactura lFac;
-
-                String texto = "";
-
-                // Por cada registro seleccionado, creamos una factura
-                while (cnt < ids.length) {
-
-                    p = contrVista.obtenerPesajePorId(Integer.valueOf(ids[cnt]), user, time);
-                    if (p != null) {
-                        if (p.getEstado().equals(PesajesEnum.FACTURADO.getValue())) {
-                            texto = "\n El pesaje con Nº de albarán " + p.getNumeroAlbaran() + " ya está facturado.";
-                            cnt++;
-                            continue;
-                        }
-                        if (p.getEstado().equals(PesajesEnum.ANULADO.getValue())) {
-                            texto = "\n El pesaje con Nº de albarán " + p.getNumeroAlbaran() + " está anulado.";
-                            cnt++;
-                            continue;
-                        }
-                        fac = new TFacturas();
-                        fac.setBase(p.getBase());
-                        fac.setSubtotal(p.getBase());
-                        fac.setDescuento(Double.valueOf(0));
-                        fac.setEmpresa(1);
-                        fac.setFechaCrea(Utils.generarFecha());
-                        fac.setFechaFactura(fechaFactura);
-                        fac.setIdCliente(p.getIdCliente());
-                        fac.setIdDireccion(p.getIdDireccion());
-                        fac.setObra(p.getObra());
-                        fac.setSubtotal(p.getBase());
-                        fac.setTotal(p.getImporte());
-                        fac.setTotalNeto(p.getImporte());
-                        fac.setUsuCrea(user);
-                        fac.setId(contrVista.crearFacturaRetornaId(fac, user, time));
-                        if (fac.getId() > 0) {
-                            // Creamos la línea de la factura
-                            lFac = new TLineasFactura();
-                            lFac.setDescuento(Double.valueOf(0));
-                            lFac.setIdFactura(fac.getId());
-                            lFac.setIdPesaje(p.getId());
-                            lFac.setImporte(p.getBase());
-                            lFac.setIva(p.getIva());
-                            lFac.setKgsBrutos(p.getKgsBruto());
-                            lFac.setKgsNetos(p.getKgsNeto());
-                            lFac.setNumeroAlbaran(p.getNumeroAlbaran());
-                            lFac.setTara(p.getTara());
-                            lFac.setTotal(p.getImporte());
-                            contrVista.crearLineaFactura(lFac, user, time);
-
-                            // Marcamos el pesaje como facturado.
-                            p.setEstado(PesajesEnum.FACTURADO.getValue());
-                            p.setIdFactura(fac.getId());
-                            contrVista.modificarPesaje(p, user, time);
-                            Item articulo = tablaFacturas.getItem("" + ids[cnt]);
-                            articulo.getItemProperty("estado").setValue(Constants.FACTURADO);
-
-                        } else if (fac.getId().equals(-2)) {
-                            Notification aviso = new Notification("No se ha podido generar el nº de factura, contacta con el administrador.", Notification.Type.ERROR_MESSAGE);
-                            aviso.setPosition(Position.MIDDLE_CENTER);
-                            aviso.show(Page.getCurrent());
-                        } else {
-                            Notification aviso = new Notification("No se ha podido generar la factura, contacta con el administrador", Notification.Type.ERROR_MESSAGE);
-                            aviso.setPosition(Position.MIDDLE_CENTER);
-                            aviso.show(Page.getCurrent());
-                        }
-                    }
-
-                    cnt++;
-                }
-                if (texto.isEmpty()) {
-                    Notification aviso = new Notification(contrVista.obtenerDescripcionCodigo(Constants.OPERACION_OK), Notification.Type.ASSISTIVE_NOTIFICATION);
-                    aviso.setPosition(Position.MIDDLE_CENTER);
-                    aviso.show(Page.getCurrent());
-                } else {
-                    Notification aviso = new Notification(texto, Notification.Type.ERROR_MESSAGE);
-                    aviso.setPosition(Position.MIDDLE_CENTER);
-                    aviso.show(Page.getCurrent());
-                }
-
-            } catch (GenasoftException tbe) {
-                log.error("La sesión es inválida, se ha iniciado sesión en otro dispositivo.");
-                // Si no se encuentran permisos con el rol especificado, informamos al empleado y cerramos sesión.
-                Notification aviso = new Notification(contrVista.obtenerDescripcionCodigo(tbe.getMessage()), Notification.Type.WARNING_MESSAGE);
-                aviso.setPosition(Position.MIDDLE_CENTER);
-                aviso.show(Page.getCurrent());
-                getSession().setAttribute("user", null);
-                getSession().setAttribute("fecha", null);
-                // Redirigimos a la página de inicio.
-                getUI().getNavigator().navigateTo(VistaInicioSesion.NAME);
-            } catch (MyBatisSystemException e) {
-                Notification aviso = new Notification("No se ha podido establecer conexión con la base de datos.", Notification.Type.ERROR_MESSAGE);
-                aviso.setPosition(Position.MIDDLE_CENTER);
-                aviso.show(Page.getCurrent());
-                log.error("Error al obtener datos de base de datos ", e);
-            }
-        } else {
-            Notification aviso = new Notification("Se debe indicar la fecha de la factura", Notification.Type.ERROR_MESSAGE);
-            aviso.setPosition(Position.MIDDLE_CENTER);
-            aviso.show(Page.getCurrent());
-        }
     }
 
 }

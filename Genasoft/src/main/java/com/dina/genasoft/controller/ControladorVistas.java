@@ -2120,6 +2120,31 @@ public class ControladorVistas implements Serializable {
      * @return Los clientes encontrados.
      * @throws GenasoftException Si se ha iniciado sesión en otro dispositivo.
      */
+    public List<TPesajes> obtenerPesajesIds(List<Integer> lIds, Integer userId, long time) throws GenasoftException {
+        List<TPesajes> lResult = Utils.generarListaGenerica();
+
+        Timestamp t = new Timestamp(time);
+        if (commonSetup.conexionValida(userId, t, estadoAplicacion)) {
+
+            lResult = pesajesSetup.obtenerPesajesIds(lIds);
+        } else {
+            if (estadoAplicacion == null || estadoAplicacion.equals(-1)) {
+                throw new GenasoftException(Constants.LICENCIA_NO_VALIDA);
+            } else {
+                throw new GenasoftException(Constants.SESION_INVALIDA);
+            }
+        }
+        // Retornamos los clientes encontrados.
+        return lResult;
+    }
+
+    /**
+     * Método que nos retorna los clientes existentes en el sistema
+     * @param userId El usuario que está activo.
+     * @param time El tiempo en milisegundos.
+     * @return Los clientes encontrados.
+     * @throws GenasoftException Si se ha iniciado sesión en otro dispositivo.
+     */
     public List<TPesajesVista> obtenerPesajesFechasVista(String f1, String f2, Integer userId, long time) throws GenasoftException {
         List<TPesajesVista> lResult = Utils.generarListaGenerica();
 

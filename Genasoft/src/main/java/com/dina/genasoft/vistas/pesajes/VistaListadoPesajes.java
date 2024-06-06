@@ -381,6 +381,41 @@ public class VistaListadoPesajes extends CustomComponent implements View ,Button
 
         });
 
+        // Evento para modificar un empleado.
+        facturar2Button.addClickListener(new ClickListener() {
+
+            public void buttonClick(ClickEvent event) {
+
+                if (idSeleccionado != null && idSeleccionado.contains(",")) {
+
+                    Label lbl = new Label("Al generar una multifactura, todos los registros deben ser del mismo cliente. ¿Quieres continuar?");
+                    lbl.setStyleName("tituloTamano18Rojo");
+
+                    DateField date;
+
+                    date = new DateField("Fecha facturas: ");
+                    date.setValue(Utils.generarFecha());
+
+                    VerticalLayout ver = new VerticalLayout();
+                    ver.setSpacing(true);
+                    if (idSeleccionado.contains(",")) {
+                        ver.addComponent(lbl);
+                    }
+                    ver.addComponent(date);
+                    ver.setComponentAlignment(date, Alignment.TOP_CENTER);
+                    MessageBox.createQuestion().withCaption(appName).withMessage(ver).withNoButton().withYesButton(() ->
+
+                    generarMultiFactura(date.getValue()), ButtonOption.caption("Generar")).open();
+
+                } else {
+                    Notification aviso = new Notification("Se debe seleccionar al menos dos registros del listado", Notification.Type.ASSISTIVE_NOTIFICATION);
+                    aviso.setPosition(Position.MIDDLE_CENTER);
+                    aviso.show(Page.getCurrent());
+                }
+            }
+
+        });
+
         // Evento para eliminar un empleado empleado.
         eliminarButton.addClickListener(new ClickListener() {
 
@@ -1297,7 +1332,7 @@ public class VistaListadoPesajes extends CustomComponent implements View ,Button
                         fac.setIdCliente(p.getIdCliente());
                         fac.setIdDireccion(p.getIdDireccion());
                         fac.setObra(p.getObra());
-                        fac.setSubtotal(p.getBase());
+                        fac.setSubtotal(p.getImporte() - p.getBase());
                         fac.setTotal(p.getImporte());
                         fac.setTotalNeto(p.getImporte());
                         fac.setUsuCrea(user);
@@ -1308,13 +1343,17 @@ public class VistaListadoPesajes extends CustomComponent implements View ,Button
                             lFac.setDescuento(Double.valueOf(0));
                             lFac.setIdFactura(fac.getId());
                             lFac.setIdPesaje(p.getId());
-                            lFac.setImporte(p.getBase());
-                            lFac.setIva(p.getIva());
+                            lFac.setImporte(fac.getTotal());
+                            lFac.setIva(fac.getSubtotal());
                             lFac.setKgsBrutos(p.getKgsBruto());
                             lFac.setKgsNetos(p.getKgsNeto());
                             lFac.setNumeroAlbaran(p.getNumeroAlbaran());
                             lFac.setTara(p.getTara());
                             lFac.setTotal(p.getImporte());
+                            lFac.setIdMaterial(p.getIdMaterial());
+                            lFac.setDescripcionMaterial(p.getDescMaterial());
+                            lFac.setLerMarerial(p.getLerMaterial());
+                            lFac.setReferenciaMaterial(p.getRefMaterial());
                             contrVista.crearLineaFactura(lFac, user, time);
 
                             // Marcamos el pesaje como facturado.
@@ -1336,6 +1375,160 @@ public class VistaListadoPesajes extends CustomComponent implements View ,Button
                     }
 
                     cnt++;
+                }
+                if (texto.isEmpty()) {
+                    Notification aviso = new Notification(contrVista.obtenerDescripcionCodigo(Constants.OPERACION_OK), Notification.Type.ASSISTIVE_NOTIFICATION);
+                    aviso.setPosition(Position.MIDDLE_CENTER);
+                    aviso.show(Page.getCurrent());
+                } else {
+                    Notification aviso = new Notification(texto, Notification.Type.ERROR_MESSAGE);
+                    aviso.setPosition(Position.MIDDLE_CENTER);
+                    aviso.show(Page.getCurrent());
+                }
+
+            } catch (GenasoftException tbe) {
+                log.error("La sesión es inválida, se ha iniciado sesión en otro dispositivo.");
+                // Si no se encuentran permisos con el rol especificado, informamos al empleado y cerramos sesión.
+                Notification aviso = new Notification(contrVista.obtenerDescripcionCodigo(tbe.getMessage()), Notification.Type.WARNING_MESSAGE);
+                aviso.setPosition(Position.MIDDLE_CENTER);
+                aviso.show(Page.getCurrent());
+                getSession().setAttribute("user", null);
+                getSession().setAttribute("fecha", null);
+                // Redirigimos a la página de inicio.
+                getUI().getNavigator().navigateTo(VistaInicioSesion.NAME);
+            } catch (MyBatisSystemException e) {
+                Notification aviso = new Notification("No se ha podido establecer conexión con la base de datos.", Notification.Type.ERROR_MESSAGE);
+                aviso.setPosition(Position.MIDDLE_CENTER);
+                aviso.show(Page.getCurrent());
+                log.error("Error al obtener datos de base de datos ", e);
+            }
+        } else {
+            Notification aviso = new Notification("Se debe indicar la fecha de la factura", Notification.Type.ERROR_MESSAGE);
+            aviso.setPosition(Position.MIDDLE_CENTER);
+            aviso.show(Page.getCurrent());
+        }
+    }
+
+    /**
+     * En este método se generan tantas facturas como diferentes registros se han seleccionado.
+     */
+    @SuppressWarnings("unchecked")
+    private void generarMultiFactura(Date fechaFactura) {
+        if (fechaFactura != null) {
+            try {
+                if (!idSeleccionado.contains(",")) {
+                    Notification aviso = new Notification("Se debe seleccionar al menos dos registros del listado.", Notification.Type.ERROR_MESSAGE);
+                    aviso.setPosition(Position.MIDDLE_CENTER);
+                    aviso.show(Page.getCurrent());
+                    return;
+                }
+
+                String ids[] = idSeleccionado.split(",");
+
+                List<Integer> lIds = Utils.generarListaGenerica();
+                int cnt = 0;
+                while (cnt < ids.length) {
+                    lIds.add(Integer.valueOf(ids[cnt]));
+                    cnt++;
+                }
+
+                TFacturas fac;
+                TLineasFactura lFac;
+
+                String texto = "";
+
+                List<TPesajes> lPesajes = contrVista.obtenerPesajesIds(lIds, user, time);
+
+                cnt = 0;
+                Double base = Double.valueOf(0);
+                Double iva = Double.valueOf(0);
+                Double total = Double.valueOf(0);
+
+                Integer idCliente = null;
+                Integer idDireccion = null;
+                String numAlbaranes = "";
+                String obra = "";
+                for (TPesajes p : lPesajes) {
+                    if (cnt == 0) {
+                        idCliente = p.getIdCliente();
+                        idDireccion = p.getIdDireccion();
+                        obra = p.getObra();
+                        numAlbaranes = numAlbaranes + p.getNumeroAlbaran() + ", ";
+                    } else {
+                        if (idCliente.equals(p.getIdCliente())) {
+                            Notification aviso = new Notification("Todos los registros deben tener el mismo cliente", Notification.Type.ERROR_MESSAGE);
+                            aviso.setPosition(Position.MIDDLE_CENTER);
+                            aviso.show(Page.getCurrent());
+                            return;
+                        }
+                    }
+                    if (p.getEstado().equals(PesajesEnum.FACTURADO.getValue()) || p.getEstado().equals(PesajesEnum.ANULADO.getValue())) {
+                        Notification aviso = new Notification("Existen pesajes facturados y/o anulados", Notification.Type.ERROR_MESSAGE);
+                        aviso.setPosition(Position.MIDDLE_CENTER);
+                        aviso.show(Page.getCurrent());
+                        return;
+                    }
+                    base += p.getBase();
+                    iva += p.getImporte() - p.getBase();
+                    total += p.getImporte();
+                }
+
+                // Por cada registro seleccionado, creamos una factura
+
+                numAlbaranes = numAlbaranes.substring(0, numAlbaranes.length() - 2);
+
+                fac = new TFacturas();
+                fac.setBase(base);
+                fac.setSubtotal(base);
+                fac.setDescuento(Double.valueOf(0));
+                fac.setEmpresa(1);
+                fac.setFechaCrea(Utils.generarFecha());
+                fac.setFechaFactura(fechaFactura);
+                fac.setIdCliente(idCliente);
+                fac.setIdDireccion(idDireccion);
+                fac.setObra(obra);
+                fac.setSubtotal(iva);
+                fac.setTotal(total);
+                fac.setTotalNeto(total);
+                fac.setUsuCrea(user);
+                fac.setId(contrVista.crearFacturaRetornaId(fac, user, time));
+                for (TPesajes p : lPesajes) {
+                    if (fac.getId() > 0) {
+                        // Creamos la línea de la factura
+                        lFac = new TLineasFactura();
+                        lFac.setDescuento(Double.valueOf(0));
+                        lFac.setIdFactura(fac.getId());
+                        lFac.setIdPesaje(p.getId());
+                        lFac.setImporte(fac.getTotal());
+                        lFac.setIva(fac.getSubtotal());
+                        lFac.setKgsBrutos(p.getKgsBruto());
+                        lFac.setKgsNetos(p.getKgsNeto());
+                        lFac.setNumeroAlbaran(p.getNumeroAlbaran());
+                        lFac.setTara(p.getTara());
+                        lFac.setTotal(p.getImporte());
+                        lFac.setIdMaterial(p.getIdMaterial());
+                        lFac.setDescripcionMaterial(p.getDescMaterial());
+                        lFac.setLerMarerial(p.getLerMaterial());
+                        lFac.setReferenciaMaterial(p.getRefMaterial());
+                        contrVista.crearLineaFactura(lFac, user, time);
+
+                        // Marcamos el pesaje como facturado.
+                        p.setEstado(PesajesEnum.FACTURADO.getValue());
+                        p.setIdFactura(fac.getId());
+                        contrVista.modificarPesaje(p, user, time);
+                        Item articulo = tablaPesajes.getItem("" + ids[cnt]);
+                        articulo.getItemProperty("estado").setValue(Constants.FACTURADO);
+
+                    } else if (fac.getId().equals(-2)) {
+                        Notification aviso = new Notification("No se ha podido generar el nº de factura, contacta con el administrador.", Notification.Type.ERROR_MESSAGE);
+                        aviso.setPosition(Position.MIDDLE_CENTER);
+                        aviso.show(Page.getCurrent());
+                    } else {
+                        Notification aviso = new Notification("No se ha podido generar la factura, contacta con el administrador", Notification.Type.ERROR_MESSAGE);
+                        aviso.setPosition(Position.MIDDLE_CENTER);
+                        aviso.show(Page.getCurrent());
+                    }
+
                 }
                 if (texto.isEmpty()) {
                     Notification aviso = new Notification(contrVista.obtenerDescripcionCodigo(Constants.OPERACION_OK), Notification.Type.ASSISTIVE_NOTIFICATION);
