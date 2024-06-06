@@ -18,16 +18,21 @@ import com.dina.genasoft.controller.ControladorVistas;
 import com.dina.genasoft.db.entity.TClientes;
 import com.dina.genasoft.db.entity.TClientesMateriales;
 import com.dina.genasoft.db.entity.TClientesOperadores;
+import com.dina.genasoft.db.entity.TClientesTransportistas;
 import com.dina.genasoft.db.entity.TEmpleados;
 import com.dina.genasoft.db.entity.TMateriales;
 import com.dina.genasoft.db.entity.TOperadores;
 import com.dina.genasoft.db.entity.TPermisos;
 import com.dina.genasoft.db.entity.TRegistrosCambiosClientes;
+import com.dina.genasoft.db.entity.TTransportistas;
 import com.dina.genasoft.exception.GenasoftException;
 import com.dina.genasoft.utils.Utils;
 import com.dina.genasoft.vistas.Menu;
 import com.dina.genasoft.vistas.VistaInicioSesion;
 import com.dina.genasoft.vistas.maestros.clientes.direcciones.VistaNuevaDireccionCliente;
+import com.dina.genasoft.vistas.maestros.materiales.VistaNuevoMaterial;
+import com.dina.genasoft.vistas.maestros.operadores.VistaNuevoOperador;
+import com.dina.genasoft.vistas.maestros.transportistas.VistaNuevoTransportista;
 import com.vaadin.annotations.Theme;
 import com.vaadin.data.Property.ValueChangeEvent;
 import com.vaadin.data.Property.ValueChangeListener;
@@ -69,7 +74,7 @@ public class VistaNuevoCliente extends CustomComponent implements View ,Button.C
     @Autowired
     private ControladorVistas             contrVista;
     /** El nombre de la vista.*/
-    public static final String            NAME           = "nuevoCliente";
+    public static final String            NAME               = "nuevoCliente";
     /** Para los campos que componen un cliente.*/
     private BeanFieldGroup<TClientes>     binder;
     /** El boton para crear el operador.*/
@@ -78,8 +83,10 @@ public class VistaNuevoCliente extends CustomComponent implements View ,Button.C
     private ComboBox                      cbEstado;
     /** Combobox para los materiales.*/
     private ComboBox                      cbMateriales;
-    /** Combobox para los materiales.*/
+    /** Combobox para los operadores.*/
     private ComboBox                      cbOperadores;
+    /** Combobox para los materiales.*/
+    private ComboBox                      cbTransportistas;
     /** El cliente a crear.*/
     private TClientes                     cliente;
     /** Contendrá el nombre de la aplicación.*/
@@ -89,18 +96,22 @@ public class VistaNuevoCliente extends CustomComponent implements View ,Button.C
     @Value("${app.width}")
     private Integer                       appWidth;
     /** El log de la aplicación.*/
-    private static final org.slf4j.Logger log            = org.slf4j.LoggerFactory.getLogger(VistaNuevoCliente.class);
+    private static final org.slf4j.Logger log                = org.slf4j.LoggerFactory.getLogger(VistaNuevoCliente.class);
     // Los campos obligatorios
     /** La caja de texto para la referencia .*/
     private TextField                     txtRazonSocial;
     /** La caja de texto para el nombre.*/
     private TextField                     txtCif;
+    /** La caja de texto para el nombre.*/
+    private TextField                     txtMatricula;
+    /** La caja de texto para el nombre.*/
+    private TextField                     txtRemolque;
     /** Los permisos del empleado actual. */
-    private TPermisos                     permisos       = null;
+    private TPermisos                     permisos           = null;
     /** El usuario que está logado. */
-    private Integer                       user           = null;
+    private Integer                       user               = null;
     /** La fecha en que se inició sesión. */
-    private Long                          time           = null;
+    private Long                          time               = null;
     private TEmpleados                    empleado;
     /** Botones superiores. **/
     /** El botón principal del segmento. Muestra la información principal del cliente.*/
@@ -109,20 +120,29 @@ public class VistaNuevoCliente extends CustomComponent implements View ,Button.C
     private Button                        materialesButton;
     /** Muestra la información relacionada con los operadores del cliente.*/
     private Button                        operadoresButton;
+    /** Muestra la información relacionada con los operadores del cliente.*/
+    private Button                        transportistasButton;
     /** Container que mostrará los campos relacionado con la información principal del cliente. */
-    private VerticalLayout                infoPrincipal  = null;
+    private VerticalLayout                infoPrincipal      = null;
     /** Container que mostrará los campos relacionado con la información de materiales del cliente. */
-    private VerticalLayout                infoMateriales = null;
+    private VerticalLayout                infoMateriales     = null;
     /** Container que mostrará los campos relacionado con la información de operadores del cliente. */
-    private VerticalLayout                infoOperadores = null;
+    private VerticalLayout                infoOperadores     = null;
+    /** Container que mostrará los campos relacionado con la información de operadores del cliente. */
+    private VerticalLayout                infoTransportistas = null;
     /** ListSelect para añadir los materiales para los materiales. */
     private ListSelect                    lsMateriales;
-    /** ListSelect para añadir los materiales para los materiales. */
+    /** ListSelect para añadir los materiales para los operadores. */
     private ListSelect                    lsOperadores;
+    /** ListSelect para añadir los materiales para los transportistas. */
+    private ListSelect                    lsTransportistas;
     /** Lista con los materiales activos del sistema. */
     private List<TMateriales>             lMateriales;
     /** Lista con los operadores activos del sistema. */
     private List<TOperadores>             lOperadores;
+    /** Lista con los operadores activos del sistema. */
+    private List<TTransportistas>         lTransportistas;
+    private String                        name;
 
     @Override
     public void buttonClick(ClickEvent event) {
@@ -162,6 +182,28 @@ public class VistaNuevoCliente extends CustomComponent implements View ,Button.C
 
                         record = new TRegistrosCambiosClientes();
                         record.setCambio("Se le asigna el operador: " + op.getNombre());
+                        record.setFechaCambio(Utils.generarFecha());
+                        record.setIdCliente(id);
+                        record.setUsuCrea(user);
+
+                        contrVista.crearRegistroCambioCliente(record, user, time);
+                    }
+
+                    // Asociamos los transportistas que haya seleccionado
+                    @SuppressWarnings("unchecked")
+                    List<TTransportistas> lTransportistasAsignados = (List<TTransportistas>) lsTransportistas.getItemIds();
+                    TClientesTransportistas clTrans = null;
+                    for (TTransportistas tr : lTransportistasAsignados) {
+                        clTrans = new TClientesTransportistas();
+                        clTrans.setEstado(1);
+                        clTrans.setFechaCrea(Utils.generarFecha());
+                        clTrans.setIdCliente(id);
+                        clTrans.setIdTransportista(tr.getId());
+                        clTrans.setUsuCrea(user);
+                        contrVista.asignarTransportistaCliente(clTrans, user, time);
+
+                        record = new TRegistrosCambiosClientes();
+                        record.setCambio("Se le asigna el transportista: " + tr.getNombre());
                         record.setFechaCambio(Utils.generarFecha());
                         record.setIdCliente(id);
                         record.setUsuCrea(user);
@@ -292,6 +334,9 @@ public class VistaNuevoCliente extends CustomComponent implements View ,Button.C
                 // Obtenemos los operadores activos del sistema.
                 lOperadores = contrVista.obtenerOperadoresActivos(user, time);
 
+                // Obtenemos los transportistas activos del sistema.
+                lTransportistas = contrVista.obtenerTransportistasActivos(user, time);
+
                 // Creamos los botones de la pantalla.
                 crearBotones();
 
@@ -315,6 +360,7 @@ public class VistaNuevoCliente extends CustomComponent implements View ,Button.C
                 generaInformacionPrincipal();
                 generaInformacionMateriales();
                 generaInformacioOperadores();
+                generaInformacioTransportistas();
 
                 Label texto = new Label("Nuevo cliente");
                 texto.setStyleName("tituloTamano18");
@@ -343,6 +389,8 @@ public class VistaNuevoCliente extends CustomComponent implements View ,Button.C
                 viewLayout.setComponentAlignment(infoMateriales, Alignment.MIDDLE_CENTER);
                 viewLayout.addComponent(infoOperadores);
                 viewLayout.setComponentAlignment(infoOperadores, Alignment.MIDDLE_CENTER);
+                viewLayout.addComponent(infoTransportistas);
+                viewLayout.setComponentAlignment(infoTransportistas, Alignment.MIDDLE_CENTER);
                 viewLayout.addComponent(crearButton);
                 viewLayout.setComponentAlignment(crearButton, Alignment.MIDDLE_CENTER);
 
@@ -357,6 +405,7 @@ public class VistaNuevoCliente extends CustomComponent implements View ,Button.C
                 infoPrincipal.setVisible(true);
                 infoMateriales.setVisible(false);
                 infoOperadores.setVisible(false);
+                infoTransportistas.setVisible(false);
 
             } catch (MyBatisSystemException e) {
                 Notification aviso = new Notification("No se ha podido establecer conexión con la base de datos.", Notification.Type.ERROR_MESSAGE);
@@ -419,15 +468,18 @@ public class VistaNuevoCliente extends CustomComponent implements View ,Button.C
                     infoPrincipal.setVisible(true);
                     infoOperadores.setVisible(false);
                     infoMateriales.setVisible(false);
+                    infoTransportistas.setVisible(false);
                     principalButton.addStyleName("down");
                     materialesButton.setStyleName("default");
                     operadoresButton.setStyleName("default");
+                    transportistasButton.setStyleName("default");
                 }
             }
         });
 
         materialesButton = new Button("Materiales");
         materialesButton.addStyleName("default");
+        materialesButton.addStyleName("down");
 
         materialesButton.addClickListener(new ClickListener() {
 
@@ -436,15 +488,18 @@ public class VistaNuevoCliente extends CustomComponent implements View ,Button.C
                     infoMateriales.setVisible(true);
                     infoPrincipal.setVisible(false);
                     infoOperadores.setVisible(false);
+                    infoTransportistas.setVisible(false);
                     principalButton.setStyleName("default");
                     materialesButton.setStyleName("down");
                     operadoresButton.setStyleName("default");
+                    transportistasButton.setStyleName("default");
                 }
             }
         });
 
         operadoresButton = new Button("Operadores");
         operadoresButton.addStyleName("default");
+        operadoresButton.addStyleName("down");
 
         operadoresButton.addClickListener(new ClickListener() {
 
@@ -453,9 +508,32 @@ public class VistaNuevoCliente extends CustomComponent implements View ,Button.C
                     infoOperadores.setVisible(true);
                     infoMateriales.setVisible(false);
                     infoPrincipal.setVisible(false);
+                    infoTransportistas.setVisible(false);
                     principalButton.setStyleName("default");
                     materialesButton.setStyleName("default");
                     operadoresButton.setStyleName("down");
+                    transportistasButton.setStyleName("default");
+
+                }
+            }
+        });
+
+        transportistasButton = new Button("Operadores");
+        transportistasButton.addStyleName("default");
+        transportistasButton.addStyleName("down");
+
+        transportistasButton.addClickListener(new ClickListener() {
+
+            public void buttonClick(ClickEvent event) {
+                if (!infoTransportistas.isVisible()) {
+                    infoTransportistas.setVisible(true);
+                    infoOperadores.setVisible(false);
+                    infoMateriales.setVisible(false);
+                    infoPrincipal.setVisible(false);
+                    principalButton.setStyleName("default");
+                    materialesButton.setStyleName("default");
+                    operadoresButton.setStyleName("default");
+                    transportistasButton.setStyleName("down");
 
                 }
             }
@@ -464,6 +542,7 @@ public class VistaNuevoCliente extends CustomComponent implements View ,Button.C
         botonesMenu.addComponent(principalButton);
         botonesMenu.addComponent(materialesButton);
         botonesMenu.addComponent(operadoresButton);
+        botonesMenu.addComponent(transportistasButton);
 
         // Retornamos el segmento de botones.
         return botonesMenu;
@@ -482,6 +561,9 @@ public class VistaNuevoCliente extends CustomComponent implements View ,Button.C
 
         cbOperadores = new ComboBox();
         cbOperadores.addStyleName("big");
+
+        cbTransportistas = new ComboBox();
+        cbTransportistas.addStyleName("big");
     }
 
     /**
@@ -504,6 +586,20 @@ public class VistaNuevoCliente extends CustomComponent implements View ,Button.C
         txtCif.setWidth(appWidth, Sizeable.Unit.EM);
         txtCif.setMaxLength(45);
 
+        // La matrícula
+        txtMatricula = (TextField) binder.buildAndBind("Matrícula:", "matricula");
+        txtMatricula.setNullRepresentation("");
+        txtMatricula.setRequired(true);
+        txtMatricula.setWidth(appWidth, Sizeable.Unit.EM);
+        txtMatricula.setMaxLength(45);
+
+        // Remolque
+        txtRemolque = (TextField) binder.buildAndBind("Remolque:", "remolque");
+        txtRemolque.setNullRepresentation("");
+        txtRemolque.setRequired(true);
+        txtRemolque.setWidth(appWidth, Sizeable.Unit.EM);
+        txtRemolque.setMaxLength(45);
+
         // Los estados.
         cbEstado.setCaption("Estado:");
         cbEstado.addItem(Constants.ACTIVO);
@@ -524,6 +620,8 @@ public class VistaNuevoCliente extends CustomComponent implements View ,Button.C
         cliente.setEstado(cbEstado.getValue().equals(Constants.ACTIVO) ? 1 : 0);
         cliente.setNombre(txtRazonSocial.getValue().trim().toUpperCase());
         cliente.setCif(txtCif.getValue().trim().toUpperCase());
+        cliente.setMatricula(txtMatricula.getValue() != null ? txtMatricula.getValue().trim().toUpperCase() : "");
+        cliente.setRemolque(txtRemolque.getValue() != null ? txtRemolque.getValue().trim().toUpperCase() : "");
         cliente.setRazonSocial(txtRazonSocial.getValue().trim().toUpperCase());
         cliente.setFechaCrea(Utils.generarFecha());
         cliente.setUsuCrea(user);
@@ -537,6 +635,8 @@ public class VistaNuevoCliente extends CustomComponent implements View ,Button.C
         txtCif.setValue(null);
         txtRazonSocial.setValue(null);
         cbEstado.setValue(Constants.ACTIVO);
+        txtRemolque.setValue(null);
+        txtMatricula.setValue(null);
     }
 
     /**
@@ -567,6 +667,10 @@ public class VistaNuevoCliente extends CustomComponent implements View ,Button.C
         formulario1.setComponentAlignment(txtRazonSocial, Alignment.MIDDLE_CENTER);
         formulario1.addComponent(txtCif);
         formulario1.setComponentAlignment(txtCif, Alignment.MIDDLE_CENTER);
+        formulario1.addComponent(txtMatricula);
+        formulario1.setComponentAlignment(txtMatricula, Alignment.MIDDLE_CENTER);
+        formulario1.addComponent(txtRemolque);
+        formulario1.setComponentAlignment(txtRemolque, Alignment.MIDDLE_CENTER);
         formulario1.addComponent(cbEstado);
         formulario1.setComponentAlignment(cbEstado, Alignment.MIDDLE_CENTER);
         body.addComponent(formulario1);
@@ -599,8 +703,42 @@ public class VistaNuevoCliente extends CustomComponent implements View ,Button.C
             @Override
             public void valueChange(ValueChangeEvent event) {
                 if (cbMateriales.getValue() != null) {
-                    lsMateriales.addItem((TMateriales) cbMateriales.getValue());
-                    cbMateriales.clear();
+                    if (cbMateriales.getValue().getClass().equals(TMateriales.class)) {
+                        lsMateriales.addItem((TMateriales) cbMateriales.getValue());
+                        cbMateriales.clear();
+                    } else {
+                        try {
+                            name = (String) cbMateriales.getValue();
+                            TMateriales mat = contrVista.obtenerMaterialPorNombre(name.trim().toUpperCase(), user, time);
+                            // Buscamos el material por si aca...
+                            if (mat == null) {
+                                if (name.contains(" ")) {
+                                    name = name.replaceAll(" ", "_");
+                                }
+                                MessageBox.createQuestion().withCaption(appName).withMessage("¿Quieres crear un nuevo material?").withNoButton().withYesButton(() ->
+
+                                Page.getCurrent().open("#!" + VistaNuevoMaterial.NAME + "/" + user + "," + name, "_blank"), ButtonOption.caption("Sí")).open();
+                                cbMateriales.clear();
+                            } else {
+                                lsMateriales.addItem(mat);
+                                cbMateriales.clear();
+                            }
+                        } catch (GenasoftException tbe) {
+                            if (tbe.getMessage().equals(Constants.SESION_INVALIDA)) {
+                                Notification aviso = new Notification(contrVista.obtenerDescripcionCodigo(tbe.getMessage()), Notification.Type.WARNING_MESSAGE);
+                                aviso.setPosition(Position.MIDDLE_CENTER);
+                                aviso.show(Page.getCurrent());
+                                getSession().setAttribute("user", null);
+                                getSession().setAttribute("fecha", null);
+                                // Redirigimos a la página de inicio.
+                                getUI().getNavigator().navigateTo(VistaInicioSesion.NAME);
+                            } else {
+                                Notification aviso = new Notification(tbe.getMessage(), Notification.Type.ERROR_MESSAGE);
+                                aviso.setPosition(Position.MIDDLE_CENTER);
+                                aviso.show(Page.getCurrent());
+                            }
+                        }
+                    }
                 }
             }
         });
@@ -653,6 +791,38 @@ public class VistaNuevoCliente extends CustomComponent implements View ,Button.C
                 if (cbOperadores.getValue() != null) {
                     lsOperadores.addItem((TOperadores) cbOperadores.getValue());
                     cbOperadores.clear();
+                } else {
+                    try {
+                        name = (String) cbOperadores.getValue();
+                        TOperadores mat = contrVista.obtenerOperadorPorNombre(name.trim().toUpperCase(), user, time);
+                        // Buscamos el material por si aca...
+                        if (mat == null) {
+                            if (name.contains(" ")) {
+                                name = name.replaceAll(" ", "_");
+                            }
+                            MessageBox.createQuestion().withCaption(appName).withMessage("¿Quieres crear un nuevo operador?").withNoButton().withYesButton(() ->
+
+                            Page.getCurrent().open("#!" + VistaNuevoOperador.NAME + "/" + user + "," + name, "_blank"), ButtonOption.caption("Sí")).open();
+                            cbOperadores.clear();
+                        } else {
+                            lsOperadores.addItem(mat);
+                            cbOperadores.clear();
+                        }
+                    } catch (GenasoftException tbe) {
+                        if (tbe.getMessage().equals(Constants.SESION_INVALIDA)) {
+                            Notification aviso = new Notification(contrVista.obtenerDescripcionCodigo(tbe.getMessage()), Notification.Type.WARNING_MESSAGE);
+                            aviso.setPosition(Position.MIDDLE_CENTER);
+                            aviso.show(Page.getCurrent());
+                            getSession().setAttribute("user", null);
+                            getSession().setAttribute("fecha", null);
+                            // Redirigimos a la página de inicio.
+                            getUI().getNavigator().navigateTo(VistaInicioSesion.NAME);
+                        } else {
+                            Notification aviso = new Notification(tbe.getMessage(), Notification.Type.ERROR_MESSAGE);
+                            aviso.setPosition(Position.MIDDLE_CENTER);
+                            aviso.show(Page.getCurrent());
+                        }
+                    }
                 }
             }
         });
@@ -677,6 +847,89 @@ public class VistaNuevoCliente extends CustomComponent implements View ,Button.C
 
         infoOperadores.addComponent(body);
         infoOperadores.setComponentAlignment(body, Alignment.MIDDLE_CENTER);
+    }
+
+    /**
+     * Método que nos crea la parte de la interfaz con la información principal de los clientes
+     */
+    private void generaInformacioTransportistas() {
+        infoTransportistas = new VerticalLayout();
+        infoTransportistas.setSpacing(true);
+        infoTransportistas.setMargin(true);
+
+        HorizontalLayout body = new HorizontalLayout();
+        body.setSpacing(true);
+        body.setMargin(true);
+
+        cbTransportistas.setCaption("Transportistas:");
+        cbTransportistas.setFilteringMode(FilteringMode.CONTAINS);
+        cbTransportistas.setNullSelectionAllowed(false);
+        cbTransportistas.setWidth(appWidth, Sizeable.Unit.EM);
+        cbTransportistas.addItems(lTransportistas);
+
+        cbTransportistas.addValueChangeListener(new ValueChangeListener() {
+
+            @Override
+            public void valueChange(ValueChangeEvent event) {
+                if (cbTransportistas.getValue() != null) {
+                    lsTransportistas.addItem((TTransportistas) cbTransportistas.getValue());
+                    cbTransportistas.clear();
+                } else {
+                    try {
+                        name = (String) cbOperadores.getValue();
+                        TTransportistas mat = contrVista.obtenerTransportistaPorNombre(name.trim().toUpperCase(), user, time);
+                        // Buscamos el material por si aca...
+                        if (mat == null) {
+                            if (name.contains(" ")) {
+                                name = name.replaceAll(" ", "_");
+                            }
+                            MessageBox.createQuestion().withCaption(appName).withMessage("¿Quieres crear un nuevo transportista?").withNoButton().withYesButton(() ->
+
+                            Page.getCurrent().open("#!" + VistaNuevoTransportista.NAME + "/" + user + "," + name, "_blank"), ButtonOption.caption("Sí")).open();
+                            cbTransportistas.clear();
+                        } else {
+                            lsTransportistas.addItem(mat);
+                            cbTransportistas.clear();
+                        }
+                    } catch (GenasoftException tbe) {
+                        if (tbe.getMessage().equals(Constants.SESION_INVALIDA)) {
+                            Notification aviso = new Notification(contrVista.obtenerDescripcionCodigo(tbe.getMessage()), Notification.Type.WARNING_MESSAGE);
+                            aviso.setPosition(Position.MIDDLE_CENTER);
+                            aviso.show(Page.getCurrent());
+                            getSession().setAttribute("user", null);
+                            getSession().setAttribute("fecha", null);
+                            // Redirigimos a la página de inicio.
+                            getUI().getNavigator().navigateTo(VistaInicioSesion.NAME);
+                        } else {
+                            Notification aviso = new Notification(tbe.getMessage(), Notification.Type.ERROR_MESSAGE);
+                            aviso.setPosition(Position.MIDDLE_CENTER);
+                            aviso.show(Page.getCurrent());
+                        }
+                    }
+                }
+            }
+        });
+
+        lsTransportistas = new ListSelect("Transportistas asignados");
+        lsTransportistas.setWidth(appWidth, Sizeable.Unit.EM);
+        lsTransportistas.removeAllItems();
+        lsTransportistas.addValueChangeListener(new ValueChangeListener() {
+
+            @Override
+            public void valueChange(ValueChangeEvent event) {
+                if (lsTransportistas.getValue() != null) {
+                    lsTransportistas.removeItem(lsTransportistas.getValue());
+                }
+            }
+        });
+
+        body.addComponent(cbTransportistas);
+        body.setComponentAlignment(cbTransportistas, Alignment.MIDDLE_CENTER);
+        body.addComponent(lsTransportistas);
+        body.setComponentAlignment(lsTransportistas, Alignment.MIDDLE_CENTER);
+
+        infoTransportistas.addComponent(body);
+        infoTransportistas.setComponentAlignment(body, Alignment.MIDDLE_CENTER);
     }
 
 }

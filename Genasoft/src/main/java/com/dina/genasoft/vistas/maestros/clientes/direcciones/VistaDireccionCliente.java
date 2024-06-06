@@ -58,7 +58,7 @@ public class VistaDireccionCliente extends CustomComponent implements View ,Butt
     @Autowired
     private ControladorVistas                 contrVista;
     /** El nombre de la vista.*/
-    public static final String                NAME     = "vOperador";
+    public static final String                NAME     = "vDireccion";
     /** Para los campos que componen una dirección del cliente.*/
     private BeanFieldGroup<TDireccionCliente> binder;
     /** El boton para crear la dirección del cliente.*/

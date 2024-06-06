@@ -18,12 +18,14 @@ import com.dina.genasoft.controller.ControladorVistas;
 import com.dina.genasoft.db.entity.TClientes;
 import com.dina.genasoft.db.entity.TClientesMateriales;
 import com.dina.genasoft.db.entity.TClientesOperadores;
+import com.dina.genasoft.db.entity.TClientesTransportistas;
 import com.dina.genasoft.db.entity.TDireccionClienteVista;
 import com.dina.genasoft.db.entity.TEmpleados;
 import com.dina.genasoft.db.entity.TMateriales;
 import com.dina.genasoft.db.entity.TOperadores;
 import com.dina.genasoft.db.entity.TPermisos;
 import com.dina.genasoft.db.entity.TRegistrosCambiosClientes;
+import com.dina.genasoft.db.entity.TTransportistas;
 import com.dina.genasoft.exception.GenasoftException;
 import com.dina.genasoft.utils.TablaGenerica;
 import com.dina.genasoft.utils.Utils;
@@ -32,6 +34,9 @@ import com.dina.genasoft.vistas.Menu;
 import com.dina.genasoft.vistas.VistaInicioSesion;
 import com.dina.genasoft.vistas.maestros.clientes.direcciones.VistaDireccionCliente;
 import com.dina.genasoft.vistas.maestros.clientes.direcciones.VistaNuevaDireccionCliente;
+import com.dina.genasoft.vistas.maestros.materiales.VistaNuevoMaterial;
+import com.dina.genasoft.vistas.maestros.operadores.VistaNuevoOperador;
+import com.dina.genasoft.vistas.maestros.transportistas.VistaNuevoTransportista;
 import com.vaadin.annotations.Theme;
 import com.vaadin.data.Property.ValueChangeEvent;
 import com.vaadin.data.Property.ValueChangeListener;
@@ -61,6 +66,9 @@ import com.vaadin.ui.Table;
 import com.vaadin.ui.TextField;
 import com.vaadin.ui.VerticalLayout;
 
+import de.steinwedel.messagebox.ButtonOption;
+import de.steinwedel.messagebox.MessageBox;
+
 /**
  * @author Daniel Carmona Romero
  * Vista para mostrar/visualizar un cliente.
@@ -76,7 +84,7 @@ public class VistaCliente extends CustomComponent implements View ,Button.ClickL
     /** Necesario para mostrar las direccones de descarga del cliente. */
     private BeanContainer<String, TDireccionClienteVista> bcDirecciones;
     /** El nombre de la vista.*/
-    public static final String                            NAME            = "vCliente";
+    public static final String                            NAME               = "vCliente";
     /** Para los campos que componen un cliente.*/
     private BeanFieldGroup<TClientes>                     binder;
     /** El boton para crear el operador.*/
@@ -87,8 +95,10 @@ public class VistaCliente extends CustomComponent implements View ,Button.ClickL
     private ComboBox                                      cbEstado;
     /** Combobox para los materiales.*/
     private ComboBox                                      cbMateriales;
-    /** Combobox para los materiales.*/
+    /** Combobox para los operadores.*/
     private ComboBox                                      cbOperadores;
+    /** Combobox para los transportistas.*/
+    private ComboBox                                      cbTransportistas;
     /** El cliente a modificar.*/
     private TClientes                                     nClientes;
     /** Contendrá el nombre de la aplicación.*/
@@ -98,18 +108,22 @@ public class VistaCliente extends CustomComponent implements View ,Button.ClickL
     @Value("${app.width}")
     private Integer                                       appWidth;
     /** El log de la aplicación.*/
-    private static final org.slf4j.Logger                 log             = org.slf4j.LoggerFactory.getLogger(VistaCliente.class);
+    private static final org.slf4j.Logger                 log                = org.slf4j.LoggerFactory.getLogger(VistaCliente.class);
     // Los campos obligatorios
     /** La caja de texto para la referencia .*/
     private TextField                                     txtRazonSocial;
     /** La caja de texto para el nombre.*/
     private TextField                                     txtCif;
+    /** La caja de texto para el nombre.*/
+    private TextField                                     txtMatricula;
+    /** La caja de texto para el nombre.*/
+    private TextField                                     txtRemolque;
     /** Los permisos del empleado actual. */
-    private TPermisos                                     permisos        = null;
+    private TPermisos                                     permisos           = null;
     /** El usuario que está logado. */
-    private Integer                                       user            = null;
+    private Integer                                       user               = null;
     /** La fecha en que se inició sesión. */
-    private Long                                          time            = null;
+    private Long                                          time               = null;
     private TEmpleados                                    empleado;
     /** Botones superiores. **/
     /** El botón principal del segmento. Muestra la información principal del cliente.*/
@@ -120,40 +134,53 @@ public class VistaCliente extends CustomComponent implements View ,Button.ClickL
     private Button                                        materialesButton;
     /** Muestra la información relacionada con los operadores del cliente.*/
     private Button                                        operadoresButton;
+    /** Muestra la información relacionada con los operadores del cliente.*/
+    private Button                                        transportistasButton;
     /** El boton para crear la dirección de descarga del cliente.*/
     private Button                                        crearDireccionButton;
     /** El boton para desactivar la dirección de descarga del cliente.*/
     private Button                                        desactivarDireccionButton;
     /** Container que mostrará los campos relacionado con la información principal del cliente. */
-    private VerticalLayout                                infoPrincipal   = null;
+    private VerticalLayout                                infoPrincipal      = null;
     /** Container que mostrará los campos relacionado con la información de materiales del cliente. */
-    private VerticalLayout                                infoMateriales  = null;
+    private VerticalLayout                                infoMateriales     = null;
     /** Container que mostrará los campos relacionado con la información de operadores del cliente. */
-    private VerticalLayout                                infoOperadores  = null;
+    private VerticalLayout                                infoOperadores     = null;
     /** Container que mostrará los campos relacionado con la información de direcciones del cliente. */
-    private VerticalLayout                                infoDirecciones = null;
+    private VerticalLayout                                infoDirecciones    = null;
+    /** Container que mostrará los campos relacionado con la información de transportistas del cliente. */
+    private VerticalLayout                                infoTransportistas = null;
     /** ListSelect para añadir los materiales para los materiales. */
     private ListSelect                                    lsMateriales;
     /** ListSelect para añadir los materiales para los materiales. */
     private ListSelect                                    lsOperadores;
+    /** ListSelect para añadir los materiales para los transportistas. */
+    private ListSelect                                    lsTransportistas;
     /** Lista con los materiales activos del sistema. */
     private List<TMateriales>                             lMateriales;
     /** Lista con los operadores activos del sistema. */
     private List<TOperadores>                             lOperadores;
+    /** Lista con los operadores activos del sistema. */
+    private List<TTransportistas>                         lTransportistas;
     /** Lista con los materiales activos del sistema. */
     private List<TMateriales>                             lMaterialesAsignados;
     /** Lista con los operadores activos del sistema. */
     private List<TOperadores>                             lOperadoresAsignados;
+    /** Lista con los transportistas activos del sistema. */
+    private List<TTransportistas>                         lTransportistasAsignados;
     private String                                        cambios;
     /** Tabla para mostrar las direcciones del cliente. */
     private Table                                         tablaDirecciones;
     private String                                        idDireccionSeleccionada;
     /** Lista de direcciones de descarga del cliente. */
-    private List<TDireccionClienteVista>                  lDirecciones    = null;
+    private List<TDireccionClienteVista>                  lDirecciones       = null;
     private List<Integer>                                 lIncluidosOperadores;
     private List<Integer>                                 lIncluidosMateriales;
+    private List<Integer>                                 lIncluidosTransportistas;
     private List<TOperadores>                             lEliminadosOperadores;
     private List<TMateriales>                             lEliminadosMateriales;
+    private List<TTransportistas>                         lEliminadosTransportistas;
+    private String                                        name;
 
     @Override
     public void buttonClick(ClickEvent event) {
@@ -237,6 +264,31 @@ public class VistaCliente extends CustomComponent implements View ,Button.ClickL
                         }
                     }
 
+                    // Asociamos los transportistas que haya seleccionado
+                    @SuppressWarnings("unchecked")
+                    List<TTransportistas> lTransportistasAsig = (List<TTransportistas>) lsTransportistas.getItemIds();
+                    TClientesTransportistas clTrans = null;
+
+                    for (TTransportistas mat : lTransportistasAsig) {
+                        clTrans = new TClientesTransportistas();
+                        clTrans.setEstado(1);
+                        clTrans.setFechaCrea(Utils.generarFecha());
+                        clTrans.setIdCliente(nClientes.getId());
+                        clTrans.setIdTransportista(mat.getId());
+                        clTrans.setUsuCrea(user);
+                        contrVista.asignarTransportistaCliente(clTrans, user, time);
+
+                        if (lIncluidosTransportistas.contains(mat.getId())) {
+                            record2 = new TRegistrosCambiosClientes();
+                            record2.setCambio("Se le asigna el transportista: " + mat.getNombre());
+                            record2.setFechaCambio(Utils.generarFecha());
+                            record2.setIdCliente(nClientes.getId());
+                            record2.setUsuCrea(user);
+
+                            contrVista.crearRegistroCambioCliente(record2, user, time);
+                        }
+                    }
+
                     // Desactivamos lo que ha quitado del listado de operadores.
                     for (TOperadores op : lEliminadosOperadores) {
                         clOp = new TClientesOperadores();
@@ -258,29 +310,25 @@ public class VistaCliente extends CustomComponent implements View ,Button.ClickL
                         contrVista.crearRegistroCambioCliente(record, user, time);
                     }
 
-                    // Desactivamos lo que ha quitado del listado de materiales
-                    for (TMateriales mat : lEliminadosMateriales) {
-                        clMat = new TClientesMateriales();
-                        clMat.setEstado(0);
-                        clMat.setFechaCrea(Utils.generarFecha());
-                        clMat.setFechaModifica(Utils.generarFecha());
-                        clMat.setIdCliente(nClientes.getId());
-                        clMat.setIva(mat.getIva());
-                        clMat.setPrecioKg(mat.getPrecio());
-                        clMat.setIdMaterial(mat.getId());
-                        clMat.setUsuCrea(user);
-                        clMat.setUsuModifica(user);
-                        contrVista.asignarMaterialCliente(clMat, user, time);
+                    // Desactivamos lo que ha quitado del listado de transportistas.
+                    for (TTransportistas op : lEliminadosTransportistas) {
+                        clTrans = new TClientesTransportistas();
+                        clTrans.setEstado(0);
+                        clTrans.setFechaCrea(Utils.generarFecha());
+                        clTrans.setFechaModifica(Utils.generarFecha());
+                        clTrans.setIdCliente(nClientes.getId());
+                        clTrans.setIdTransportista(op.getId());
+                        clTrans.setUsuCrea(user);
+                        clTrans.setUsuModifica(user);
+                        contrVista.asignarTransportistaCliente(clTrans, user, time);
 
-                        if (lIncluidosMateriales.contains(mat.getId())) {
-                            record2 = new TRegistrosCambiosClientes();
-                            record2.setCambio("Se le asigna el material: " + mat.getDescripcion());
-                            record2.setFechaCambio(Utils.generarFecha());
-                            record2.setIdCliente(nClientes.getId());
-                            record2.setUsuCrea(user);
+                        record = new TRegistrosCambiosClientes();
+                        record.setCambio("Se le desactiva el transportista: " + op.getNombre());
+                        record.setFechaCambio(Utils.generarFecha());
+                        record.setIdCliente(nClientes.getId());
+                        record.setUsuCrea(user);
 
-                            contrVista.crearRegistroCambioCliente(record2, user, time);
-                        }
+                        contrVista.crearRegistroCambioCliente(record, user, time);
                     }
 
                     result = contrVista.obtenerDescripcionCodigo(result);
@@ -362,8 +410,10 @@ public class VistaCliente extends CustomComponent implements View ,Button.ClickL
 
                 lIncluidosMateriales = Utils.generarListaGenerica();
                 lIncluidosOperadores = Utils.generarListaGenerica();
+                lIncluidosTransportistas = Utils.generarListaGenerica();
                 lEliminadosMateriales = Utils.generarListaGenerica();
                 lEliminadosOperadores = Utils.generarListaGenerica();
+                lEliminadosTransportistas = Utils.generarListaGenerica();
 
                 if (permisos == null) {
                     Notification aviso = new Notification("No se ha podido identificar los permisos asignados, contacta con el administrador.", Notification.Type.ERROR_MESSAGE);
@@ -397,6 +447,9 @@ public class VistaCliente extends CustomComponent implements View ,Button.ClickL
                 // Obtenemos los operadores activos del sistema.
                 lOperadores = contrVista.obtenerOperadoresActivos(user, time);
 
+                // Obtenemos los transportistas activos del sistema.
+                lTransportistas = contrVista.obtenerTransportistasActivos(user, time);
+
                 String parametros = event.getParameters();
 
                 if (parametros != null && !parametros.isEmpty()) {
@@ -418,6 +471,7 @@ public class VistaCliente extends CustomComponent implements View ,Button.ClickL
                 lMaterialesAsignados = contrVista.obtenerMaterialesAsignadosCliente(nClientes.getId(), user, time);
                 lOperadoresAsignados = contrVista.obtenerOperadoresAsignadosCliente(nClientes.getId(), user, time);
                 lDirecciones = contrVista.obtenerDireccionesClientePorIdClienteVista(nClientes.getId(), user, time);
+                lTransportistasAsignados = contrVista.obtenerTransportistasAsignadosCliente(nClientes.getId(), user, time);
 
                 binder.setItemDataSource(nClientes);
                 // Creamos los combos de la pantalla.
@@ -440,6 +494,7 @@ public class VistaCliente extends CustomComponent implements View ,Button.ClickL
                 generaInformacionMateriales();
                 generaInformacioOperadores();
                 generaInformacionDirecciones();
+                generaInformacioTransportistas();
 
                 Label texto = new Label(nClientes.getNombre());
                 texto.setStyleName("tituloTamano18");
@@ -484,6 +539,8 @@ public class VistaCliente extends CustomComponent implements View ,Button.ClickL
                 viewLayout.setComponentAlignment(infoMateriales, Alignment.MIDDLE_CENTER);
                 viewLayout.addComponent(infoOperadores);
                 viewLayout.setComponentAlignment(infoOperadores, Alignment.MIDDLE_CENTER);
+                viewLayout.addComponent(infoTransportistas);
+                viewLayout.setComponentAlignment(infoTransportistas, Alignment.MIDDLE_CENTER);
                 viewLayout.addComponent(modificarButton);
                 viewLayout.setComponentAlignment(modificarButton, Alignment.MIDDLE_CENTER);
 
@@ -499,6 +556,7 @@ public class VistaCliente extends CustomComponent implements View ,Button.ClickL
                 infoMateriales.setVisible(false);
                 infoOperadores.setVisible(false);
                 infoDirecciones.setVisible(false);
+                infoTransportistas.setVisible(false);
 
             } catch (MyBatisSystemException e) {
                 Notification aviso = new Notification("No se ha podido establecer conexión con la base de datos.", Notification.Type.ERROR_MESSAGE);
@@ -570,10 +628,12 @@ public class VistaCliente extends CustomComponent implements View ,Button.ClickL
                     infoOperadores.setVisible(false);
                     infoMateriales.setVisible(false);
                     infoDirecciones.setVisible(false);
+                    infoTransportistas.setVisible(false);
                     principalButton.setStyleName("down");
                     materialesButton.setStyleName("default");
                     operadoresButton.setStyleName("default");
                     direccionesButton.setStyleName("default");
+                    transportistasButton.setStyleName("default");
                 }
             }
         });
@@ -591,10 +651,12 @@ public class VistaCliente extends CustomComponent implements View ,Button.ClickL
                     infoPrincipal.setVisible(false);
                     infoOperadores.setVisible(false);
                     infoMateriales.setVisible(false);
+                    infoTransportistas.setVisible(false);
                     direccionesButton.setStyleName("down");
                     materialesButton.setStyleName("default");
                     operadoresButton.setStyleName("default");
                     principalButton.setStyleName("default");
+                    transportistasButton.setStyleName("default");
                 }
             }
         });
@@ -611,10 +673,12 @@ public class VistaCliente extends CustomComponent implements View ,Button.ClickL
                     infoPrincipal.setVisible(false);
                     infoDirecciones.setVisible(false);
                     infoOperadores.setVisible(false);
+                    infoTransportistas.setVisible(false);
                     principalButton.setStyleName("default");
                     materialesButton.setStyleName("down");
                     operadoresButton.setStyleName("default");
                     direccionesButton.setStyleName("default");
+                    transportistasButton.setStyleName("default");
                 }
             }
         });
@@ -631,10 +695,35 @@ public class VistaCliente extends CustomComponent implements View ,Button.ClickL
                     infoMateriales.setVisible(false);
                     infoPrincipal.setVisible(false);
                     infoDirecciones.setVisible(false);
+                    infoTransportistas.setVisible(false);
                     principalButton.setStyleName("default");
                     materialesButton.setStyleName("default");
                     operadoresButton.setStyleName("down");
                     direccionesButton.setStyleName("default");
+                    transportistasButton.setStyleName("default");
+                }
+            }
+        });
+
+        transportistasButton = new Button("Transportistas");
+        transportistasButton.addStyleName("default");
+        transportistasButton.addStyleName("down");
+
+        transportistasButton.addClickListener(new ClickListener() {
+
+            public void buttonClick(ClickEvent event) {
+                if (!infoTransportistas.isVisible()) {
+                    infoTransportistas.setVisible(true);
+                    infoOperadores.setVisible(false);
+                    infoMateriales.setVisible(false);
+                    infoPrincipal.setVisible(false);
+                    infoDirecciones.setVisible(false);
+                    principalButton.setStyleName("default");
+                    materialesButton.setStyleName("default");
+                    operadoresButton.setStyleName("default");
+                    direccionesButton.setStyleName("default");
+                    transportistasButton.setStyleName("down");
+
                 }
             }
         });
@@ -643,6 +732,7 @@ public class VistaCliente extends CustomComponent implements View ,Button.ClickL
         botonesMenu.addComponent(direccionesButton);
         botonesMenu.addComponent(materialesButton);
         botonesMenu.addComponent(operadoresButton);
+        botonesMenu.addComponent(transportistasButton);
 
         // Retornamos el segmento de botones.
         return botonesMenu;
@@ -661,6 +751,9 @@ public class VistaCliente extends CustomComponent implements View ,Button.ClickL
 
         cbOperadores = new ComboBox();
         cbOperadores.addStyleName("big");
+
+        cbTransportistas = new ComboBox();
+        cbTransportistas.addStyleName("big");
     }
 
     /**
@@ -682,6 +775,20 @@ public class VistaCliente extends CustomComponent implements View ,Button.ClickL
         txtCif.setRequired(true);
         txtCif.setWidth(appWidth, Sizeable.Unit.EM);
         txtCif.setMaxLength(45);
+
+        // La matrícula
+        txtMatricula = (TextField) binder.buildAndBind("Matrícula:", "matricula");
+        txtMatricula.setNullRepresentation("");
+        txtMatricula.setRequired(true);
+        txtMatricula.setWidth(appWidth, Sizeable.Unit.EM);
+        txtMatricula.setMaxLength(45);
+
+        // Remolque
+        txtRemolque = (TextField) binder.buildAndBind("Remolque:", "remolque");
+        txtRemolque.setNullRepresentation("");
+        txtRemolque.setRequired(true);
+        txtRemolque.setWidth(appWidth, Sizeable.Unit.EM);
+        txtRemolque.setMaxLength(45);
 
         // Los estados.
         cbEstado.setCaption("Estado:");
@@ -739,6 +846,38 @@ public class VistaCliente extends CustomComponent implements View ,Button.ClickL
 
         nClientes.setCif(value);
 
+        value = txtMatricula.getValue().trim().toUpperCase();
+
+        if (value != null) {
+            value = value.trim().toUpperCase();
+        }
+
+        if (value == null && nClientes.getMatricula() != null) {
+            cambios = cambios + "\n Se le quita la matrícula, antes tenia: " + nClientes.getMatricula();
+        } else if (value != null && nClientes.getMatricula() == null) {
+            cambios = cambios + "\n Se le asigna una nueva matrícula,  antes no tenía tenia, ahora tiene:  " + value;
+        } else if (value != null && !value.equals(nClientes.getMatricula())) {
+            cambios = cambios + "\n Se le cambia la matrícula, antes tenia: " + nClientes.getMatricula() + " y ahora tiene: " + value;
+        }
+
+        nClientes.setMatricula(value);
+
+        value = txtRemolque.getValue().trim().toUpperCase();
+
+        if (value != null) {
+            value = value.trim().toUpperCase();
+        }
+
+        if (value == null && nClientes.getRemolque() != null) {
+            cambios = cambios + "\n Se le quita el remolque, antes tenia: " + nClientes.getRemolque();
+        } else if (value != null && nClientes.getRemolque() == null) {
+            cambios = cambios + "\n Se le asigna un nuev remolque,  antes no tenía tenia, ahora tiene:  " + value;
+        } else if (value != null && !value.equals(nClientes.getRemolque())) {
+            cambios = cambios + "\n Se le cambia el remolque, antes tenia: " + nClientes.getRemolque() + " y ahora tiene: " + value;
+        }
+
+        nClientes.setRemolque(value);
+
         if (!cambios.isEmpty()) {
             nClientes.setFechaModifica(Utils.generarFecha());
             nClientes.setUsuModifica(user);
@@ -774,6 +913,10 @@ public class VistaCliente extends CustomComponent implements View ,Button.ClickL
         formulario1.setComponentAlignment(txtRazonSocial, Alignment.MIDDLE_CENTER);
         formulario1.addComponent(txtCif);
         formulario1.setComponentAlignment(txtCif, Alignment.MIDDLE_CENTER);
+        formulario1.addComponent(txtMatricula);
+        formulario1.setComponentAlignment(txtMatricula, Alignment.MIDDLE_CENTER);
+        formulario1.addComponent(txtRemolque);
+        formulario1.setComponentAlignment(txtRemolque, Alignment.MIDDLE_CENTER);
         formulario1.addComponent(cbEstado);
         formulario1.setComponentAlignment(cbEstado, Alignment.MIDDLE_CENTER);
         body.addComponent(formulario1);
@@ -798,6 +941,7 @@ public class VistaCliente extends CustomComponent implements View ,Button.ClickL
         cbMateriales.setCaption("Material:");
         cbMateriales.setFilteringMode(FilteringMode.CONTAINS);
         cbMateriales.setNullSelectionAllowed(false);
+        cbMateriales.setNewItemsAllowed(true);
         cbMateriales.setWidth(appWidth, Sizeable.Unit.EM);
         cbMateriales.addItems(lMateriales);
 
@@ -806,9 +950,44 @@ public class VistaCliente extends CustomComponent implements View ,Button.ClickL
             @Override
             public void valueChange(ValueChangeEvent event) {
                 if (cbMateriales.getValue() != null) {
-                    lsMateriales.addItem((TMateriales) cbMateriales.getValue());
-                    lIncluidosMateriales.add(((TMateriales) cbMateriales.getValue()).getId());
-                    cbMateriales.clear();
+                    if (cbMateriales.getValue().getClass().equals(TMateriales.class)) {
+                        lsMateriales.addItem((TMateriales) cbMateriales.getValue());
+                        lIncluidosMateriales.add(((TMateriales) cbMateriales.getValue()).getId());
+                        cbMateriales.clear();
+                    } else {
+                        try {
+                            name = (String) cbMateriales.getValue();
+                            TMateriales mat = contrVista.obtenerMaterialPorNombre(name.trim().toUpperCase(), user, time);
+                            // Buscamos el material por si aca...
+                            if (mat == null) {
+                                if (name.contains(" ")) {
+                                    name = name.replaceAll(" ", "_");
+                                }
+                                MessageBox.createQuestion().withCaption(appName).withMessage("¿Quieres crear un nuevo material?").withNoButton().withYesButton(() ->
+
+                                Page.getCurrent().open("#!" + VistaNuevoMaterial.NAME + "/" + user + "," + name, "_blank"), ButtonOption.caption("Sí")).open();
+                                cbMateriales.clear();
+                            } else {
+                                lsMateriales.addItem(mat);
+                                lIncluidosMateriales.add(mat.getId());
+                                cbMateriales.clear();
+                            }
+                        } catch (GenasoftException tbe) {
+                            if (tbe.getMessage().equals(Constants.SESION_INVALIDA)) {
+                                Notification aviso = new Notification(contrVista.obtenerDescripcionCodigo(tbe.getMessage()), Notification.Type.WARNING_MESSAGE);
+                                aviso.setPosition(Position.MIDDLE_CENTER);
+                                aviso.show(Page.getCurrent());
+                                getSession().setAttribute("user", null);
+                                getSession().setAttribute("fecha", null);
+                                // Redirigimos a la página de inicio.
+                                getUI().getNavigator().navigateTo(VistaInicioSesion.NAME);
+                            } else {
+                                Notification aviso = new Notification(tbe.getMessage(), Notification.Type.ERROR_MESSAGE);
+                                aviso.setPosition(Position.MIDDLE_CENTER);
+                                aviso.show(Page.getCurrent());
+                            }
+                        }
+                    }
                 }
             }
         });
@@ -865,8 +1044,39 @@ public class VistaCliente extends CustomComponent implements View ,Button.ClickL
             public void valueChange(ValueChangeEvent event) {
                 if (cbOperadores.getValue() != null) {
                     lsOperadores.addItem((TOperadores) cbOperadores.getValue());
-                    lIncluidosOperadores.add(((TOperadores) cbOperadores.getValue()).getId());
                     cbOperadores.clear();
+                } else {
+                    try {
+                        name = (String) cbOperadores.getValue();
+                        TOperadores mat = contrVista.obtenerOperadorPorNombre(name.trim().toUpperCase(), user, time);
+                        // Buscamos el material por si aca...
+                        if (mat == null) {
+                            if (name.contains(" ")) {
+                                name = name.replaceAll(" ", "_");
+                            }
+                            MessageBox.createQuestion().withCaption(appName).withMessage("¿Quieres crear un nuevo operador?").withNoButton().withYesButton(() ->
+
+                            Page.getCurrent().open("#!" + VistaNuevoOperador.NAME + "/" + user + "," + name, "_blank"), ButtonOption.caption("Sí")).open();
+                            cbOperadores.clear();
+                        } else {
+                            lsOperadores.addItem(mat);
+                            cbOperadores.clear();
+                        }
+                    } catch (GenasoftException tbe) {
+                        if (tbe.getMessage().equals(Constants.SESION_INVALIDA)) {
+                            Notification aviso = new Notification(contrVista.obtenerDescripcionCodigo(tbe.getMessage()), Notification.Type.WARNING_MESSAGE);
+                            aviso.setPosition(Position.MIDDLE_CENTER);
+                            aviso.show(Page.getCurrent());
+                            getSession().setAttribute("user", null);
+                            getSession().setAttribute("fecha", null);
+                            // Redirigimos a la página de inicio.
+                            getUI().getNavigator().navigateTo(VistaInicioSesion.NAME);
+                        } else {
+                            Notification aviso = new Notification(tbe.getMessage(), Notification.Type.ERROR_MESSAGE);
+                            aviso.setPosition(Position.MIDDLE_CENTER);
+                            aviso.show(Page.getCurrent());
+                        }
+                    }
                 }
             }
         });
@@ -897,6 +1107,95 @@ public class VistaCliente extends CustomComponent implements View ,Button.ClickL
 
         infoOperadores.addComponent(body);
         infoOperadores.setComponentAlignment(body, Alignment.MIDDLE_CENTER);
+    }
+
+    /**
+     * Método que nos crea la parte de la interfaz con la información principal de los clientes
+     */
+    private void generaInformacioTransportistas() {
+        infoTransportistas = new VerticalLayout();
+        infoTransportistas.setSpacing(true);
+        infoTransportistas.setMargin(true);
+
+        HorizontalLayout body = new HorizontalLayout();
+        body.setSpacing(true);
+        body.setMargin(true);
+
+        cbTransportistas.setCaption("Transportista:");
+        cbTransportistas.setFilteringMode(FilteringMode.CONTAINS);
+        cbTransportistas.setNullSelectionAllowed(false);
+        cbTransportistas.setWidth(appWidth, Sizeable.Unit.EM);
+        cbTransportistas.addItems(lTransportistas);
+
+        cbTransportistas.addValueChangeListener(new ValueChangeListener() {
+
+            @Override
+            public void valueChange(ValueChangeEvent event) {
+                if (cbTransportistas.getValue() != null) {
+                    lsTransportistas.addItem((TTransportistas) cbTransportistas.getValue());
+                    cbTransportistas.clear();
+                } else {
+                    try {
+                        name = (String) cbOperadores.getValue();
+                        TTransportistas mat = contrVista.obtenerTransportistaPorNombre(name.trim().toUpperCase(), user, time);
+                        // Buscamos el material por si aca...
+                        if (mat == null) {
+                            if (name.contains(" ")) {
+                                name = name.replaceAll(" ", "_");
+                            }
+                            MessageBox.createQuestion().withCaption(appName).withMessage("¿Quieres crear un nuevo transportista?").withNoButton().withYesButton(() ->
+
+                            Page.getCurrent().open("#!" + VistaNuevoTransportista.NAME + "/" + user + "," + name, "_blank"), ButtonOption.caption("Sí")).open();
+                            cbTransportistas.clear();
+                        } else {
+                            lsTransportistas.addItem(mat);
+                            cbTransportistas.clear();
+                        }
+                    } catch (GenasoftException tbe) {
+                        if (tbe.getMessage().equals(Constants.SESION_INVALIDA)) {
+                            Notification aviso = new Notification(contrVista.obtenerDescripcionCodigo(tbe.getMessage()), Notification.Type.WARNING_MESSAGE);
+                            aviso.setPosition(Position.MIDDLE_CENTER);
+                            aviso.show(Page.getCurrent());
+                            getSession().setAttribute("user", null);
+                            getSession().setAttribute("fecha", null);
+                            // Redirigimos a la página de inicio.
+                            getUI().getNavigator().navigateTo(VistaInicioSesion.NAME);
+                        } else {
+                            Notification aviso = new Notification(tbe.getMessage(), Notification.Type.ERROR_MESSAGE);
+                            aviso.setPosition(Position.MIDDLE_CENTER);
+                            aviso.show(Page.getCurrent());
+                        }
+                    }
+                }
+            }
+        });
+
+        lsTransportistas = new ListSelect("Transportistas asignados");
+        lsTransportistas.setWidth(appWidth, Sizeable.Unit.EM);
+        lsTransportistas.removeAllItems();
+
+        for (TTransportistas clOp : lTransportistasAsignados) {
+            lsTransportistas.addItem(clOp);
+        }
+
+        lsTransportistas.addValueChangeListener(new ValueChangeListener() {
+
+            @Override
+            public void valueChange(ValueChangeEvent event) {
+                if (lsTransportistas.getValue() != null) {
+                    lEliminadosTransportistas.add((TTransportistas) lsTransportistas.getValue());
+                    lsTransportistas.removeItem(lsTransportistas.getValue());
+                }
+            }
+        });
+
+        body.addComponent(cbTransportistas);
+        body.setComponentAlignment(cbTransportistas, Alignment.MIDDLE_CENTER);
+        body.addComponent(lsTransportistas);
+        body.setComponentAlignment(lsTransportistas, Alignment.MIDDLE_CENTER);
+
+        infoTransportistas.addComponent(body);
+        infoTransportistas.setComponentAlignment(body, Alignment.MIDDLE_CENTER);
     }
 
     private void generaInformacionDirecciones() {

@@ -224,7 +224,7 @@ public class VistaNuevoPesaje extends CustomComponent implements View ,Button.Cl
 
                 lMateriales = Utils.generarListaGenerica();
 
-                lTransportistas = contrVista.obtenerTransportistasActivos(user, time);
+                lTransportistas = Utils.generarListaGenerica();
 
                 bruto = Double.valueOf(0);
                 tara = Double.valueOf(0);
@@ -320,8 +320,8 @@ public class VistaNuevoPesaje extends CustomComponent implements View ,Button.Cl
                 formulario1.setComponentAlignment(txtObra, Alignment.MIDDLE_CENTER);
                 formulario1.addComponent(txtOrigen);
                 formulario1.setComponentAlignment(txtOrigen, Alignment.MIDDLE_CENTER);
-                formulario2.addComponent(txtDestino);
-                formulario2.setComponentAlignment(txtDestino, Alignment.MIDDLE_CENTER);
+                //formulario2.addComponent(txtDestino);
+                //formulario2.setComponentAlignment(txtDestino, Alignment.MIDDLE_CENTER);
                 formulario2.addComponent(txtMatricula);
                 formulario2.setComponentAlignment(txtMatricula, Alignment.MIDDLE_CENTER);
                 formulario2.addComponent(txtRemolque);
@@ -430,8 +430,19 @@ public class VistaNuevoPesaje extends CustomComponent implements View ,Button.Cl
                         cbOperadores.addItems(lOperadores);
                         if (lOperadores.size() == 1) {
                             cbOperadores.setValue(lOperadores.get(0));
-                        } else if (lMateriales.isEmpty()) {
+                        } else if (lOperadores.isEmpty()) {
                             Notification aviso = new Notification("No se han identificado operadores asignados al cliente seleccionado", Notification.Type.ERROR_MESSAGE);
+                            aviso.setPosition(Position.MIDDLE_CENTER);
+                            aviso.show(Page.getCurrent());
+                        }
+
+                        lTransportistas = contrVista.obtenerTransportistasAsignadosCliente(cl.getId(), user, time);
+                        cbTransportistas.removeAllItems();
+                        cbTransportistas.addItems(lTransportistas);
+                        if (lTransportistas.size() == 1) {
+                            cbTransportistas.setValue(lTransportistas.get(0));
+                        } else if (lTransportistas.isEmpty()) {
+                            Notification aviso = new Notification("No se han identificado transportistas asignados al cliente seleccionado", Notification.Type.ERROR_MESSAGE);
                             aviso.setPosition(Position.MIDDLE_CENTER);
                             aviso.show(Page.getCurrent());
                         }
@@ -510,14 +521,12 @@ public class VistaNuevoPesaje extends CustomComponent implements View ,Button.Cl
         // La obra
         txtObra = new TextField("Obra:");
         txtObra.setNullRepresentation("");
-        txtObra.setRequired(true);
         txtObra.setWidth(appWidth, Sizeable.Unit.EM);
         txtObra.setMaxLength(445);
 
         // El origen
         txtOrigen = new TextField("Origen:");
         txtOrigen.setNullRepresentation("");
-        txtOrigen.setRequired(true);
         txtOrigen.setWidth(appWidth, Sizeable.Unit.EM);
         txtOrigen.setMaxLength(445);
 
@@ -772,6 +781,7 @@ public class VistaNuevoPesaje extends CustomComponent implements View ,Button.Cl
         val = Utils.redondeoDecimales(2, val + nPesaje.getBase());
         nPesaje.setImporte(val);
         nPesaje.setPrecioKg(mat.getPrecio());
+        nPesaje.setIndFirmaCliente(PesajesEnum.SIN_FIRMA.getValue());
 
     }
 
@@ -803,7 +813,7 @@ public class VistaNuevoPesaje extends CustomComponent implements View ,Button.Cl
      * @return true si no se cumple la validación
      */
     private boolean validarCamposObligatorios() {
-        return !cbClientes.isValid() || !cbMateriales.isValid() || !txtOrigen.isValid() || !txtObra.isValid() || !txtRemolque.isValid() || !txtKgsBrutos.isValid() || !txtMatricula.isValid() || !fechaPesaje.isValid() || !cbDirecciones.isValid()
-                || !fechaPesaje.isValid() || !cbTransportistas.isValid() || !cbOperadores.isValid();
+        return !cbClientes.isValid() || !cbMateriales.isValid() || !txtRemolque.isValid() || !txtKgsBrutos.isValid() || !txtMatricula.isValid() || !fechaPesaje.isValid() || !cbDirecciones.isValid() || !fechaPesaje.isValid()
+                || !cbTransportistas.isValid() || !cbOperadores.isValid();
     }
 }

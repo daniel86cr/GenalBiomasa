@@ -211,6 +211,8 @@ public class ClientesSetup implements Serializable {
             map.put("usuModifica", record.getUsuModifica());
             map.put("fechaModifica", record.getFechaModifica());
             map.put("estado", record.getEstado());
+            map.put("matricula", record.getMatricula());
+            map.put("remolque", record.getRemolque());
 
             tClientesMapper.insertRecord(map);
 
@@ -394,12 +396,34 @@ public class ClientesSetup implements Serializable {
         return Constants.OPERACION_OK;
     }
 
+    public String asignarTransportistaCliente(TClientesTransportistas record) {
+        TClientesTransportistas aux = tClientesTransportistasMapper.selectByPrimaryKey(record.getIdCliente(), record.getIdTransportista());
+        if (aux != null) {
+            modificarTransportistaCliente(record);
+        } else {
+            tClientesTransportistasMapper.insert(record);
+        }
+
+        return Constants.OPERACION_OK;
+    }
+
     public String modificarOperadorCliente(TClientesOperadores record) {
         TClientesOperadores aux = tClientesOperadoresMapper.selectByPrimaryKey(record.getIdCliente(), record.getIdOperador());
         if (aux == null) {
             asignarOperadorCliente(record);
         } else {
             tClientesOperadoresMapper.updateByPrimaryKey(record);
+        }
+
+        return Constants.OPERACION_OK;
+    }
+
+    public String modificarTransportistaCliente(TClientesTransportistas record) {
+        TClientesTransportistas aux = tClientesTransportistasMapper.selectByPrimaryKey(record.getIdCliente(), record.getIdTransportista());
+        if (aux == null) {
+            asignarTransportistaCliente(record);
+        } else {
+            tClientesTransportistasMapper.updateByPrimaryKey(record);
         }
 
         return Constants.OPERACION_OK;

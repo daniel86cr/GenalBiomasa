@@ -17,6 +17,8 @@ public enum PesajesEnum
     FACTURADO(2),
     /** Pesaje anulado. */
     ANULADO(0),
+    /** Pesaje sin firma del cliente. */
+    SIN_FIRMA(0),
     /** TIPO DE PESAJE GENERICO. */
     TIPO_GENERICO(1);
 

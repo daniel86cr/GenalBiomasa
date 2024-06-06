@@ -477,8 +477,21 @@ public class VistaPesaje extends CustomComponent implements View ,Button.ClickLi
                         cbOperadores.addItems(lOperadores);
                         if (lOperadores.size() == 1) {
                             cbOperadores.setValue(lOperadores.get(0));
-                        } else if (lMateriales.isEmpty()) {
+                        } else if (lOperadores.isEmpty()) {
                             Notification aviso = new Notification("No se han identificado operadores asignados al cliente seleccionado", Notification.Type.ERROR_MESSAGE);
+                            aviso.setPosition(Position.MIDDLE_CENTER);
+                            aviso.show(Page.getCurrent());
+                        }
+                        
+                        permitir crear materiales, operadores y transportistas
+
+                        lTransportistas = contrVista.obtenerTransportistasAsignadosCliente(cl.getId(), user, time);
+                        cbTransportistas.removeAllItems();
+                        cbTransportistas.addItems(lTransportistas);
+                        if (lTransportistas.size() == 1) {
+                            cbTransportistas.setValue(lTransportistas.get(0));
+                        } else if (lTransportistas.isEmpty()) {
+                            Notification aviso = new Notification("No se han identificado transportistas asignados al cliente seleccionado", Notification.Type.ERROR_MESSAGE);
                             aviso.setPosition(Position.MIDDLE_CENTER);
                             aviso.show(Page.getCurrent());
                         }
@@ -982,6 +995,10 @@ public class VistaPesaje extends CustomComponent implements View ,Button.ClickLi
         if (!cambios.isEmpty()) {
             nPesajes.setFechaModifica(Utils.generarFecha());
             nPesajes.setUsuModifica(user);
+        }
+
+        if (nPesajes.getIndFirmaCliente() == null) {
+            nPesajes.setIndFirmaCliente(PesajesEnum.SIN_FIRMA.getValue());
         }
 
     }

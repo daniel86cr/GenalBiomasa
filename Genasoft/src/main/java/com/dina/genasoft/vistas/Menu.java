@@ -9,6 +9,7 @@ import org.springframework.beans.factory.annotation.Value;
 
 import com.dina.genasoft.db.entity.TPermisos;
 import com.dina.genasoft.utils.Utils;
+import com.dina.genasoft.vistas.facturas.VistaListadoFacturas;
 import com.dina.genasoft.vistas.maestros.empleados.VistaEmpleado;
 import com.dina.genasoft.vistas.pesajes.VistaListadoPesajes;
 import com.dina.genasoft.vistas.pesajes.VistaNuevoPesaje;
@@ -158,6 +159,15 @@ public class Menu extends CustomComponent {
             public void menuSelected(MenuItem selectedItem) {
 
                 getUI().getNavigator().navigateTo(VistaListadoPesajes.NAME + "/" + idEmpleado);
+            }
+
+        };
+
+        entornoFacturacion = new MenuBar.Command() {
+
+            public void menuSelected(MenuItem selectedItem) {
+
+                getUI().getNavigator().navigateTo(VistaListadoFacturas.NAME + "/" + idEmpleado);
             }
 
         };

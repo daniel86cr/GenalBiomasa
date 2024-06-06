@@ -9,6 +9,7 @@ import org.springframework.beans.factory.annotation.Value;
 
 import com.dina.genasoft.db.entity.TPermisos;
 import com.dina.genasoft.utils.Utils;
+import com.dina.genasoft.vistas.facturas.VistaListadoFacturas;
 import com.dina.genasoft.vistas.maestros.empleados.VistaEmpleado;
 import com.dina.genasoft.vistas.pesajes.VistaListadoPesajes;
 import com.dina.genasoft.vistas.pesajes.VistaNuevoPesaje;
@@ -90,7 +91,7 @@ public class MenuAdministrador extends CustomComponent {
             listados.addItem("Entorno Maestros", new ThemeResource("icons/addUser-16.ico"), entornoMaestros);
         }
         if (Utils.booleanFromInteger(permisos.getCrearPesaje())) {
-            listados.addItem("Registo Pesajes", new ThemeResource("icons/addUser-16.ico"), listadoPesajes);
+            listados.addItem("Registo Pesajes", new ThemeResource("icons/addUser-16.ico"), registroPesajes);
         }
         if (Utils.booleanFromInteger(permisos.getEntornoPesajes())) {
             listados.addItem("Inventario pesajes", new ThemeResource("icons/report-16.ico"), inventarioPesajes);
@@ -164,6 +165,15 @@ public class MenuAdministrador extends CustomComponent {
 
         };
 
+        entornoFacturacion = new MenuBar.Command() {
+
+            public void menuSelected(MenuItem selectedItem) {
+
+                getUI().getNavigator().navigateTo(VistaListadoFacturas.NAME + "/" + idEmpleado);
+            }
+
+        };
+
         acercaDe = new MenuBar.Command() {
 
             public void menuSelected(MenuItem selectedItem) {
@@ -176,7 +186,7 @@ public class MenuAdministrador extends CustomComponent {
                 window.setPositionY(60);
 
                 // Obtenemos las imágenes del contenedor
-                Resource resource1 = new ThemeResource("logo/logo_genasoft.png");
+                Resource resource1 = new ThemeResource("logo/appLogo3.png");
                 // Cargamos las imágenes desde el objeto Image.
                 Image image1 = new Image(null, resource1);
                 // Logo de TRAZABILIDADES[Natural TROPIC]

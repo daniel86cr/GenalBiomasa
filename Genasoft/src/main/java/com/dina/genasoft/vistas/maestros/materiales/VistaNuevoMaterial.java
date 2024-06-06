@@ -202,6 +202,21 @@ public class VistaNuevoMaterial extends CustomComponent implements View ,Button.
                     return;
                 }
 
+                String parametros = event.getParameters();
+
+                if (parametros != null && !parametros.isEmpty()) {
+                    if (parametros.split(",").length == 2) {
+                        parametros = parametros.split(",")[1];
+                        if (parametros.contains("_")) {
+                            parametros = parametros.replaceAll("_", " ");
+                        }
+                    } else {
+                        parametros = null;
+                    }
+                } else {
+                    parametros = null;
+                }
+
                 // Creamos los botones de la pantalla.
                 crearBotones();
 
@@ -220,7 +235,7 @@ public class VistaNuevoMaterial extends CustomComponent implements View ,Button.
                 crearBotones();
 
                 // Creamos los componetes que conforman la pantalla.
-                crearComponentes();
+                crearComponentes(parametros);
 
                 Label texto = new Label("Nuevo material");
                 texto.setStyleName("tituloTamano18");
@@ -331,7 +346,7 @@ public class VistaNuevoMaterial extends CustomComponent implements View ,Button.
     /**
      * Método que nos crea los componetes que conforman la pantalla.
      */
-    private void crearComponentes() {
+    private void crearComponentes(String nombre) {
         //Los campos que componen un empleado.
 
         // El código de empleado.
@@ -347,6 +362,7 @@ public class VistaNuevoMaterial extends CustomComponent implements View ,Button.
         txtNombre.setRequired(true);
         txtNombre.setWidth(appWidth, Sizeable.Unit.EM);
         txtNombre.setMaxLength(1000);
+        txtNombre.setValue(nombre);
 
         // LER
         txtLer = (TextField) binder.buildAndBind("LER:", "ler");

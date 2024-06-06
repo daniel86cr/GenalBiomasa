@@ -169,6 +169,7 @@ public class PesajesSetup implements Serializable {
             map.put("base", record.getBase());
             map.put("precioKg", record.getPrecioKg());
             map.put("importe", record.getImporte());
+            map.put("indFirmaCliente", record.getIndFirmaCliente());
 
             tPesajesMapper.insertRecord(map);
 
