@@ -15,6 +15,7 @@ import org.springframework.beans.factory.annotation.Value;
 
 import com.dina.genasoft.configuration.Constants;
 import com.dina.genasoft.controller.ControladorVistas;
+import com.dina.genasoft.db.entity.TBancos;
 import com.dina.genasoft.db.entity.TClientes;
 import com.dina.genasoft.db.entity.TClientesMateriales;
 import com.dina.genasoft.db.entity.TClientesOperadores;
@@ -29,6 +30,7 @@ import com.dina.genasoft.db.entity.TTransportistas;
 import com.dina.genasoft.exception.GenasoftException;
 import com.dina.genasoft.utils.TablaGenerica;
 import com.dina.genasoft.utils.Utils;
+import com.dina.genasoft.utils.enums.BancosEnum;
 import com.dina.genasoft.utils.enums.OperadorEnum;
 import com.dina.genasoft.vistas.Menu;
 import com.dina.genasoft.vistas.VistaInicioSesion;
@@ -99,6 +101,8 @@ public class VistaCliente extends CustomComponent implements View ,Button.ClickL
     private ComboBox                                      cbOperadores;
     /** Combobox para los transportistas.*/
     private ComboBox                                      cbTransportistas;
+    /** Combobox para los bancos.*/
+    private ComboBox                                      cbBancos;
     /** El cliente a modificar.*/
     private TClientes                                     nClientes;
     /** Contendrá el nombre de la aplicación.*/
@@ -118,6 +122,8 @@ public class VistaCliente extends CustomComponent implements View ,Button.ClickL
     private TextField                                     txtMatricula;
     /** La caja de texto para el nombre.*/
     private TextField                                     txtRemolque;
+    /** La caja de texto para el nombre.*/
+    private TextField                                     txtNumCuenta;
     /** Los permisos del empleado actual. */
     private TPermisos                                     permisos           = null;
     /** El usuario que está logado. */
@@ -181,6 +187,8 @@ public class VistaCliente extends CustomComponent implements View ,Button.ClickL
     private List<TMateriales>                             lEliminadosMateriales;
     private List<TTransportistas>                         lEliminadosTransportistas;
     private String                                        name;
+    /** Lista con los bancos activos del sistema. */
+    private List<TBancos>                                 lBancos;
 
     @Override
     public void buttonClick(ClickEvent event) {
@@ -449,6 +457,9 @@ public class VistaCliente extends CustomComponent implements View ,Button.ClickL
 
                 // Obtenemos los transportistas activos del sistema.
                 lTransportistas = contrVista.obtenerTransportistasActivos(user, time);
+
+                // Obtenemos los bancos activos del sistema
+                lBancos = contrVista.obtenerBancosActivos(user, time);
 
                 String parametros = event.getParameters();
 
@@ -754,6 +765,9 @@ public class VistaCliente extends CustomComponent implements View ,Button.ClickL
 
         cbTransportistas = new ComboBox();
         cbTransportistas.addStyleName("big");
+
+        cbBancos = new ComboBox();
+        cbBancos.addStyleName("big");
     }
 
     /**
@@ -799,6 +813,29 @@ public class VistaCliente extends CustomComponent implements View ,Button.ClickL
         cbEstado.setRequired(true);
         cbEstado.setNullSelectionAllowed(false);
         cbEstado.setWidth(appWidth, Sizeable.Unit.EM);
+
+        // El banco
+        cbBancos.setCaption("Banco:");
+        cbBancos.setFilteringMode(FilteringMode.CONTAINS);
+        cbBancos.setNullSelectionAllowed(false);
+        cbBancos.setWidth(appWidth, Sizeable.Unit.EM);
+        cbBancos.addItems(lBancos);
+        cbBancos.setNewItemsAllowed(true);
+        if (nClientes.getIdBanco() != null) {
+            for (TBancos b : lBancos) {
+                if (b.getId().equals(nClientes.getIdBanco())) {
+                    cbBancos.setValue(b);
+                    break;
+                }
+            }
+        }
+
+        // El número de cuenta
+        txtNumCuenta = (TextField) binder.buildAndBind("Número de cuenta:", "numCuenta");
+        txtNumCuenta.setNullRepresentation("");
+        txtNumCuenta.setRequired(true);
+        txtNumCuenta.setWidth(appWidth, Sizeable.Unit.EM);
+        txtNumCuenta.setMaxLength(245);
 
     }
 
@@ -871,7 +908,7 @@ public class VistaCliente extends CustomComponent implements View ,Button.ClickL
         if (value == null && nClientes.getRemolque() != null) {
             cambios = cambios + "\n Se le quita el remolque, antes tenia: " + nClientes.getRemolque();
         } else if (value != null && nClientes.getRemolque() == null) {
-            cambios = cambios + "\n Se le asigna un nuev remolque,  antes no tenía tenia, ahora tiene:  " + value;
+            cambios = cambios + "\n Se le asigna un nuevo remolque,  antes no tenía tenia, ahora tiene:  " + value;
         } else if (value != null && !value.equals(nClientes.getRemolque())) {
             cambios = cambios + "\n Se le cambia el remolque, antes tenia: " + nClientes.getRemolque() + " y ahora tiene: " + value;
         }
@@ -883,6 +920,51 @@ public class VistaCliente extends CustomComponent implements View ,Button.ClickL
             nClientes.setUsuModifica(user);
         }
 
+        value = txtNumCuenta.getValue().trim().toUpperCase();
+
+        if (value != null) {
+            value = value.trim().toUpperCase();
+        }
+
+        if (value == null && nClientes.getNumCuenta() != null) {
+            cambios = cambios + "\n Se le quita el número de cuenta, antes tenia: " + nClientes.getNumCuenta();
+        } else if (value != null && nClientes.getNumCuenta() == null) {
+            cambios = cambios + "\n Se le asigna un nuevo número de cuenta,  antes no tenía tenia, ahora tiene:  " + value;
+        } else if (value != null && !value.equals(nClientes.getNumCuenta())) {
+            cambios = cambios + "\n Se le cambia el número de cuenta, antes tenia: " + nClientes.getNumCuenta() + " y ahora tiene: " + value;
+        }
+
+        nClientes.setNumCuenta(value);
+
+        Integer idBanco = null;
+
+        Object val = cbBancos.getValue();
+        if (val.getClass().equals(TBancos.class)) {
+            idBanco = ((TBancos) val).getId();
+        } else {
+            String nombre = val.toString();
+            // Buscamos el banco por si existe
+            TBancos b = contrVista.obtenerBancoPorNombre(nombre.trim().toUpperCase(), user, time);
+            if (b == null) {
+                b = new TBancos();
+                b.setEstado(BancosEnum.ACTIVO.getValue());
+                b.setNombre(nombre.trim().toUpperCase());
+                idBanco = contrVista.crearBancoRetornaId(b, user, time);
+            } else {
+                idBanco = b.getId();
+            }
+        }
+
+        if (idBanco == null && nClientes.getIdBanco() != null) {
+            cambios = cambios + "\n Se le quita el banco antes tenia: " + nClientes.getIdBanco();
+        } else if (idBanco != null && nClientes.getIdBanco() == null) {
+            cambios = cambios + "\n Se le asigna un nuevo banco,  antes no tenía tenia, ahora tiene:  " + idBanco;
+        } else if (idBanco != null && !idBanco.equals(nClientes.getIdBanco())) {
+            cambios = cambios + "\n Se le cambia el banco, antes tenia: " + nClientes.getIdBanco() + " y ahora tiene: " + value;
+        }
+
+        nClientes.setIdBanco(idBanco);
+
     }
 
     /**
@@ -890,7 +972,7 @@ public class VistaCliente extends CustomComponent implements View ,Button.ClickL
      * @return true si no se cumple la validación
      */
     private boolean validarCamposObligatorios() {
-        return !cbEstado.isValid() || !txtCif.isValid() || !txtRazonSocial.isValid();
+        return !cbEstado.isValid() || !txtCif.isValid() || !txtRazonSocial.isValid() || !txtNumCuenta.isValid() || !cbBancos.isValid();
     }
 
     /**
@@ -917,6 +999,10 @@ public class VistaCliente extends CustomComponent implements View ,Button.ClickL
         formulario1.setComponentAlignment(txtMatricula, Alignment.MIDDLE_CENTER);
         formulario1.addComponent(txtRemolque);
         formulario1.setComponentAlignment(txtRemolque, Alignment.MIDDLE_CENTER);
+        formulario1.addComponent(cbBancos);
+        formulario1.setComponentAlignment(cbBancos, Alignment.MIDDLE_CENTER);
+        formulario1.addComponent(txtNumCuenta);
+        formulario1.setComponentAlignment(txtNumCuenta, Alignment.MIDDLE_CENTER);
         formulario1.addComponent(cbEstado);
         formulario1.setComponentAlignment(cbEstado, Alignment.MIDDLE_CENTER);
         body.addComponent(formulario1);

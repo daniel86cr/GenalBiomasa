@@ -133,4 +133,10 @@ public final class Constants {
     public static String PESAJE_DESACTIVADO                     = "GBE-052";
     /** Constante de error que nos indica que el pesaje indicado no existe. */
     public static String PESAJE_NO_EXISTE                       = "GBE-053";
+    /** Constante de error que indica que se ha producido un error al registrar el banco. */
+    public static String BD_KO_CREAR_BANCO                      = "GBE-054";
+    /** Constante de error que nos indica que el banco ya existe con el nombre indicado. */
+    public static String BANCO_EXISTE_NOMBRE                    = "GBE-055";
+    /** Constante de error que indica que se ha producido un error al modificar el banco. */
+    public static String BD_KO_MODIF_BANCO                      = "GBE-056";
 }

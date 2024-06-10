@@ -15,6 +15,7 @@ import org.springframework.beans.factory.annotation.Value;
 
 import com.dina.genasoft.configuration.Constants;
 import com.dina.genasoft.controller.ControladorVistas;
+import com.dina.genasoft.db.entity.TBancos;
 import com.dina.genasoft.db.entity.TClientes;
 import com.dina.genasoft.db.entity.TClientesMateriales;
 import com.dina.genasoft.db.entity.TClientesOperadores;
@@ -27,6 +28,7 @@ import com.dina.genasoft.db.entity.TRegistrosCambiosClientes;
 import com.dina.genasoft.db.entity.TTransportistas;
 import com.dina.genasoft.exception.GenasoftException;
 import com.dina.genasoft.utils.Utils;
+import com.dina.genasoft.utils.enums.BancosEnum;
 import com.dina.genasoft.vistas.Menu;
 import com.dina.genasoft.vistas.VistaInicioSesion;
 import com.dina.genasoft.vistas.maestros.clientes.direcciones.VistaNuevaDireccionCliente;
@@ -85,8 +87,10 @@ public class VistaNuevoCliente extends CustomComponent implements View ,Button.C
     private ComboBox                      cbMateriales;
     /** Combobox para los operadores.*/
     private ComboBox                      cbOperadores;
-    /** Combobox para los materiales.*/
+    /** Combobox para los transportistas.*/
     private ComboBox                      cbTransportistas;
+    /** Combobox para los bancos.*/
+    private ComboBox                      cbBancos;
     /** El cliente a crear.*/
     private TClientes                     cliente;
     /** Contendrá el nombre de la aplicación.*/
@@ -106,6 +110,8 @@ public class VistaNuevoCliente extends CustomComponent implements View ,Button.C
     private TextField                     txtMatricula;
     /** La caja de texto para el nombre.*/
     private TextField                     txtRemolque;
+    /** La caja de texto para el nombre.*/
+    private TextField                     txtNumCuenta;
     /** Los permisos del empleado actual. */
     private TPermisos                     permisos           = null;
     /** El usuario que está logado. */
@@ -142,6 +148,8 @@ public class VistaNuevoCliente extends CustomComponent implements View ,Button.C
     private List<TOperadores>             lOperadores;
     /** Lista con los operadores activos del sistema. */
     private List<TTransportistas>         lTransportistas;
+    /** Lista con los bancos activos del sistema. */
+    private List<TBancos>                 lBancos;
     private String                        name;
 
     @Override
@@ -351,6 +359,9 @@ public class VistaNuevoCliente extends CustomComponent implements View ,Button.C
 
                 // Obtenemos los transportistas activos del sistema.
                 lTransportistas = contrVista.obtenerTransportistasActivos(user, time);
+
+                // Obtenemos los bancos activos del sistema
+                lBancos = contrVista.obtenerBancosActivos(user, time);
 
                 // Creamos los botones de la pantalla.
                 crearBotones();
@@ -579,6 +590,9 @@ public class VistaNuevoCliente extends CustomComponent implements View ,Button.C
 
         cbTransportistas = new ComboBox();
         cbTransportistas.addStyleName("big");
+
+        cbBancos = new ComboBox();
+        cbBancos.addStyleName("big");
     }
 
     /**
@@ -628,6 +642,21 @@ public class VistaNuevoCliente extends CustomComponent implements View ,Button.C
         cbEstado.setNullSelectionAllowed(false);
         cbEstado.setWidth(appWidth, Sizeable.Unit.EM);
 
+        // El banco
+        cbBancos.setCaption("Banco:");
+        cbBancos.setFilteringMode(FilteringMode.CONTAINS);
+        cbBancos.setNullSelectionAllowed(false);
+        cbBancos.setWidth(appWidth, Sizeable.Unit.EM);
+        cbBancos.addItems(lBancos);
+        cbBancos.setNewItemsAllowed(true);
+
+        // El número de cuenta
+        txtNumCuenta = (TextField) binder.buildAndBind("Número de cuenta:", "numCuenta");
+        txtNumCuenta.setNullRepresentation("");
+        txtNumCuenta.setRequired(true);
+        txtNumCuenta.setWidth(appWidth, Sizeable.Unit.EM);
+        txtNumCuenta.setMaxLength(245);
+
     }
 
     /**
@@ -644,6 +673,24 @@ public class VistaNuevoCliente extends CustomComponent implements View ,Button.C
         cliente.setFechaCrea(Utils.generarFecha());
         cliente.setUsuCrea(user);
         cliente.setFechaCrea(Utils.generarFecha());
+        cliente.setNumCuenta(txtNumCuenta.getValue().trim());
+
+        Object val = cbBancos.getValue();
+        if (val.getClass().equals(TBancos.class)) {
+            cliente.setIdBanco(((TBancos) val).getId());
+        } else {
+            String nombre = val.toString();
+            // Buscamos el banco por si existe
+            TBancos b = contrVista.obtenerBancoPorNombre(nombre.trim().toUpperCase(), user, time);
+            if (b == null) {
+                b = new TBancos();
+                b.setEstado(BancosEnum.ACTIVO.getValue());
+                b.setNombre(nombre.trim().toUpperCase());
+                cliente.setIdBanco(contrVista.crearBancoRetornaId(b, user, time));
+            } else {
+                cliente.setIdBanco(b.getId());
+            }
+        }
     }
 
     /**
@@ -655,6 +702,7 @@ public class VistaNuevoCliente extends CustomComponent implements View ,Button.C
         cbEstado.setValue(Constants.ACTIVO);
         txtRemolque.setValue(null);
         txtMatricula.setValue(null);
+        cbBancos.clear();
     }
 
     /**
@@ -662,7 +710,7 @@ public class VistaNuevoCliente extends CustomComponent implements View ,Button.C
      * @return true si no se cumple la validación
      */
     private boolean validarCamposObligatorios() {
-        return !cbEstado.isValid() || !txtCif.isValid() || !txtRazonSocial.isValid();
+        return !cbEstado.isValid() || !txtCif.isValid() || !txtRazonSocial.isValid() || !txtNumCuenta.isValid() || !cbBancos.isValid();
     }
 
     /**
@@ -689,6 +737,10 @@ public class VistaNuevoCliente extends CustomComponent implements View ,Button.C
         formulario1.setComponentAlignment(txtMatricula, Alignment.MIDDLE_CENTER);
         formulario1.addComponent(txtRemolque);
         formulario1.setComponentAlignment(txtRemolque, Alignment.MIDDLE_CENTER);
+        formulario1.addComponent(cbBancos);
+        formulario1.setComponentAlignment(cbBancos, Alignment.MIDDLE_CENTER);
+        formulario1.addComponent(txtNumCuenta);
+        formulario1.setComponentAlignment(txtNumCuenta, Alignment.MIDDLE_CENTER);
         formulario1.addComponent(cbEstado);
         formulario1.setComponentAlignment(cbEstado, Alignment.MIDDLE_CENTER);
         body.addComponent(formulario1);
