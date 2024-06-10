@@ -369,14 +369,14 @@ public class VistaListadoFacturas extends CustomComponent implements View ,Butto
             }
 
         });
-        // Para enviar emails
+        // Para generar el PDF de la factura
         pdfButton.addClickListener(new ClickListener() {
             public void buttonClick(ClickEvent event) {
 
                 if (idSeleccionado != null && !idSeleccionado.isEmpty()) {
                     Page.getCurrent().open("/facturaVentas?&idFactura=" + idSeleccionado, "_blank");
                 } else {
-                    Notification aviso = new Notification("Se debe seleccionar un registro del listado", Notification.Type.WARNING_MESSAGE);
+                    Notification aviso = new Notification("Se debe seleccionar al menos un registro del listado", Notification.Type.WARNING_MESSAGE);
                     aviso.setPosition(Position.MIDDLE_CENTER);
                     aviso.show(Page.getCurrent());
                 }

@@ -434,6 +434,20 @@ public class VistaListadoPesajes extends CustomComponent implements View ,Button
 
         });
 
+        // Para generar el PDF de la factura
+        pdfButton.addClickListener(new ClickListener() {
+            public void buttonClick(ClickEvent event) {
+
+                if (idSeleccionado != null && !idSeleccionado.isEmpty()) {
+                    Page.getCurrent().open("/albaranPesajes?&idPesaje=" + idSeleccionado, "_blank");
+                } else {
+                    Notification aviso = new Notification("Se debe seleccionar al menos un registro del listado", Notification.Type.WARNING_MESSAGE);
+                    aviso.setPosition(Position.MIDDLE_CENTER);
+                    aviso.show(Page.getCurrent());
+                }
+            }
+        });
+
     }
 
     /**
