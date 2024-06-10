@@ -995,6 +995,7 @@ public class VistaNuevoPesaje extends CustomComponent implements View ,Button.Cl
 
         nPesaje.setBase(Utils.redondeoDecimales(2, mat.getPrecio() * nPesaje.getKgsNeto()));
         nPesaje.setIva(iva.getImporte());
+        nPesaje.setIdIva(iva.getId());
         Double val = (nPesaje.getBase() * nPesaje.getIva()) / 100;
         val = Utils.redondeoDecimales(2, val + nPesaje.getBase());
         nPesaje.setImporte(val);

@@ -1345,6 +1345,7 @@ public class VistaListadoPesajes extends CustomComponent implements View ,Button
                             lFac.setIdPesaje(p.getId());
                             lFac.setImporte(fac.getTotal());
                             lFac.setIva(fac.getSubtotal());
+                            lFac.setIdIva(p.getIdIva());
                             lFac.setKgsBrutos(p.getKgsBruto());
                             lFac.setKgsNetos(p.getKgsNeto());
                             lFac.setNumeroAlbaran(p.getNumeroAlbaran());
@@ -1501,6 +1502,7 @@ public class VistaListadoPesajes extends CustomComponent implements View ,Button
                         lFac.setIdPesaje(p.getId());
                         lFac.setImporte(fac.getTotal());
                         lFac.setIva(fac.getSubtotal());
+                        lFac.setIdIva(p.getIdIva());
                         lFac.setKgsBrutos(p.getKgsBruto());
                         lFac.setKgsNetos(p.getKgsNeto());
                         lFac.setNumeroAlbaran(p.getNumeroAlbaran());

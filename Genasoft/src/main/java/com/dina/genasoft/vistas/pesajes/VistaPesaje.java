@@ -1160,6 +1160,7 @@ public class VistaPesaje extends CustomComponent implements View ,Button.ClickLi
         nPesajes.setBase(Utils.redondeoDecimales(2, mat.getPrecio() * nPesajes.getKgsNeto()));
 
         nPesajes.setIva(iva.getImporte());
+        nPesajes.setIdIva(iva.getId());
         val = (nPesajes.getBase() * nPesajes.getIva()) / 100;
         val = Utils.redondeoDecimales(2, val + nPesajes.getBase());
         nPesajes.setImporte(val);

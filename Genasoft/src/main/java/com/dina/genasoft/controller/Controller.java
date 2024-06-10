@@ -5,24 +5,41 @@
  */
 package com.dina.genasoft.controller;
 
+import java.io.File;
+import java.io.FileInputStream;
 import java.net.InetAddress;
 import java.net.NetworkInterface;
 import java.net.SocketException;
 import java.net.UnknownHostException;
+import java.sql.SQLException;
+import java.text.SimpleDateFormat;
 import java.util.Calendar;
+import java.util.List;
+
+import javax.servlet.ServletOutputStream;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Configurable;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.dina.genasoft.common.ClientesSetup;
 import com.dina.genasoft.common.CommonSetup;
+import com.dina.genasoft.common.FacturasSetup;
+import com.dina.genasoft.db.entity.TClientes;
+import com.dina.genasoft.db.entity.TFacturas;
+import com.dina.genasoft.db.entity.TLineasFactura;
 import com.dina.genasoft.db.entity.TTrace;
 import com.dina.genasoft.db.entity.TTrace2;
 import com.dina.genasoft.exception.GenasoftException;
 import com.dina.genasoft.utils.EnvioCorreo;
 import com.dina.genasoft.utils.GeneradorZip;
 import com.dina.genasoft.utils.Utils;
+import com.dina.genasoft.utils.exportar.FacturaPDF;
 
 /**
  * @author Daniel Carmona Romero
@@ -38,13 +55,22 @@ public class Controller {
     private ControladorVistas             contrVista;
     /** Inyección de Spring para poder acceder a la lógica de exportación de datos en Excel.*/
     @Autowired
+    private ClientesSetup                 clientesSetup;
+    /** Inyección de Spring para poder acceder a la lógica de exportación de datos en Excel.*/
+    @Autowired
     private CommonSetup                   commonSetup;
+    /** Inyección de Spring para poder acceder a la lógica de exportación de datos en Excel.*/
+    @Autowired
+    private FacturasSetup                 facturasSetup;
     /** Inyección de Spring para poder acceder a la lógica de exportación de datos en Excel.*/
     @Autowired
     private GeneradorZip                  generadorZip;
     /** Inyección de Spring para poder acceder a la lógica de exportación de datos en Excel.*/
     //@Autowired
     //private AlbaranPDF                    albaranPDF;
+    /** Inyección de Spring para poder acceder a la lógica de exportación facturas en formato PDF.*/
+    @Autowired
+    private FacturaPDF                    facturaPDF;
     /** Contendrá el nombre de la aplicación.*/
     @Value("${pdf.temp}")
     private String                        pdfTemp;
@@ -77,6 +103,121 @@ public class Controller {
     /** Contendrá el nombre de la aplicación.*/
     @Value("${app.informe}")
     private Integer                       appInforme;
+
+    /**
+     * Para generar la hoja de ruta en formato PDF.
+     * @param request La petición que nos llega del cliente
+     * @param response La respuesta al cliente
+     * @throws SQLException Si se produce alguna excepción.
+     */
+    @RequestMapping(value = "/facturaVentas", method = RequestMethod.GET, produces = "application/zip")
+    public void getFacturaVenta(HttpServletRequest request, HttpServletResponse response) throws SQLException {
+        String parametros = !request.getParameter("idFactura").equals("null") ? (String) request.getParameter("idFactura") : null;
+        response.setContentType("application/zip");
+
+        if (parametros != null) {
+
+            try {
+
+                List<String> lNombres = Utils.generarListaGenerica();
+
+                String nombreZip = "";
+                TFacturas factura = null;
+
+                if (!parametros.contains(",")) {
+                    parametros = parametros.concat(",");
+                }
+                int size = parametros.split(",").length;
+
+                String[] values = parametros.split(",");
+                String nombreLogo = pdfTemp + "/logo_albaran.png";
+                Integer idFactura = 0;
+                TClientes cl = null;
+                String nombre = null;
+                List<TLineasFactura> lineas = null;
+                for (int i = 0; i < size; i++) {
+                    idFactura = Integer.valueOf(values[i]);
+                    factura = facturasSetup.obtenerFacturaPorId(idFactura);
+                    cl = clientesSetup.obtenerClientePorId(factura.getIdCliente());
+                    nombre = factura.getNumeroFactura();
+
+                    nombre = nombre + "_" + cl.getNombre();
+
+                    if (nombre.contains(" ")) {
+                        nombre = nombre.replaceAll(" ", "_");
+                    }
+                    if (nombre.contains("/")) {
+                        nombre = nombre.replaceAll("/", "_");
+                    }
+                    if (nombre.contains("\\")) {
+                        nombre = nombre.replaceAll("\\", "_");
+                    }
+                    if (nombre.contains("\\.")) {
+                        nombre = nombre.replaceAll(".", "_");
+                    }
+                    if (nombre.contains(",")) {
+                        nombre = nombre.replaceAll(",", "-");
+                    }
+                    lineas = facturasSetup.obtenerLineasFacturaPorIdFactura(idFactura);
+
+                    String nombreTemporal = "";
+                    if (lineas.size() == 1) {
+                        nombreTemporal = pdfTemp + "/" + "Factura_ventas_" + nombre + "_" + new SimpleDateFormat("dd_MM_yyyy_HH_mm_ss").format(Utils.generarFecha()) + "_" + i;
+                    } else {
+                        nombreTemporal = pdfTemp + "/" + "Multi_Factura_ventas_" + nombre + "_" + new SimpleDateFormat("dd_MM_yyyy_HH_mm_ss").format(Utils.generarFecha()) + "_" + i;
+                    }
+
+                    nombreTemporal = nombreTemporal + "_tmp";
+                    // Generamos el fichero PDF con los datos del pedido.
+                    facturaPDF.createPdf(idFactura, nombreTemporal, nombreLogo, false);
+
+                    nombreZip = nombreTemporal + ".pdf";
+
+                    lNombres.add(nombreZip);
+                    //nombreZip = nombreTemporal + "W" + ".pdf";
+                    //lNombres.add(nombreZip);
+
+                }
+
+                String ficheroComprimido = pdfTemp + generadorZip.comprimirServicios(lNombres, "Facturas_");
+
+                // Comprimimos los albaranes.
+
+                if (!ficheroComprimido.isEmpty()) {
+
+                    ServletOutputStream outputStream;
+
+                    outputStream = response.getOutputStream();
+
+                    FileInputStream in = new FileInputStream(ficheroComprimido);
+                    byte[] b = new byte[10240];
+                    int count;
+                    while ((count = in.read(b)) >= 0) {
+                        outputStream.write(b, 0, count);
+                    }
+
+                    in.close();
+                    outputStream.flush();
+                    outputStream.close();
+
+                    // Eliminamos informes y ficheros generados.
+                    File f = new File(ficheroComprimido);
+                    f.delete();
+
+                }
+                File f2 = null;
+                // Ahora eiminamos los PDFs creados.
+                for (String path : lNombres) {
+                    f2 = new File(path);
+                    f2.delete();
+                }
+            } catch (Exception e) {
+                log.error("Se ha producido el siguiente error en la generación de la factura");
+                e.printStackTrace();
+
+            }
+        }
+    }
 
     /**
      * Método que se encarga de comprobar la validez de la licencia.
