@@ -56,6 +56,7 @@ import com.vaadin.ui.DateField;
 import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.Notification;
+import com.vaadin.ui.TextArea;
 import com.vaadin.ui.TextField;
 import com.vaadin.ui.VerticalLayout;
 
@@ -117,6 +118,8 @@ public class VistaNuevoPesaje extends CustomComponent implements View ,Button.Cl
     private TextField                     txtTara;
     /** La caja de texto para los kilos netos.*/
     private TextField                     txtKgsNetos;
+    /** La caja de texto para las observaciones.*/
+    private TextArea                      txtObservaciones;
     /** La fecha del pesaje. */
     private DateField                     fechaPesaje;
     /** Los permisos del empleado actual. */
@@ -348,6 +351,8 @@ public class VistaNuevoPesaje extends CustomComponent implements View ,Button.Cl
                 body.setComponentAlignment(formulario2, Alignment.MIDDLE_CENTER);
                 viewLayout.addComponent(body);
                 viewLayout.setComponentAlignment(body, Alignment.MIDDLE_CENTER);
+                viewLayout.addComponent(txtObservaciones);
+                viewLayout.setComponentAlignment(txtObservaciones, Alignment.MIDDLE_CENTER);
                 viewLayout.addComponent(crearButton);
                 viewLayout.setComponentAlignment(crearButton, Alignment.MIDDLE_CENTER);
 
@@ -928,8 +933,11 @@ public class VistaNuevoPesaje extends CustomComponent implements View ,Button.Cl
             public void handleAction(Object sender, Object target) {
 
             }
-
         });
+
+        txtObservaciones = new TextArea("Observaciones:");
+        txtObservaciones.setNullRepresentation("");
+        txtObservaciones.setWidth(appWidth, Sizeable.Unit.EM);
 
     }
 
@@ -1001,6 +1009,7 @@ public class VistaNuevoPesaje extends CustomComponent implements View ,Button.Cl
         nPesaje.setImporte(val);
         nPesaje.setPrecioKg(mat.getPrecio());
         nPesaje.setIndFirmaCliente(PesajesEnum.SIN_FIRMA.getValue());
+        nPesaje.setObservaciones(txtObservaciones.getValue());
 
     }
 
@@ -1025,6 +1034,7 @@ public class VistaNuevoPesaje extends CustomComponent implements View ,Button.Cl
         txtTara.setValue(null);
         cbOperadores.removeAllItems();
         cbTransportistas.removeAllItems();
+        txtObservaciones.setValue(null);
     }
 
     /**

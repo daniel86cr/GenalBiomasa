@@ -55,6 +55,7 @@ import com.vaadin.ui.DateField;
 import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.Notification;
+import com.vaadin.ui.TextArea;
 import com.vaadin.ui.TextField;
 import com.vaadin.ui.VerticalLayout;
 
@@ -121,6 +122,8 @@ public class VistaPesaje extends CustomComponent implements View ,Button.ClickLi
     private TextField                     txtTara;
     /** La caja de texto para los kilos netos.*/
     private TextField                     txtKgsNetos;
+    /** La caja de texto para las observaciones.*/
+    private TextArea                      txtObservaciones;
     /** La fecha del pesaje. */
     private DateField                     fechaPesaje;
     /** Los permisos del empleado actual. */
@@ -373,6 +376,8 @@ public class VistaPesaje extends CustomComponent implements View ,Button.ClickLi
                 viewLayout.setComponentAlignment(body, Alignment.MIDDLE_CENTER);
                 viewLayout.addComponent(body);
                 viewLayout.setComponentAlignment(body, Alignment.MIDDLE_CENTER);
+                viewLayout.addComponent(txtObservaciones);
+                viewLayout.setComponentAlignment(txtObservaciones, Alignment.MIDDLE_CENTER);
                 viewLayout.addComponent(cbEstados);
                 viewLayout.setComponentAlignment(cbEstados, Alignment.MIDDLE_CENTER);
                 viewLayout.addComponent(lblSpace);
@@ -974,7 +979,6 @@ public class VistaPesaje extends CustomComponent implements View ,Button.ClickLi
             public void handleAction(Object sender, Object target) {
 
             }
-
         });
 
         // El 190 es el KEYCODE del punto "."
@@ -985,7 +989,6 @@ public class VistaPesaje extends CustomComponent implements View ,Button.ClickLi
             public void handleAction(Object sender, Object target) {
 
             }
-
         });
 
         txtTara.addShortcutListener(new ShortcutListener(null, 110, null) {
@@ -995,8 +998,12 @@ public class VistaPesaje extends CustomComponent implements View ,Button.ClickLi
             public void handleAction(Object sender, Object target) {
 
             }
-
         });
+
+        txtObservaciones = new TextArea("Observaciones:");
+        txtObservaciones.setNullRepresentation("");
+        txtObservaciones.setWidth(appWidth, Sizeable.Unit.EM);
+        txtObservaciones.setValue(nPesajes.getObservaciones());
     }
 
     /**
@@ -1057,6 +1064,10 @@ public class VistaPesaje extends CustomComponent implements View ,Button.ClickLi
 
         value = txtDestino.getValue();
 
+        if (value != null) {
+            value = value.trim().toUpperCase();
+        }
+
         if (value == null && nPesajes.getDestino() != null) {
             cambios = cambios + "\n Se le quita el destino, antes tenia: " + nPesajes.getDestino();
         } else if (value != null && nPesajes.getDestino() == null) {
@@ -1070,6 +1081,10 @@ public class VistaPesaje extends CustomComponent implements View ,Button.ClickLi
         nPesajes.setDestino(value);
 
         value = txtAlbaran.getValue();
+
+        if (value != null) {
+            value = value.trim().toUpperCase();
+        }
 
         if (value == null && nPesajes.getNumeroAlbaran() != null) {
             cambios = cambios + "\n Se le quita el número de albarán, antes tenia: " + nPesajes.getNumeroAlbaran();
@@ -1085,6 +1100,10 @@ public class VistaPesaje extends CustomComponent implements View ,Button.ClickLi
 
         value = txtMatricula.getValue();
 
+        if (value != null) {
+            value = value.trim().toUpperCase();
+        }
+
         if (value == null && nPesajes.getMatricula() != null) {
             cambios = cambios + "\n Se le quita la matrícula, antes tenia: " + nPesajes.getMatricula();
         } else if (value != null && nPesajes.getMatricula() == null) {
@@ -1098,6 +1117,10 @@ public class VistaPesaje extends CustomComponent implements View ,Button.ClickLi
         nPesajes.setMatricula(value);
 
         value = txtRemolque.getValue();
+
+        if (value != null) {
+            value = value.trim().toUpperCase();
+        }
 
         if (value == null && nPesajes.getRemolque() != null) {
             cambios = cambios + "\n Se le quita el remolque, antes tenia: " + nPesajes.getRemolque();
@@ -1174,6 +1197,24 @@ public class VistaPesaje extends CustomComponent implements View ,Button.ClickLi
         if (nPesajes.getIndFirmaCliente() == null) {
             nPesajes.setIndFirmaCliente(PesajesEnum.SIN_FIRMA.getValue());
         }
+
+        value = txtObservaciones.getValue();
+
+        if (value != null) {
+            value = value.trim().toUpperCase();
+        }
+
+        if (value == null && nPesajes.getObservaciones() != null) {
+            cambios = cambios + "\n Se le quitan las observaciones, antes tenia: " + nPesajes.getObservaciones();
+        } else if (value != null && nPesajes.getObservaciones() == null) {
+            value = value.trim().toUpperCase();
+            cambios = cambios + "\n Se le asignan observaciones, antes no tenía tenia, ahora tiene:  " + value;
+        } else if (value != null && !value.equals(nPesajes.getObservaciones())) {
+            value = value.trim().toUpperCase();
+            cambios = cambios + "\n Se le cambian las observaciones, antes tenia: " + nPesajes.getObservaciones() + " y ahora tiene: " + value;
+        }
+
+        nPesajes.setObservaciones(value);
 
     }
 
