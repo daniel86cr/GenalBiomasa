@@ -181,6 +181,10 @@ public class PesajesSetup implements Serializable {
             map.put("indFirmaCliente", record.getIndFirmaCliente());
             map.put("idIva", record.getIdIva());
             map.put("observaciones", record.getObservaciones());
+            map.put("nombreConductor", record.getNombreConductor());
+            map.put("dniConductor", record.getDniConductor());
+            map.put("nombreConforme", record.getNombreConforme());
+            map.put("dniComforme", record.getDniComforme());
 
             tPesajesMapper.insertRecord(map);
 

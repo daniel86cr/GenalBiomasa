@@ -30,6 +30,7 @@
         		<typeAlias alias="TMateriales" type="com.dina.genasoft.db.entity.TMateriales" />
         		<typeAlias alias="TNumeroAlbaran" type="com.dina.genasoft.db.entity.TNumeroAlbaran" />
         		<typeAlias alias="TOperadores" type="com.dina.genasoft.db.entity.TOperadores" />
+        		<typeAlias alias="TOperacionActual" type="com.dina.genasoft.db.entity.TOperacionActual" />
         		<typeAlias alias="TPais" type="com.dina.genasoft.db.entity.TPais" />
         		<typeAlias alias="TPermisos" type="com.dina.genasoft.db.entity.TPermisos" />
         		<typeAlias alias="TPesajes" type="com.dina.genasoft.db.entity.TPesajes" />
@@ -69,6 +70,7 @@
         		<mapper resource="SqlMaps/TMaterialesMapper.xml"></mapper>
         		<mapper resource="SqlMaps/TNumeroAlbaranMapper.xml"></mapper>
         		<mapper resource="SqlMaps/TOperadoresMapper.xml"></mapper>
+        		<mapper resource="SqlMaps/TOperacionActualMapper.xml"></mapper>
         		<mapper resource="SqlMaps/TPaisMapper.xml"></mapper>
         		<mapper resource="SqlMaps/TPermisosMapper.xml"></mapper>
         		<mapper resource="SqlMaps/TPesajesMapper.xml"></mapper>

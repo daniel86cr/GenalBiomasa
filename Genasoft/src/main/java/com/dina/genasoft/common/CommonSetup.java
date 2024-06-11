@@ -29,6 +29,7 @@ import com.dina.genasoft.db.entity.TTrace2;
 import com.dina.genasoft.db.mapper.TAccesoHisMapper;
 import com.dina.genasoft.db.mapper.TAccesoMapper;
 import com.dina.genasoft.db.mapper.TErroresMapper;
+import com.dina.genasoft.db.mapper.TOperacionActualMapper;
 import com.dina.genasoft.db.mapper.TPermisosMapper;
 import com.dina.genasoft.db.mapper.TTrace2Mapper;
 import com.dina.genasoft.exception.GenasoftException;
@@ -70,6 +71,9 @@ public class CommonSetup implements Serializable {
     /** Inyección por Spring del mapper TTrace2Mapper.*/
     @Autowired
     private TTrace2Mapper                 tTrace2Mapper;
+    /** Inyección por Spring del mapper TOperacionActualMapper.*/
+    @Autowired
+    private TOperacionActualMapper        tOperacionActualMapper;
     /** Inyección por Spring del mapper Telegram.*/
     @Autowired
     private Telegram                      telegram;

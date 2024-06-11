@@ -113,6 +113,8 @@ public class AlbaranPDF extends PdfPageEventHelper {
     private Document                      document   = null;
     /** El logo de la emprea.*/
     private Image                         img        = null;
+    /** El logo de la emprea.*/
+    private Image                         imgFirma   = null;
     /** El cliente del pedido. */
     private TClientes                     cliente;
     private TDireccionCliente             dir;
@@ -257,6 +259,12 @@ public class AlbaranPDF extends PdfPageEventHelper {
 
         img = Image.getInstance(path1);
 
+        try {
+            imgFirma = Image.getInstance(pdfTemp + "/Firmas/Firma_" + idPesaje + "_1.png");
+        } catch (Exception e) {
+            imgFirma = null;
+        }
+
         // Obtenemos la hoja de ruta para generar el fichero PDF.
         pesaje = pesajesSetup.obtenerPesajePorId(idPesaje);
 
@@ -283,7 +291,18 @@ public class AlbaranPDF extends PdfPageEventHelper {
                 document.add(crearTablaCabecera1(writer));
                 // Info adicional cabecera.
                 Paragraph preface2 = new Paragraph();
-                preface2.add(new Paragraph("  ", fLinea));
+                preface2.add(
+                             new Paragraph("                El cliente,                                                                                                                                 Conductor                                                                                                                        Conforme: Por la planta", fLinea));
+
+                //  document.add(preface2);
+
+                document.add(crearTablaInformacionFinal1());
+
+                Paragraph preface3 = new Paragraph();
+                preface3.add(
+                             new Paragraph("Los partes se someten para la resolución de cualquier controersia relativa a la interpretación y ejecución del contrato de transporte al que se refiere el presente documento a la junta arbitral de transporte que proceda a lo establecido en la ley 16/85 de ordenación de los transportes terrestres y sus normas de desarrollo.", fLinea));
+
+                document.add(preface3);
 
             } catch (GenasoftException e) {
                 document.resetPageCount();
@@ -540,7 +559,7 @@ public class AlbaranPDF extends PdfPageEventHelper {
             }
 
             table.setWidthPercentage(100);
-            cell = crearCeldaColspanRowspan("CENTRO DE PRODUCCIÓN: " + empresa.getDireccion() + "                               GRU02199 NIMA2900009081", 2, 1, null);
+            cell = crearCeldaColspanRowspan("CENTRO DE PRODUCCIÓN: " + empresa.getDireccion() + "                                                                        GRU02199 NIMA2900009081", 2, 1, null);
             cell.setBorder(PdfPCell.NO_BORDER);
             cell.setHorizontalAlignment(Element.ALIGN_LEFT);
             cell.setCellEvent(new CustomBorder(solid, solid, solid, solid));
@@ -663,7 +682,7 @@ public class AlbaranPDF extends PdfPageEventHelper {
     }
 
     private PdfPCell crearCeldaColspanRowspan(String content, int colspan, int rowspan, BaseColor color) {
-        PdfPCell cell = new PdfPCell(new Phrase(content, cabecera));
+        PdfPCell cell = new PdfPCell(new Phrase(content, cabecera2));
         cell.setColspan(colspan);
         if (color != null) {
             cell.setBackgroundColor(color);
@@ -705,6 +724,129 @@ public class AlbaranPDF extends PdfPageEventHelper {
         table2.addCell(cell);
 
         return table2;
+    }
+
+    private PdfPTable crearTablaInformacionFinal1() throws GenasoftException {
+        PdfPTable table = new PdfPTable(3);
+        PdfPCell cell;
+        try {
+
+            cell = new PdfPCell(new Phrase("El cliente ", cabecera2));
+            cell.setBorder(PdfPCell.NO_BORDER);
+            cell.setHorizontalAlignment(Element.ALIGN_CENTER);
+            cell.setCellEvent(new CustomBorder(null, null, null, null));
+            table.addCell(cell);
+            cell = new PdfPCell(new Phrase("Conductor ", cabecera2));
+            cell.setBorder(PdfPCell.NO_BORDER);
+            cell.setHorizontalAlignment(Element.ALIGN_CENTER);
+            cell.setCellEvent(new CustomBorder(null, null, null, null));
+            table.addCell(cell);
+            cell = new PdfPCell(new Phrase("Conforme: Por la planta ", cabecera2));
+            cell.setBorder(PdfPCell.NO_BORDER);
+            cell.setCellEvent(new CustomBorder(null, null, null, null));
+            table.addCell(cell);
+            cell = new PdfPCell(new Phrase(" ", cabecera2));
+            cell.setBorder(PdfPCell.NO_BORDER);
+            cell.setHorizontalAlignment(Element.ALIGN_CENTER);
+            cell.setCellEvent(new CustomBorder(null, null, null, null));
+            table.addCell(cell);
+            cell = new PdfPCell(new Phrase(" ", cabecera2));
+            cell.setBorder(PdfPCell.NO_BORDER);
+            cell.setHorizontalAlignment(Element.ALIGN_CENTER);
+            cell.setCellEvent(new CustomBorder(null, null, null, null));
+            table.addCell(cell);
+            cell = new PdfPCell(new Phrase(" ", cabecera2));
+            cell.setBorder(PdfPCell.NO_BORDER);
+            cell.setCellEvent(new CustomBorder(null, null, null, null));
+            table.addCell(cell);
+            cell = new PdfPCell(new Phrase(" ", cabecera2));
+            cell.setBorder(PdfPCell.NO_BORDER);
+            cell.setCellEvent(new CustomBorder(null, null, null, null));
+            table.addCell(cell);
+            // Añadimos la firma del transportista, si la tiene.
+            if (imgFirma != null) {
+                imgFirma.scalePercent(30f);
+                imgFirma.setScaleToFitHeight(false);
+                cell = new PdfPCell(imgFirma);
+                cell.setBorder(PdfPCell.NO_BORDER);
+                cell.setCellEvent(new CustomBorder(null, null, null, null));
+                table.addCell(cell);
+            } else {
+                cell = new PdfPCell(new Phrase(" ", cabecera2));
+                cell.setBorder(PdfPCell.NO_BORDER);
+                cell.setCellEvent(new CustomBorder(null, null, null, null));
+                table.addCell(cell);
+            }
+            cell = new PdfPCell(new Phrase(" ", cabecera2));
+            cell.setBorder(PdfPCell.NO_BORDER);
+            cell.setCellEvent(new CustomBorder(null, null, null, null));
+            table.addCell(cell);
+            cell = new PdfPCell(new Phrase(" ", cabecera2));
+            cell.setBorder(PdfPCell.NO_BORDER);
+            cell.setCellEvent(new CustomBorder(null, null, null, null));
+            table.addCell(cell);
+            cell = new PdfPCell(new Phrase(" ", cabecera2));
+            cell.setBorder(PdfPCell.NO_BORDER);
+            cell.setCellEvent(new CustomBorder(null, null, null, null));
+            table.addCell(cell);
+            cell = new PdfPCell(new Phrase(" ", cabecera2));
+            cell.setBorder(PdfPCell.NO_BORDER);
+            cell.setCellEvent(new CustomBorder(null, null, null, null));
+            table.addCell(cell);
+            cell = new PdfPCell(new Phrase(" ", cabecera2));
+            cell.setBorder(PdfPCell.NO_BORDER);
+            cell.setCellEvent(new CustomBorder(null, null, null, null));
+            table.addCell(cell);
+            cell = new PdfPCell(new Phrase(" ", cabecera2));
+            cell.setBorder(PdfPCell.NO_BORDER);
+            cell.setCellEvent(new CustomBorder(null, null, null, null));
+            table.addCell(cell);
+            cell = new PdfPCell(new Phrase(" ", cabecera2));
+            cell.setBorder(PdfPCell.NO_BORDER);
+            cell.setCellEvent(new CustomBorder(null, null, null, null));
+            table.addCell(cell);
+            cell = new PdfPCell(new Phrase(" ", cabecera2));
+            cell.setBorder(PdfPCell.NO_BORDER);
+            cell.setCellEvent(new CustomBorder(null, null, null, null));
+            table.addCell(cell);
+            cell = new PdfPCell(new Phrase(" ", cabecera2));
+            cell.setBorder(PdfPCell.NO_BORDER);
+            cell.setCellEvent(new CustomBorder(null, null, null, null));
+            table.addCell(cell);
+            cell = new PdfPCell(new Phrase(" ", cabecera2));
+            cell.setBorder(PdfPCell.NO_BORDER);
+            cell.setCellEvent(new CustomBorder(null, null, null, null));
+            table.addCell(cell);
+            cell = new PdfPCell(new Phrase(" ", cabecera2));
+            cell.setBorder(PdfPCell.NO_BORDER);
+            cell.setCellEvent(new CustomBorder(null, null, null, null));
+            table.addCell(cell);
+            cell = new PdfPCell(new Phrase(" ", cabecera2));
+            cell.setBorder(PdfPCell.NO_BORDER);
+            cell.setCellEvent(new CustomBorder(null, null, null, null));
+            table.addCell(cell);
+            cell = new PdfPCell(new Phrase(" ", cabecera2));
+            cell.setBorder(PdfPCell.NO_BORDER);
+            cell.setCellEvent(new CustomBorder(null, null, null, null));
+            table.addCell(cell);
+            cell = new PdfPCell(new Phrase(" ", cabecera2));
+            cell.setBorder(PdfPCell.NO_BORDER);
+            cell.setCellEvent(new CustomBorder(null, null, null, null));
+            table.addCell(cell);
+            cell = new PdfPCell(new Phrase(" ", cabecera2));
+            cell.setBorder(PdfPCell.NO_BORDER);
+            cell.setCellEvent(new CustomBorder(null, null, null, null));
+            table.addCell(cell);
+            cell = new PdfPCell(new Phrase(" ", cabecera2));
+            cell.setBorder(PdfPCell.NO_BORDER);
+            cell.setCellEvent(new CustomBorder(null, null, null, null));
+            table.addCell(cell);
+        } catch (Exception npe) {
+            log.error("Error:");
+            npe.printStackTrace();
+            throw new GenasoftException("No se puede generar el albarán, faltan datos:  " + npe.getMessage());
+        }
+        return table;
     }
 
 }
