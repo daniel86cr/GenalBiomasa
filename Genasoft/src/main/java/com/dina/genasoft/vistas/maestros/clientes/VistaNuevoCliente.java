@@ -22,6 +22,7 @@ import com.dina.genasoft.db.entity.TClientesOperadores;
 import com.dina.genasoft.db.entity.TClientesTransportistas;
 import com.dina.genasoft.db.entity.TEmpleados;
 import com.dina.genasoft.db.entity.TMateriales;
+import com.dina.genasoft.db.entity.TOperacionActual;
 import com.dina.genasoft.db.entity.TOperadores;
 import com.dina.genasoft.db.entity.TPermisos;
 import com.dina.genasoft.db.entity.TRegistrosCambiosClientes;
@@ -432,6 +433,14 @@ public class VistaNuevoCliente extends CustomComponent implements View ,Button.C
                 infoMateriales.setVisible(false);
                 infoOperadores.setVisible(false);
                 infoTransportistas.setVisible(false);
+
+                // Guardamos la operación en BD.
+                TOperacionActual record = new TOperacionActual();
+                record.setFecha(Utils.generarFecha());
+                record.setIdEmpleado(user);
+                record.setIdEntidad(-1);
+                record.setPantalla(NAME);
+                contrVista.registrarOperacionEmpleado(record, user, time);
 
             } catch (MyBatisSystemException e) {
                 Notification aviso = new Notification("No se ha podido establecer conexión con la base de datos.", Notification.Type.ERROR_MESSAGE);

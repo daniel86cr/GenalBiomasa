@@ -18,6 +18,7 @@ import com.dina.genasoft.controller.ControladorVistas;
 import com.dina.genasoft.db.entity.TEmpleados;
 import com.dina.genasoft.db.entity.TIva;
 import com.dina.genasoft.db.entity.TMateriales;
+import com.dina.genasoft.db.entity.TOperacionActual;
 import com.dina.genasoft.db.entity.TPermisos;
 import com.dina.genasoft.exception.GenasoftException;
 import com.dina.genasoft.utils.Utils;
@@ -291,6 +292,14 @@ public class VistaNuevoMaterial extends CustomComponent implements View ,Button.
                 viewLayout.setExpandRatio(titulo, 0.1f);
                 viewLayout.setMargin(true);
                 viewLayout.setSpacing(true);
+
+                // Guardamos la operación en BD.
+                TOperacionActual record = new TOperacionActual();
+                record.setFecha(Utils.generarFecha());
+                record.setIdEmpleado(user);
+                record.setIdEntidad(-1);
+                record.setPantalla(NAME);
+                contrVista.registrarOperacionEmpleado(record, user, time);
 
             } catch (MyBatisSystemException e) {
                 Notification aviso = new Notification("No se ha podido establecer conexión con la base de datos.", Notification.Type.ERROR_MESSAGE);

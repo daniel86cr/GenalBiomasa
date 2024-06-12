@@ -25,6 +25,7 @@ import com.dina.genasoft.db.entity.TFacturasVista;
 import com.dina.genasoft.db.entity.TLineasFactura;
 import com.dina.genasoft.db.entity.TLineasFacturaVista;
 import com.dina.genasoft.db.entity.TMateriales;
+import com.dina.genasoft.db.entity.TOperacionActual;
 import com.dina.genasoft.db.entity.TPermisos;
 import com.dina.genasoft.db.entity.TPesajes;
 import com.dina.genasoft.db.entity.TRegistrosCambiosFacturas;
@@ -275,6 +276,14 @@ public class VistaListadoFacturas extends CustomComponent implements View ,Butto
                 viewLayout.setExpandRatio(titulo, 0.1f);
                 viewLayout.setMargin(true);
                 viewLayout.setSpacing(true);
+
+                // Guardamos la operación en BD.
+                TOperacionActual record = new TOperacionActual();
+                record.setFecha(Utils.generarFecha());
+                record.setIdEmpleado(user);
+                record.setIdEntidad(-1);
+                record.setPantalla(NAME);
+                contrVista.registrarOperacionEmpleado(record, user, time);
 
             } catch (GenasoftException tbe) {
                 log.error("La sesión es inválida, se ha iniciado sesión en otro dispositivo.");

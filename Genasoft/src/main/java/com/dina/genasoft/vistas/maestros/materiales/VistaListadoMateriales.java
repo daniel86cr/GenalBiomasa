@@ -19,6 +19,7 @@ import com.dina.genasoft.configuration.Constants;
 import com.dina.genasoft.controller.ControladorVistas;
 import com.dina.genasoft.db.entity.TEmpleados;
 import com.dina.genasoft.db.entity.TMaterialesVista;
+import com.dina.genasoft.db.entity.TOperacionActual;
 import com.dina.genasoft.db.entity.TPermisos;
 import com.dina.genasoft.exception.GenasoftException;
 import com.dina.genasoft.utils.TablaGenerica;
@@ -209,6 +210,14 @@ public class VistaListadoMateriales extends CustomComponent implements View ,But
                 viewLayout.setExpandRatio(titulo, 0.1f);
                 viewLayout.setMargin(true);
                 viewLayout.setSpacing(true);
+
+                // Guardamos la operación en BD.
+                TOperacionActual record = new TOperacionActual();
+                record.setFecha(Utils.generarFecha());
+                record.setIdEmpleado(user);
+                record.setIdEntidad(-1);
+                record.setPantalla(NAME);
+                contrVista.registrarOperacionEmpleado(record, user, time);
 
             } catch (GenasoftException tbe) {
                 log.error("La sesión es inválida, se ha iniciado sesión en otro dispositivo.");

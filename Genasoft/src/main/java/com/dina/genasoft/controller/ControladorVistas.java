@@ -50,6 +50,7 @@ import com.dina.genasoft.db.entity.TLineasFactura;
 import com.dina.genasoft.db.entity.TLineasFacturaVista;
 import com.dina.genasoft.db.entity.TMateriales;
 import com.dina.genasoft.db.entity.TMaterialesVista;
+import com.dina.genasoft.db.entity.TOperacionActual;
 import com.dina.genasoft.db.entity.TOperadores;
 import com.dina.genasoft.db.entity.TOperadoresVista;
 import com.dina.genasoft.db.entity.TPermisos;
@@ -157,6 +158,8 @@ public class ControladorVistas implements Serializable {
      */
     public void eliminaAcceso(Integer idEmpleado) {
         commonSetup.eliminaAcceso(idEmpleado);
+        // Eliminamos la operación del empleado.
+        commonSetup.eliminarOperacionEmpleado(idEmpleado);
     }
 
     /**
@@ -2572,7 +2575,7 @@ public class ControladorVistas implements Serializable {
 
         Timestamp t = new Timestamp(time);
         if (commonSetup.conexionValida(userId, t, estadoAplicacion)) {
-            permisos = commonSetup.obtenerPermisosPorRol(empleado.getId());
+            permisos = commonSetup.obtenerPermisosPorRol(empleado.getIdRol());
         } else {
             if (estadoAplicacion == null || estadoAplicacion.equals(-1)) {
                 throw new GenasoftException(Constants.LICENCIA_NO_VALIDA);
@@ -3230,6 +3233,31 @@ public class ControladorVistas implements Serializable {
             }
         }
         // Retornamos el número del albarán
+        return result;
+    }
+
+    /**
+     * Método que nos registra en el sistema la operación que está realizando el empleado pasado por parámetro.
+     * @param record El registro a guardar.
+     * @param userId El usuario que está activo.
+     * @param time El tiempo en milisegundos.
+     * @return Si la operación se puede registrar, y por lo tanto realizar, el resultado será {@literal Constants.OPERACION_OK}. <br>
+     * Si no se puede registear, quiere decir que hay un empleado realizando esa operación se retorna mensaje descriptivo.
+     */
+    public String registrarOperacionEmpleado(TOperacionActual record, Integer userId, long time) throws GenasoftException {
+        String result = "";
+        Timestamp t = new Timestamp(time);
+        if (commonSetup.conexionValida(userId, t, estadoAplicacion)) {
+            result = commonSetup.registrarOperacionEmpleado(record);
+        } else {
+            if (estadoAplicacion == null || estadoAplicacion.equals(-1)) {
+                throw new GenasoftException(Constants.LICENCIA_NO_VALIDA);
+            } else {
+                throw new GenasoftException(Constants.SESION_INVALIDA);
+            }
+        }
+
+        // Retornamos el resultado de la inserción de la provincia.
         return result;
     }
 

@@ -1,5 +1,10 @@
 package com.dina.genasoft.db.mapper;
 
+import java.util.Date;
+import java.util.List;
+
+import org.apache.ibatis.annotations.Param;
+
 import com.dina.genasoft.db.entity.TOperacionActual;
 
 public interface TOperacionActualMapper {
@@ -50,4 +55,14 @@ public interface TOperacionActualMapper {
      * @mbg.generated Tue Jun 11 19:48:23 CEST 2024
      */
     int updateByPrimaryKey(TOperacionActual record);
+
+    /**
+     * Método que nos realiza la consulta de la operación por pantalla e ID entidad.
+     * @param pantalla La pantalla donde se realiza la operación.
+     * @param idEntidad El ID de la entidad que se está consultando (ID_PRESUPUESTO,  ID_FACTURA ...)
+     * @return La operación encontrado.
+     */
+    TOperacionActual obtenerOperacionEntidadPantalla(@Param("pantalla") String pantalla, @Param("idEntidad") Integer idEntidad);
+
+    List<TOperacionActual> obtenerOperacionesPorTiempo(@Param("fecha") Date fecha);
 }

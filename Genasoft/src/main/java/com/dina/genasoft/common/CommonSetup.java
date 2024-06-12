@@ -11,6 +11,8 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -23,6 +25,7 @@ import com.dina.genasoft.db.entity.TAcceso;
 import com.dina.genasoft.db.entity.TAccesoHis;
 import com.dina.genasoft.db.entity.TEmpleados;
 import com.dina.genasoft.db.entity.TErrores;
+import com.dina.genasoft.db.entity.TOperacionActual;
 import com.dina.genasoft.db.entity.TPermisos;
 import com.dina.genasoft.db.entity.TTrace;
 import com.dina.genasoft.db.entity.TTrace2;
@@ -409,6 +412,78 @@ public class CommonSetup implements Serializable {
             result = new TTrace2();
             result.setIntentos(0);
         }
+        return result;
+    }
+
+    /**
+     * Método que nos elimina la operación que el empleado ha hecho.
+     * @param idEmpleado El id del empleado para eliminar la operación.
+     */
+    public void eliminarOperacionEmpleado(Integer idEmpleado) {
+        tOperacionActualMapper.deleteByPrimaryKey(idEmpleado);
+    }
+
+    /**
+     * Método que nos guarda la operación que el empleado está realizando.
+     * @param idEmpleado El id del empleado para guardar la operación.
+     */
+    public void guardarOperacionEmpleado(TOperacionActual record) {
+        tOperacionActualMapper.insert(record);
+    }
+
+    /**
+     * Método que nos realiza la consulta de la operación por pantalla e ID entidad.
+     * @param pantalla La pantalla donde se realiza la operación.
+     * @param idEntidad El ID de la entidad que se está consultando (ID_PRESUPUESTO,  ID_FACTURA ...)
+     * @return La operación encontrado.
+     */
+    public TOperacionActual obtenerOperacionEntidadPantalla(String pantalla, Integer idEntidad) {
+        return tOperacionActualMapper.obtenerOperacionEntidadPantalla(pantalla, idEntidad);
+    }
+
+    /**
+     * Método que nos retorna las operaciones más antiguas que la fecha pasada por parámetro.
+     * @param min fecha maxima
+     * @return Las operaciones encontradas
+     */
+    public List<TOperacionActual> obtenerOperacionesPorTiempo(Date max) {
+        return tOperacionActualMapper.obtenerOperacionesPorTiempo(max);
+    }
+
+    /**
+     * Método que nos registra en el sistema la operación que está realizando el empleado pasado por parámetro.
+     * @param record El registro a guardar.
+     * @return Si la operación se puede registrar, y por lo tanto realizar, el resultado será {@literal ConstantsMaestros.OPERACION_OK}. <br>
+     * Si no se puede registear, quiere decir que hay un empleado realizando esa operación se retorna mensaje descriptivo.
+     */
+    public String registrarOperacionEmpleado(TOperacionActual record) {
+        String result = "";
+
+        if (record.getIdEntidad().equals(-1)) {
+            // Si el id entidad es -1 puede ser un listado o alguna vista que no requiere bloqueo, en ese caso nos la trae al pairo si existe la misma operación con el otro empleado.
+            // Eliminamos la operación del empleado, para que no haya más de 1.
+            eliminarOperacionEmpleado(record.getIdEmpleado());
+            // Registramos la operación del empleado
+            guardarOperacionEmpleado(record);
+        } else {
+            TOperacionActual aux = obtenerOperacionEntidadPantalla(record.getPantalla(), record.getIdEntidad());
+            if (aux != null) {
+                if (!aux.getIdEmpleado().equals(record.getIdEmpleado())) {
+                    result = obtenerDescripcionCodigo(Constants.BD_KO_OPERACION_BLOQUEADA);
+                    TEmpleados empl = empleadosSetup.obtenerEmpleadoPorId(aux.getIdEmpleado());
+                    result += " " + empl.getNombre() + " en " + new SimpleDateFormat("dd/MM/yyyy HH:mm:ss").format(record.getFecha());
+                } else {
+                    tOperacionActualMapper.updateByPrimaryKey(record);
+                }
+
+            } else {
+                // Eliminamos la operación del empleado, para que no haya más de 1.
+                eliminarOperacionEmpleado(record.getIdEmpleado());
+                // Registramos la operación del empleado
+                guardarOperacionEmpleado(record);
+            }
+        }
+
         return result;
     }
 

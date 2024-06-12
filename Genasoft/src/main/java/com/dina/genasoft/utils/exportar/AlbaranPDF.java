@@ -705,7 +705,6 @@ public class AlbaranPDF extends PdfPageEventHelper {
 
         // EL pie.
         PdfPTable table2;
-        LineDash solid = new SolidLine();
 
         table2 = new PdfPTable(2);
 
@@ -713,13 +712,13 @@ public class AlbaranPDF extends PdfPageEventHelper {
         cell = new PdfPCell(new Phrase(col1, cabecera2));
         cell.setBorder(PdfPCell.NO_BORDER);
         cell.setHorizontalAlignment(Element.ALIGN_CENTER);
-        cell.setCellEvent(new CustomBorder(null, solid, null, null));
+        cell.setCellEvent(new CustomBorder(null, null, null, null));
         //cell.setFixedHeight(36f);        
         table2.addCell(cell);
         cell = new PdfPCell(new Phrase(col2, cabecera2));
         cell.setBorder(PdfPCell.NO_BORDER);
         cell.setHorizontalAlignment(Element.ALIGN_LEFT);
-        cell.setCellEvent(new CustomBorder(null, solid, null, null));
+        cell.setCellEvent(new CustomBorder(null, null, null, null));
         //cell.setFixedHeight(36f);
         table2.addCell(cell);
 
@@ -765,10 +764,11 @@ public class AlbaranPDF extends PdfPageEventHelper {
             table.addCell(cell);
             // Añadimos la firma del transportista, si la tiene.
             if (imgFirma != null) {
-                imgFirma.scalePercent(30f);
+                imgFirma.scalePercent(20f);
                 imgFirma.setScaleToFitHeight(false);
                 cell = new PdfPCell(imgFirma);
                 cell.setBorder(PdfPCell.NO_BORDER);
+                cell.setHorizontalAlignment(Element.ALIGN_CENTER);
                 cell.setCellEvent(new CustomBorder(null, null, null, null));
                 table.addCell(cell);
             } else {
@@ -785,9 +785,10 @@ public class AlbaranPDF extends PdfPageEventHelper {
             cell.setBorder(PdfPCell.NO_BORDER);
             cell.setCellEvent(new CustomBorder(null, null, null, null));
             table.addCell(cell);
-            cell = new PdfPCell(new Phrase(" ", cabecera2));
+            cell = new PdfPCell(new Phrase("DNI: " + pesaje.getDniConductor() + ", " + pesaje.getNombreConductor(), cabecera2));
             cell.setBorder(PdfPCell.NO_BORDER);
             cell.setCellEvent(new CustomBorder(null, null, null, null));
+            cell.setHorizontalAlignment(Element.ALIGN_CENTER);
             table.addCell(cell);
             cell = new PdfPCell(new Phrase(" ", cabecera2));
             cell.setBorder(PdfPCell.NO_BORDER);

@@ -14,6 +14,7 @@ import java.net.UnknownHostException;
 import java.sql.SQLException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
 
 import javax.servlet.ServletOutputStream;
@@ -33,6 +34,7 @@ import com.dina.genasoft.common.FacturasSetup;
 import com.dina.genasoft.db.entity.TClientes;
 import com.dina.genasoft.db.entity.TFacturas;
 import com.dina.genasoft.db.entity.TLineasFactura;
+import com.dina.genasoft.db.entity.TOperacionActual;
 import com.dina.genasoft.db.entity.TTrace;
 import com.dina.genasoft.db.entity.TTrace2;
 import com.dina.genasoft.exception.GenasoftException;
@@ -104,6 +106,9 @@ public class Controller {
     /** Contendrá el nombre de la aplicación.*/
     @Value("${app.informe}")
     private Integer                       appInforme;
+    /** Contendrá el nombre de la aplicación.*/
+    @Value("${app.min.bloqueo}")
+    private Integer                       appMinBloqueo;
 
     /**
      * Para generar la hoja de ruta en formato PDF.
@@ -573,6 +578,29 @@ public class Controller {
         }
 
         return result;
+    }
+
+    /**
+     * Proceso que se encarga de limpiar aquellos bloquedos que se den cuando un usuario no cierre sesión y cierre la ventana del navegador.
+     */
+    public void procesoLimpiezaOperacionesActivas() {
+
+        Calendar cal = Calendar.getInstance();
+
+        cal.setTime(Utils.generarFecha());
+        cal.set(Calendar.SECOND, 0);
+        cal.add(Calendar.MINUTE, -appMinBloqueo);
+
+        Date max = cal.getTime();
+
+        List<TOperacionActual> lOperaciones = commonSetup.obtenerOperacionesPorTiempo(max);
+
+        // Eliminamos los bloqueos.
+
+        for (TOperacionActual op : lOperaciones) {
+            commonSetup.eliminarOperacionEmpleado(op.getIdEmpleado());
+        }
+
     }
 
 }

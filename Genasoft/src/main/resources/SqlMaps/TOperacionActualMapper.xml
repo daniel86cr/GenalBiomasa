@@ -119,4 +119,31 @@
       fecha = #{fecha,jdbcType=TIMESTAMP}
     where id_empleado = #{idEmpleado,jdbcType=INTEGER}
   </update>
+  
+  <select id="obtenerOperacionEntidadPantalla" resultMap="BaseResultMap">
+    <!--
+      
+    -->
+    select 'false' as QUERYID,
+    <include refid="Base_Column_List" />
+    from t_operacion_actual
+    where 
+    	pantalla = #{pantalla,jdbcType=VARCHAR}
+    and
+    	id_entidad = #{idEntidad,jdbcType=INTEGER}
+  </select>
+
+   <select id="obtenerOperacionesPorTiempo" resultMap="BaseResultMap">
+    <!--
+      
+    -->
+    select 'false' as QUERYID,
+    <include refid="Base_Column_List" />
+    from t_operacion_actual
+    where 
+    	<![CDATA[
+    		fecha < #{fecha,jdbcType=TIMESTAMP}
+    	]]> 
+  </select>
+  
 </mapper>

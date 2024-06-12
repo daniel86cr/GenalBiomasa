@@ -139,4 +139,6 @@ public final class Constants {
     public static String BANCO_EXISTE_NOMBRE                    = "GBE-055";
     /** Constante de error que indica que se ha producido un error al modificar el banco. */
     public static String BD_KO_MODIF_BANCO                      = "GBE-056";
+    /** Constante de error que indica que está bloqueado el registro por otro usuario para evitar errores. */
+    public static String BD_KO_OPERACION_BLOQUEADA              = "GBE-057";
 }
