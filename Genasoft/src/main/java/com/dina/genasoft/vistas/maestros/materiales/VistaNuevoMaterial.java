@@ -18,6 +18,7 @@ import com.dina.genasoft.controller.ControladorVistas;
 import com.dina.genasoft.db.entity.TEmpleados;
 import com.dina.genasoft.db.entity.TIva;
 import com.dina.genasoft.db.entity.TMateriales;
+import com.dina.genasoft.db.entity.TOperacionActual;
 import com.dina.genasoft.db.entity.TPermisos;
 import com.dina.genasoft.exception.GenasoftException;
 import com.dina.genasoft.utils.Utils;
@@ -192,7 +193,7 @@ public class VistaNuevoMaterial extends CustomComponent implements View ,Button.
                     return;
                 }
 
-                if (!Utils.booleanFromInteger(permisos.getEntornoMaestros())) {
+                if (!Utils.booleanFromInteger(permisos.getCrearMateria())) {
                     Notification aviso = new Notification("No se tienen permisos para acceder a la pantalla indicada", Notification.Type.ERROR_MESSAGE);
                     aviso.setPosition(Position.MIDDLE_CENTER);
                     aviso.show(Page.getCurrent());
@@ -200,6 +201,21 @@ public class VistaNuevoMaterial extends CustomComponent implements View ,Button.
                     getSession().setAttribute("fecha", null);
                     getUI().getNavigator().navigateTo(VistaInicioSesion.NAME);
                     return;
+                }
+
+                String parametros = event.getParameters();
+
+                if (parametros != null && !parametros.isEmpty()) {
+                    if (parametros.split(",").length == 2) {
+                        parametros = parametros.split(",")[1];
+                        if (parametros.contains("_")) {
+                            parametros = parametros.replaceAll("_", " ");
+                        }
+                    } else {
+                        parametros = null;
+                    }
+                } else {
+                    parametros = null;
                 }
 
                 // Creamos los botones de la pantalla.
@@ -220,7 +236,7 @@ public class VistaNuevoMaterial extends CustomComponent implements View ,Button.
                 crearBotones();
 
                 // Creamos los componetes que conforman la pantalla.
-                crearComponentes();
+                crearComponentes(parametros);
 
                 Label texto = new Label("Nuevo material");
                 texto.setStyleName("tituloTamano18");
@@ -277,6 +293,14 @@ public class VistaNuevoMaterial extends CustomComponent implements View ,Button.
                 viewLayout.setMargin(true);
                 viewLayout.setSpacing(true);
 
+                // Guardamos la operación en BD.
+                TOperacionActual record = new TOperacionActual();
+                record.setFecha(Utils.generarFecha());
+                record.setIdEmpleado(user);
+                record.setIdEntidad(-1);
+                record.setPantalla(NAME);
+                contrVista.registrarOperacionEmpleado(record, user, time);
+
             } catch (MyBatisSystemException e) {
                 Notification aviso = new Notification("No se ha podido establecer conexión con la base de datos.", Notification.Type.ERROR_MESSAGE);
                 aviso.setPosition(Position.MIDDLE_CENTER);
@@ -331,7 +355,7 @@ public class VistaNuevoMaterial extends CustomComponent implements View ,Button.
     /**
      * Método que nos crea los componetes que conforman la pantalla.
      */
-    private void crearComponentes() {
+    private void crearComponentes(String nombre) {
         //Los campos que componen un empleado.
 
         // El código de empleado.
@@ -347,6 +371,7 @@ public class VistaNuevoMaterial extends CustomComponent implements View ,Button.
         txtNombre.setRequired(true);
         txtNombre.setWidth(appWidth, Sizeable.Unit.EM);
         txtNombre.setMaxLength(1000);
+        txtNombre.setValue(nombre);
 
         // LER
         txtLer = (TextField) binder.buildAndBind("LER:", "ler");

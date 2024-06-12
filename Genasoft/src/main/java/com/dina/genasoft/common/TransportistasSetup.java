@@ -273,4 +273,12 @@ public class TransportistasSetup implements Serializable {
         return lResult;
     }
 
+    /**
+     * Método que nos retorna los operadores activos en el sistema.
+     * @return Los operadores activos encontrados
+     */
+    public List<TTransportistas> obtenerTransportistasAsignadosCliente(Integer idCliente) {
+        return tTransportistasMapper.obtenerTransportistasAsignadosCliente(idCliente);
+    }
+
 }

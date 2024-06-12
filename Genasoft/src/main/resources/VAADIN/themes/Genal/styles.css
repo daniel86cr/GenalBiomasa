@@ -2564,16 +2564,5 @@ td.v-datefield-calendarpanel-month,
     }
  
 .v-table tr.v-selected {
-	color: #FFFFFF;
-}
-
-
-.v-loading-indicator {
-  top: 50%;
-  left: 50%;
-  right: 0;
-  bottom: 0;
-  pointer-events: auto;
-  width: 60px;
-  height: 60px;
+	color: #F90707;
 }

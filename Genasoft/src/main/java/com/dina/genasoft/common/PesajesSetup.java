@@ -6,6 +6,7 @@
 package com.dina.genasoft.common;
 
 import java.io.Serializable;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -13,17 +14,25 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import com.dina.genasoft.configuration.Constants;
 import com.dina.genasoft.db.entity.TClientes;
+import com.dina.genasoft.db.entity.TDireccionCliente;
 import com.dina.genasoft.db.entity.TEmpleados;
+import com.dina.genasoft.db.entity.TNumeroAlbaran;
+import com.dina.genasoft.db.entity.TOperadores;
 import com.dina.genasoft.db.entity.TPesajes;
 import com.dina.genasoft.db.entity.TPesajesVista;
 import com.dina.genasoft.db.entity.TRegistrosCambiosPesajes;
+import com.dina.genasoft.db.entity.TTransportistas;
+import com.dina.genasoft.db.mapper.TNumeroAlbaranMapper;
 import com.dina.genasoft.db.mapper.TPesajesMapper;
 import com.dina.genasoft.db.mapper.TRegistrosCambiosPesajesMapper;
+import com.dina.genasoft.utils.EnvioCorreo;
 import com.dina.genasoft.utils.Utils;
+import com.dina.genasoft.utils.enums.PesajesEnum;
 
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
@@ -50,6 +59,21 @@ public class PesajesSetup implements Serializable {
     /** Inyección de Spring para poder acceder a la capa de datos de clientes. */
     @Autowired
     private ClientesSetup                  clientesSetup;
+    /** Inyección de Spring para poder acceder a la capa de datos de operadores. */
+    @Autowired
+    private OperadoresSetup                operadoresSetup;
+    /** Inyección de Spring para poder acceder a la capa de datos de transportistas. */
+    @Autowired
+    private TransportistasSetup            transportistasSetup;
+    /** Inyección por Spring del mapper TNumeroAlbaran.*/
+    @Autowired
+    private TNumeroAlbaranMapper           tNumeroAlbaranMapper;
+    /** Contendrá el ID del usuario del administrador para recibir notificaciones.*/
+    @Value("${user.notificacions}")
+    private String                         userNotifications;
+    /** Inyección de Spring para poder acceder a la lógica de exportación de datos en Excel.*/
+    @Autowired
+    private EnvioCorreo                    envioCorreo;
     private static final long              serialVersionUID = 5701299788812594642L;
 
     /**
@@ -77,6 +101,15 @@ public class PesajesSetup implements Serializable {
      */
     public List<TPesajes> obtenerPesajesFactura(Integer idFactura) {
         return tPesajesMapper.obtenerPesajesFactura(idFactura);
+    }
+
+    /**
+     * Método que nos retorna los pesajes que están dentro de la factura con ID pasado por parámetro.
+     * @param idFactura El ID de la factura a consultar
+     * @return Los pesajes existentes en la factura.
+     */
+    public List<TPesajes> obtenerPesajesIds(List<Integer> lIds) {
+        return tPesajesMapper.obtenerPesajesIds(lIds);
     }
 
     /**
@@ -108,6 +141,14 @@ public class PesajesSetup implements Serializable {
 
         Integer id = -1;
 
+        // Buscamos el pesaje por nº de albarán por si ya existe uno con el mismo número.
+
+        TPesajes aux = obtenerPesajePorAlbaran(record.getNumeroAlbaran());
+
+        if (aux != null) {
+            aux.setNumeroAlbaran(obtenerNumeroAlbaran("" + PesajesEnum.TIPO_GENERICO.getValue()));
+        }
+
         try {
             // Rellenamos los datos necesarios para crear el cliente.
             Map<String, Object> map = new HashMap<String, Object>();
@@ -131,6 +172,19 @@ public class PesajesSetup implements Serializable {
             map.put("fechaModifica", record.getFechaModifica());
             map.put("idFactura", record.getIdFactura());
             map.put("estado", record.getEstado());
+            map.put("idOperador", record.getIdOperador());
+            map.put("idTransportista", record.getIdTransportista());
+            map.put("iva", record.getIva());
+            map.put("base", record.getBase());
+            map.put("precioKg", record.getPrecioKg());
+            map.put("importe", record.getImporte());
+            map.put("indFirmaCliente", record.getIndFirmaCliente());
+            map.put("idIva", record.getIdIva());
+            map.put("observaciones", record.getObservaciones());
+            map.put("nombreConductor", record.getNombreConductor());
+            map.put("dniConductor", record.getDniConductor());
+            map.put("nombreConforme", record.getNombreConforme());
+            map.put("dniComforme", record.getDniComforme());
 
             tPesajesMapper.insertRecord(map);
 
@@ -214,11 +268,20 @@ public class PesajesSetup implements Serializable {
 
         List<TEmpleados> lEmpl = empleadosSetup.obtenerTodosEmpleados();
         List<TClientes> lClient = clientesSetup.obtenerTodosClientes();
+        List<TDireccionCliente> lDirs = clientesSetup.obtenerTodasDireccionesCliente();
+        List<TOperadores> lOpers = operadoresSetup.obtenerTodosOperadores();
+        List<TTransportistas> lTrans = transportistasSetup.obtenerTodosTransportistas();
 
         // Nutrimos el diccionario con los empleados
         Map<Integer, String> mEmpleados = lEmpl.stream().collect(Collectors.toMap(TEmpleados::getId, TEmpleados::getNombre));
         // Nutrimos el diccionario con los clientes
         Map<Integer, String> mClientes = lClient.stream().collect(Collectors.toMap(TClientes::getId, TClientes::getNombre));
+        // Nutrimos el diccionario con las direcciones
+        Map<Integer, String> mDirs = lDirs.stream().collect(Collectors.toMap(TDireccionCliente::getId, TDireccionCliente::getDireccion));
+        // Nutrimos el diccionario con los operadores
+        Map<Integer, String> mOpers = lOpers.stream().collect(Collectors.toMap(TOperadores::getId, TOperadores::getNombre));
+        // Nutrimos el diccionario con los transportistas
+        Map<Integer, String> mTrans = lTrans.stream().collect(Collectors.toMap(TTransportistas::getId, TTransportistas::getNombre));
 
         TPesajesVista aux = null;
         String campo = "";
@@ -239,10 +302,153 @@ public class PesajesSetup implements Serializable {
             campo = mClientes.get(p.getIdCliente());
             aux.setIdCliente(campo != null ? campo : "N/D; ID: " + p.getIdCliente());
 
+            // Dirección
+            campo = mDirs.get(p.getIdDireccion());
+            aux.setIdDireccion(campo != null ? campo : "N/D; ID: " + p.getIdDireccion());
+
+            // Operador
+            if (p.getIdOperador() != null) {
+                campo = mOpers.get(p.getIdOperador());
+                aux.setIdOperador(campo != null ? campo : "N/D; ID: " + p.getIdOperador());
+            }
+
+            // Transportista
+            if (p.getIdTransportista() != null) {
+                campo = mTrans.get(p.getIdTransportista());
+                aux.setIdTransportista(campo != null ? campo : "N/D; ID: " + p.getIdTransportista());
+            }
+
             lResult.add(aux);
         }
 
         return lResult;
+    }
+
+    /**
+     * Método que nos retorna el número de albaran que le corresponde
+     * @param tipoPesaje
+     * @return
+     */
+    public String obtenerNumeroAlbaran(String tipoPesaje) {
+        String result = "-1";
+
+        Calendar cal = Calendar.getInstance();
+
+        cal.setTime(Utils.generarFecha());
+        int year = cal.get(Calendar.YEAR);
+        Boolean entra = false;
+        if (tipoPesaje.equals("00")) {
+            year = cal.get(Calendar.YEAR) % 100;
+            entra = true;
+        }
+
+        TNumeroAlbaran nAlbaran = tNumeroAlbaranMapper.obtenerNumeroAlbaran(tipoPesaje, year);
+
+        if (nAlbaran == null) {
+            year = cal.get(Calendar.YEAR) % 100;
+            nAlbaran = tNumeroAlbaranMapper.obtenerNumeroAlbaran(tipoPesaje, year);
+        }
+
+        if (nAlbaran == null) {
+
+            year = cal.get(Calendar.YEAR) % 100;
+
+            int yearAnterior = year - 1;
+            // Buscamos el último número del año anterior
+            TNumeroAlbaran aux = tNumeroAlbaranMapper.obtenerNumeroAlbaran(tipoPesaje, yearAnterior);
+            if (aux == null) {
+                log.error("No se ha podido determinar el número de albaran con los siguientes datos: tipo de pedido: " + tipoPesaje + ", año anterior: " + yearAnterior);
+
+            }
+            result = "0000";
+            String resultado = "" + year;
+            // if (entra) {
+            //     resultado = resultado + year + "000000";
+            // } else {
+            resultado = resultado + "000001";
+            // }
+            result = resultado;
+            nAlbaran = new TNumeroAlbaran();
+            nAlbaran.setFechaUltimaConsulta(Utils.generarFecha());
+            nAlbaran.setTipoPesaje(tipoPesaje);
+            if (entra) {
+                nAlbaran.setUltimoNumero("00000" + 2);
+            } else {
+                nAlbaran.setUltimoNumero("00000" + 2);
+            }
+            nAlbaran.setYearActual(year);
+            int cont = 0;
+            boolean insert = false;
+            while (cont < 10) {
+                if (tNumeroAlbaranMapper.insert(nAlbaran) == 1) {
+                    cont = 10;
+                    insert = true;
+                } else {
+                    try {
+                        Thread.sleep(2000);
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+                    cont++;
+                }
+            }
+            if (!insert) {
+                if (userNotifications != null) {
+                    try {
+                        // Buscamos el empleado de las notificaciones
+                        TEmpleados empl = empleadosSetup.obtenerEmpleadoPorId(Integer.valueOf(userNotifications));
+                        envioCorreo.enviarCorreo(empl.getEmail(), "GENASOFT ERROR - No se ha podido generar el número de albarán", "No se ha podido realizar el insert", resultado);
+                    } catch (Exception e) {
+                        log.error("Se ha producido un error al enviar la notificación al usuario: " + userNotifications);
+                    }
+                }
+            }
+        } else {
+            String resultado = "" + year;
+            resultado = resultado + nAlbaran.getUltimoNumero();
+            result = resultado;
+            String valor = String.valueOf(Integer.valueOf(nAlbaran.getUltimoNumero()) + 1);
+            if (nAlbaran.getUltimoNumero().length() == 6) {
+                while (valor.length() < 6) {
+                    valor = "0" + valor;
+                }
+            } else {
+                while (valor.length() < 4) {
+                    valor = "0" + valor;
+                }
+            }
+            nAlbaran.setUltimoNumero(valor);
+            nAlbaran.setFechaUltimaConsulta(Utils.generarFecha());
+            int cont = 0;
+            boolean insert = false;
+            while (cont < 10) {
+
+                if (tNumeroAlbaranMapper.updateByPrimaryKey(nAlbaran) == 1) {
+                    insert = true;
+                    cont = 10;
+                } else {
+                    try {
+                        Thread.sleep(2000);
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+                    cont++;
+                }
+            }
+            if (!insert) {
+                if (userNotifications != null) {
+                    try {
+                        // Buscamos el empleado de las notificaciones
+                        TEmpleados empl = empleadosSetup.obtenerEmpleadoPorId(Integer.valueOf(userNotifications));
+                        envioCorreo.enviarCorreo(empl.getEmail(), "GENASOFT ERROR - No se ha podido generar el número de albarán", "No se ha podido realizar el insert", resultado);
+                    } catch (Exception e) {
+                        log.error("Se ha producido un error al enviar la notificación al usuario: " + userNotifications);
+                    }
+                }
+            }
+        }
+        // Retornamos el número del albaran encontrado
+        return result;
     }
 
 }

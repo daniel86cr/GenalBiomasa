@@ -13,6 +13,7 @@
         <typeAliases>       		 	              
         		<typeAlias alias="TAcceso" type="com.dina.genasoft.db.entity.TAcceso" />
         		<typeAlias alias="TAccesoHis" type="com.dina.genasoft.db.entity.TAccesoHis" />
+        		<typeAlias alias="TBancos" type="com.dina.genasoft.db.entity.TBancos" />
         		<typeAlias alias="TClientes" type="com.dina.genasoft.db.entity.TClientes" />
         		<typeAlias alias="TClientesMateriales" type="com.dina.genasoft.db.entity.TClientesMateriales" />
         		<typeAlias alias="TClientesOperadores" type="com.dina.genasoft.db.entity.TClientesOperadores" />
@@ -25,12 +26,16 @@
         		<typeAlias alias="TFacturaPesaje" type="com.dina.genasoft.db.entity.TFacturaPesaje" />
         		<typeAlias alias="TFacturas" type="com.dina.genasoft.db.entity.TFacturas" />
         		<typeAlias alias="TIva" type="com.dina.genasoft.db.entity.TIva" />
+        		<typeAlias alias="TLineasFactura" type="com.dina.genasoft.db.entity.TLineasFactura" />
         		<typeAlias alias="TMateriales" type="com.dina.genasoft.db.entity.TMateriales" />
+        		<typeAlias alias="TNumeroAlbaran" type="com.dina.genasoft.db.entity.TNumeroAlbaran" />
         		<typeAlias alias="TOperadores" type="com.dina.genasoft.db.entity.TOperadores" />
+        		<typeAlias alias="TOperacionActual" type="com.dina.genasoft.db.entity.TOperacionActual" />
         		<typeAlias alias="TPais" type="com.dina.genasoft.db.entity.TPais" />
         		<typeAlias alias="TPermisos" type="com.dina.genasoft.db.entity.TPermisos" />
         		<typeAlias alias="TPesajes" type="com.dina.genasoft.db.entity.TPesajes" />
-        		<typeAlias alias="TPesajesHis" type="com.dina.genasoft.db.entity.TPesajesHis" />        		
+        		<typeAlias alias="TPesajesHis" type="com.dina.genasoft.db.entity.TPesajesHis" />
+        		<typeAlias alias="TRegistrosCambiosBancos" type="com.dina.genasoft.db.entity.TRegistrosCambiosBancos" />        		
         		<typeAlias alias="TRegistrosCambiosClientes" type="com.dina.genasoft.db.entity.TRegistrosCambiosClientes" />
         		<typeAlias alias="TRegistrosCambiosDireccionCliente" type="com.dina.genasoft.db.entity.TRegistrosCambiosDireccionCliente" />
         		<typeAlias alias="TRegistrosCambiosEmpleados" type="com.dina.genasoft.db.entity.TRegistrosCambiosEmpleados" />
@@ -48,6 +53,7 @@
         <mappers>
         		<mapper resource="SqlMaps/TAccesoMapper.xml"></mapper>
         		<mapper resource="SqlMaps/TAccesoHisMapper.xml"></mapper>
+        		<mapper resource="SqlMaps/TBancosMapper.xml"></mapper>
         		<mapper resource="SqlMaps/TClientesMapper.xml"></mapper>
         		<mapper resource="SqlMaps/TClientesMaterialesMapper.xml"></mapper>
         		<mapper resource="SqlMaps/TClientesOperadoresMapper.xml"></mapper>
@@ -59,13 +65,17 @@
         		<mapper resource="SqlMaps/TErroresMapper.xml"></mapper>
         		<mapper resource="SqlMaps/TFacturaPesajeMapper.xml"></mapper>
         		<mapper resource="SqlMaps/TFacturasMapper.xml"></mapper>
+        		<mapper resource="SqlMaps/TLineasFacturaMapper.xml"></mapper>
         		<mapper resource="SqlMaps/TIvaMapper.xml"></mapper>
         		<mapper resource="SqlMaps/TMaterialesMapper.xml"></mapper>
+        		<mapper resource="SqlMaps/TNumeroAlbaranMapper.xml"></mapper>
         		<mapper resource="SqlMaps/TOperadoresMapper.xml"></mapper>
+        		<mapper resource="SqlMaps/TOperacionActualMapper.xml"></mapper>
         		<mapper resource="SqlMaps/TPaisMapper.xml"></mapper>
         		<mapper resource="SqlMaps/TPermisosMapper.xml"></mapper>
         		<mapper resource="SqlMaps/TPesajesMapper.xml"></mapper>
         		<mapper resource="SqlMaps/TPesajesHisMapper.xml"></mapper>
+        		<mapper resource="SqlMaps/TRegistrosCambiosBancosMapper.xml"></mapper>
         		<mapper resource="SqlMaps/TRegistrosCambiosClientesMapper.xml"></mapper>
         		<mapper resource="SqlMaps/TRegistrosCambiosDireccionClienteMapper.xml"></mapper>
         		<mapper resource="SqlMaps/TRegistrosCambiosEmpleadosMapper.xml"></mapper>

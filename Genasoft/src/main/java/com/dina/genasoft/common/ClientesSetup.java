@@ -30,6 +30,7 @@ import com.dina.genasoft.db.entity.TIva;
 import com.dina.genasoft.db.entity.TMateriales;
 import com.dina.genasoft.db.entity.TOperadores;
 import com.dina.genasoft.db.entity.TRegistrosCambiosClientes;
+import com.dina.genasoft.db.entity.TRegistrosCambiosDireccionCliente;
 import com.dina.genasoft.db.entity.TTransportistas;
 import com.dina.genasoft.db.mapper.TClientesMapper;
 import com.dina.genasoft.db.mapper.TClientesMaterialesMapper;
@@ -37,6 +38,7 @@ import com.dina.genasoft.db.mapper.TClientesOperadoresMapper;
 import com.dina.genasoft.db.mapper.TClientesTransportistasMapper;
 import com.dina.genasoft.db.mapper.TDireccionClienteMapper;
 import com.dina.genasoft.db.mapper.TRegistrosCambiosClientesMapper;
+import com.dina.genasoft.db.mapper.TRegistrosCambiosDireccionClienteMapper;
 import com.dina.genasoft.utils.Utils;
 
 import lombok.Data;
@@ -51,42 +53,45 @@ import lombok.extern.slf4j.Slf4j;
 @Data
 public class ClientesSetup implements Serializable {
     /** El log de la aplicación.*/
-    private static final org.slf4j.Logger   log              = org.slf4j.LoggerFactory.getLogger(ClientesSetup.class);
+    private static final org.slf4j.Logger           log              = org.slf4j.LoggerFactory.getLogger(ClientesSetup.class);
     /** Inyección por Spring del mapper TClientesMapper.*/
     @Autowired
-    private TClientesMapper                 tClientesMapper;
+    private TClientesMapper                         tClientesMapper;
     /** Inyección por Spring del mapper TClientesOperadores.*/
     @Autowired
-    private TClientesOperadoresMapper       tClientesOperadoresMapper;
+    private TClientesOperadoresMapper               tClientesOperadoresMapper;
     /** Inyección por Spring del mapper TClientesTransportistasMapper.*/
     @Autowired
-    private TClientesTransportistasMapper   tClientesTransportistasMapper;
+    private TClientesTransportistasMapper           tClientesTransportistasMapper;
     /** Inyección por Spring del mapper TClientesMaterialesMapper.*/
     @Autowired
-    private TClientesMaterialesMapper       tClientesMaterialesMapper;
+    private TClientesMaterialesMapper               tClientesMaterialesMapper;
     /** Inyección por Spring del mapper TDireccionClienteMapper.*/
     @Autowired
-    private TDireccionClienteMapper         tDireccionClienteMapper;
+    private TDireccionClienteMapper                 tDireccionClienteMapper;
     /** Inyección por Spring del mapper TRegistrosCambiosClientesMapper. */
     @Autowired
-    private TRegistrosCambiosClientesMapper tRegistrosCambiosClientesMapper;
+    private TRegistrosCambiosClientesMapper         tRegistrosCambiosClientesMapper;
+    /** Inyección por Spring del mapper TRegistrosCambiosDireccionClienteMapper. */
+    @Autowired
+    private TRegistrosCambiosDireccionClienteMapper tRegistrosCambiosDireccionClienteMapper;
     /** Inyección de Spring para poder acceder a la capa de datos de empleados. */
     @Autowired
-    private EmpleadosSetup                  empleadosSetup;
+    private EmpleadosSetup                          empleadosSetup;
     /** Inyección de Spring para poder acceder a la capa de datos de operadores. */
     @Autowired
-    private OperadoresSetup                 operadoresSetup;
+    private OperadoresSetup                         operadoresSetup;
     /** Inyección de Spring para poder acceder a la capa de datos de materiales. */
     @Autowired
-    private MaterialesSetup                 materialesSetup;
+    private MaterialesSetup                         materialesSetup;
     /** Inyección de Spring para poder acceder a la capa de datos de monedas. */
     @Autowired
-    private MonedasSetup                    monedasSetup;
+    private MonedasSetup                            monedasSetup;
     /** Inyección de Spring para poder acceder a la capa de datos de transportistas. */
     @Autowired
-    private TransportistasSetup             transportistasSetup;
+    private TransportistasSetup                     transportistasSetup;
     /** Serial ID de la aplicación Spring. */
-    private static final long               serialVersionUID = 5701299788812594642L;
+    private static final long                       serialVersionUID = 5701299788812594642L;
 
     /**
      * Método que nos retorna el cliente a partir del ID.
@@ -115,6 +120,24 @@ public class ClientesSetup implements Serializable {
      */
     public List<TDireccionCliente> obtenerDireccionesClientePorIdCliente(Integer idCliente) {
         return tDireccionClienteMapper.obtenerDireccionesClientePorIdCliente(idCliente);
+    }
+
+    /**
+     * Método que nos retorna las direcciones de cliente a partir del ID.
+     * @param id El ID de la dirección de cliente.
+     * @return Las direcciones de cliente encontradas.
+     */
+    public List<TDireccionCliente> obtenerTodasDireccionesCliente() {
+        return tDireccionClienteMapper.obtenerTodasDireccionesCliente();
+    }
+
+    /**
+     * Método que nos retorna las direcciones de cliente a partir del ID.
+     * @param id El ID de la dirección de cliente.
+     * @return Las direcciones de cliente encontradas.
+     */
+    public List<TDireccionClienteVista> obtenerDireccionesClientePorIdClienteVista(Integer idCliente) {
+        return convertirDireccionClientesVista(obtenerDireccionesClientePorIdCliente(idCliente));
     }
 
     /**
@@ -188,6 +211,8 @@ public class ClientesSetup implements Serializable {
             map.put("usuModifica", record.getUsuModifica());
             map.put("fechaModifica", record.getFechaModifica());
             map.put("estado", record.getEstado());
+            map.put("matricula", record.getMatricula());
+            map.put("remolque", record.getRemolque());
 
             tClientesMapper.insertRecord(map);
 
@@ -236,6 +261,25 @@ public class ClientesSetup implements Serializable {
         String result = "";
         try {
             result = tDireccionClienteMapper.insert(dirCliente) == 1 ? Constants.OPERACION_OK : Constants.BD_KO_CREA_DIR_CLIENTE;
+        } catch (Exception e) {
+            result = Constants.BD_KO_CREA_DIR_CLIENTE;
+            log.error(Constants.BD_KO_CREA_DIR_CLIENTE + ", Error al crear la dirección del cliente: " + dirCliente.toString2() + ", ", e);
+        }
+
+        // Retnornamos el resultado de la operación.
+        return result;
+
+    }
+
+    /**
+     * Método que se encarga de crear el cliente en el sistema.
+     * @param dirCliente El cliente a crear.     
+     * @return El código del resultado de la operación.
+     */
+    public String modificarDireccionCliente(TDireccionCliente dirCliente) {
+        String result = "";
+        try {
+            result = tDireccionClienteMapper.updateByPrimaryKey(dirCliente) == 1 ? Constants.OPERACION_OK : Constants.BD_KO_CREA_DIR_CLIENTE;
         } catch (Exception e) {
             result = Constants.BD_KO_CREA_DIR_CLIENTE;
             log.error(Constants.BD_KO_CREA_DIR_CLIENTE + ", Error al crear la dirección del cliente: " + dirCliente.toString2() + ", ", e);
@@ -313,12 +357,98 @@ public class ClientesSetup implements Serializable {
     }
 
     /**
+     * Método que se encarga de crear un nuevo registro de cambio de empleado en el sistema.
+     * @param record El registro de cambio de empleado a crear.     
+     * @return El código del resultado de la operación.
+     */
+    public String crearRegistroCambioDireccionCliente(TRegistrosCambiosDireccionCliente record) {
+
+        String result = Constants.OPERACION_OK;
+
+        try {
+            result = tRegistrosCambiosDireccionClienteMapper.insert(record) == 1 ? Constants.OPERACION_OK : Constants.BD_KO_CREA_CLIENTE;
+        } catch (Exception e) {
+            result = Constants.BD_KO_CREA_CLIENTE;
+            log.error(Constants.BD_KO_CREA_CLIENTE + ", Error al crear el registro de modificación de la dirección del cliente: " + record.toString() + ", ", e);
+        }
+
+        // Retnornamos el resultado de la operación.
+        return result;
+    }
+
+    /**
      * Método que nos retorna las asociaciones de cliente - operadores asociados al cliente.
      * @param idCliente El Id del cliente para realizar la consulta.
      * @return Los registros encontrados.
      */
     public List<TClientesOperadores> obtenerOperadoresAsociadosCliente(Integer idCliente) {
         return tClientesOperadoresMapper.obtenerOperadoresAsociadosCliente(idCliente);
+    }
+
+    public String asignarOperadorCliente(TClientesOperadores record) {
+        TClientesOperadores aux = tClientesOperadoresMapper.selectByPrimaryKey(record.getIdCliente(), record.getIdOperador());
+        if (aux != null) {
+            modificarOperadorCliente(record);
+        } else {
+            tClientesOperadoresMapper.insert(record);
+        }
+
+        return Constants.OPERACION_OK;
+    }
+
+    public String asignarTransportistaCliente(TClientesTransportistas record) {
+        TClientesTransportistas aux = tClientesTransportistasMapper.selectByPrimaryKey(record.getIdCliente(), record.getIdTransportista());
+        if (aux != null) {
+            modificarTransportistaCliente(record);
+        } else {
+            tClientesTransportistasMapper.insert(record);
+        }
+
+        return Constants.OPERACION_OK;
+    }
+
+    public String modificarOperadorCliente(TClientesOperadores record) {
+        TClientesOperadores aux = tClientesOperadoresMapper.selectByPrimaryKey(record.getIdCliente(), record.getIdOperador());
+        if (aux == null) {
+            asignarOperadorCliente(record);
+        } else {
+            tClientesOperadoresMapper.updateByPrimaryKey(record);
+        }
+
+        return Constants.OPERACION_OK;
+    }
+
+    public String modificarTransportistaCliente(TClientesTransportistas record) {
+        TClientesTransportistas aux = tClientesTransportistasMapper.selectByPrimaryKey(record.getIdCliente(), record.getIdTransportista());
+        if (aux == null) {
+            asignarTransportistaCliente(record);
+        } else {
+            tClientesTransportistasMapper.updateByPrimaryKey(record);
+        }
+
+        return Constants.OPERACION_OK;
+    }
+
+    public String asignarMaterialCliente(TClientesMateriales record) {
+        TClientesMateriales aux = tClientesMaterialesMapper.selectByPrimaryKey(record.getIdCliente(), record.getIdMaterial());
+        if (aux != null) {
+            modificarMaterialCliente(record);
+        } else {
+            tClientesMaterialesMapper.insert(record);
+        }
+
+        return Constants.OPERACION_OK;
+    }
+
+    public String modificarMaterialCliente(TClientesMateriales record) {
+        TClientesMateriales aux = tClientesMaterialesMapper.selectByPrimaryKey(record.getIdCliente(), record.getIdMaterial());
+        if (aux == null) {
+            asignarMaterialCliente(record);
+        } else {
+            tClientesMaterialesMapper.updateByPrimaryKey(record);
+        }
+
+        return Constants.OPERACION_OK;
     }
 
     /**

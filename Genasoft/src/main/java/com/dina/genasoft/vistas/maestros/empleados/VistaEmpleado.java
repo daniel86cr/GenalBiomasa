@@ -16,6 +16,7 @@ import org.springframework.beans.factory.annotation.Value;
 import com.dina.genasoft.configuration.Constants;
 import com.dina.genasoft.controller.ControladorVistas;
 import com.dina.genasoft.db.entity.TEmpleados;
+import com.dina.genasoft.db.entity.TOperacionActual;
 import com.dina.genasoft.db.entity.TPermisos;
 import com.dina.genasoft.db.entity.TRegistrosCambiosEmpleados;
 import com.dina.genasoft.db.entity.TRoles;
@@ -353,6 +354,21 @@ public class VistaEmpleado extends CustomComponent implements View ,Button.Click
                 viewLayout.setExpandRatio(titulo, 0.1f);
                 viewLayout.setMargin(true);
                 viewLayout.setSpacing(true);
+
+                // Guardamos la operación en BD.
+                TOperacionActual record = new TOperacionActual();
+                record.setFecha(Utils.generarFecha());
+                record.setIdEmpleado(user);
+                record.setIdEntidad(empNuevo.getId());
+                record.setPantalla(NAME);
+                String result = contrVista.registrarOperacionEmpleado(record, user, time);
+                if (!result.isEmpty()) {
+                    Notification aviso = new Notification(result, Notification.Type.ERROR_MESSAGE);
+                    aviso.setPosition(Position.MIDDLE_CENTER);
+                    aviso.show(Page.getCurrent());
+                    modificarButton.setVisible(false);
+                }
+
             } catch (MyBatisSystemException e) {
                 Notification aviso = new Notification("No se ha podido establecer conexión con la base de datos.", Notification.Type.ERROR_MESSAGE);
                 aviso.setPosition(Position.MIDDLE_CENTER);

@@ -19,6 +19,7 @@ import com.dina.genasoft.controller.ControladorVistas;
 import com.dina.genasoft.db.entity.TEmpleados;
 import com.dina.genasoft.db.entity.TIva;
 import com.dina.genasoft.db.entity.TMateriales;
+import com.dina.genasoft.db.entity.TOperacionActual;
 import com.dina.genasoft.db.entity.TPermisos;
 import com.dina.genasoft.db.entity.TRegistrosCambiosMateriales;
 import com.dina.genasoft.exception.GenasoftException;
@@ -210,7 +211,7 @@ public class VistaMaterial extends CustomComponent implements View ,Button.Click
                     return;
                 }
 
-                if (!Utils.booleanFromInteger(permisos.getEntornoMaestros())) {
+                if (!Utils.booleanFromInteger(permisos.getModificarMaterial())) {
                     Notification aviso = new Notification("No se tienen permisos para acceder a la pantalla indicada", Notification.Type.ERROR_MESSAGE);
                     aviso.setPosition(Position.MIDDLE_CENTER);
                     aviso.show(Page.getCurrent());
@@ -318,6 +319,21 @@ public class VistaMaterial extends CustomComponent implements View ,Button.Click
                 viewLayout.setExpandRatio(titulo, 0.1f);
                 viewLayout.setMargin(true);
                 viewLayout.setSpacing(true);
+
+                // Guardamos la operación en BD.
+                TOperacionActual record = new TOperacionActual();
+                record.setFecha(Utils.generarFecha());
+                record.setIdEmpleado(user);
+                record.setIdEntidad(nMaterial.getId());
+                record.setPantalla(NAME);
+                String result = contrVista.registrarOperacionEmpleado(record, user, time);
+                if (!result.isEmpty()) {
+                    Notification aviso = new Notification(result, Notification.Type.ERROR_MESSAGE);
+                    aviso.setPosition(Position.MIDDLE_CENTER);
+                    aviso.show(Page.getCurrent());
+                    modificarButton.setVisible(false);
+                }
+
             } catch (MyBatisSystemException e) {
                 Notification aviso = new Notification("No se ha podido establecer conexión con la base de datos.", Notification.Type.ERROR_MESSAGE);
                 aviso.setPosition(Position.MIDDLE_CENTER);
@@ -457,7 +473,7 @@ public class VistaMaterial extends CustomComponent implements View ,Button.Click
 
         nMaterial.setReferencia(value);
 
-        value = txtNombre.getValue().trim().toUpperCase();
+        value = txtNombre.getValue();
 
         if (value != null) {
             value = value.trim().toUpperCase();

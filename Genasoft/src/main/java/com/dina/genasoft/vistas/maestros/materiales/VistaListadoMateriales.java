@@ -19,6 +19,7 @@ import com.dina.genasoft.configuration.Constants;
 import com.dina.genasoft.controller.ControladorVistas;
 import com.dina.genasoft.db.entity.TEmpleados;
 import com.dina.genasoft.db.entity.TMaterialesVista;
+import com.dina.genasoft.db.entity.TOperacionActual;
 import com.dina.genasoft.db.entity.TPermisos;
 import com.dina.genasoft.exception.GenasoftException;
 import com.dina.genasoft.utils.TablaGenerica;
@@ -210,6 +211,14 @@ public class VistaListadoMateriales extends CustomComponent implements View ,But
                 viewLayout.setMargin(true);
                 viewLayout.setSpacing(true);
 
+                // Guardamos la operación en BD.
+                TOperacionActual record = new TOperacionActual();
+                record.setFecha(Utils.generarFecha());
+                record.setIdEmpleado(user);
+                record.setIdEntidad(-1);
+                record.setPantalla(NAME);
+                contrVista.registrarOperacionEmpleado(record, user, time);
+
             } catch (GenasoftException tbe) {
                 log.error("La sesión es inválida, se ha iniciado sesión en otro dispositivo.");
                 // Si no se encuentran permisos con el rol especificado, informamos al empleado y cerramos sesión.
@@ -319,9 +328,9 @@ public class VistaListadoMateriales extends CustomComponent implements View ,But
 
                     result = contrVista.obtenerDescripcionCodigo(result);
                     Item articulo = tablaMateriales.getItem("" + ids[i]);
-                    String est = "Desactivado";
+                    String est = Constants.DESACTIVADO;
                     if (articulo.getItemProperty("estado").getValue().equals("Activo")) {
-                        est = "Desactivado";
+                        est = Constants.DESACTIVADO;
                     }
                     articulo.getItemProperty("estado").setValue(est);
                     i++;
@@ -337,9 +346,9 @@ public class VistaListadoMateriales extends CustomComponent implements View ,But
                 aviso.setPosition(Position.MIDDLE_CENTER);
                 aviso.show(Page.getCurrent());
                 Item articulo = tablaMateriales.getItem("" + idSeleccionado);
-                String est = "Desactivado";
+                String est = Constants.DESACTIVADO;
                 if (articulo.getItemProperty("estado").getValue().equals("Activo")) {
-                    est = "Desactivado";
+                    est = Constants.DESACTIVADO;
                 }
                 articulo.getItemProperty("estado").setValue(est);
             }
@@ -393,7 +402,7 @@ public class VistaListadoMateriales extends CustomComponent implements View ,But
             @Override
             public void itemClick(ItemClickEvent event) {
                 idSeleccionado = (String) event.getItemId();
-                if (event.isDoubleClick()) {
+                if (event.isDoubleClick() && Utils.booleanFromInteger(permisos.getModificarMaterial())) {
                     getUI().getNavigator().navigateTo(VistaMaterial.NAME + "/" + idSeleccionado);
                 }
             }
@@ -756,13 +765,15 @@ public class VistaListadoMateriales extends CustomComponent implements View ,But
         //Botonera
         HorizontalLayout botonera = new HorizontalLayout();
         botonera.setSpacing(true);
-
-        botonera.addComponent(crearButton);
-
-        botonera.addComponent(modificarButton);
-
-        botonera.addComponent(eliminarButton);
-
+        if (Utils.booleanFromInteger(permisos.getCrearMateria())) {
+            botonera.addComponent(crearButton);
+        }
+        if (Utils.booleanFromInteger(permisos.getModificarMaterial())) {
+            botonera.addComponent(modificarButton);
+        }
+        if (Utils.booleanFromInteger(permisos.getEliminarMaterial())) {
+            botonera.addComponent(eliminarButton);
+        }
         botonera.setMargin(true);
 
         return botonera;

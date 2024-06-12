@@ -19,6 +19,7 @@ import com.dina.genasoft.configuration.Constants;
 import com.dina.genasoft.controller.ControladorVistas;
 import com.dina.genasoft.db.entity.TEmpleados;
 import com.dina.genasoft.db.entity.TEmpleadosVista;
+import com.dina.genasoft.db.entity.TOperacionActual;
 import com.dina.genasoft.db.entity.TPermisos;
 import com.dina.genasoft.db.entity.TRoles;
 import com.dina.genasoft.exception.GenasoftException;
@@ -209,6 +210,14 @@ public class VistaListadoEmpleados extends CustomComponent implements View ,Butt
                 viewLayout.setMargin(true);
                 viewLayout.setSpacing(true);
 
+                // Guardamos la operación en BD.
+                TOperacionActual record = new TOperacionActual();
+                record.setFecha(Utils.generarFecha());
+                record.setIdEmpleado(user);
+                record.setIdEntidad(-1);
+                record.setPantalla(NAME);
+                contrVista.registrarOperacionEmpleado(record, user, time);
+
             } catch (GenasoftException tbe) {
                 log.error("La sesión es inválida, se ha iniciado sesión en otro dispositivo.");
                 // Si no se encuentran permisos con el rol especificado, informamos al empleado y cerramos sesión.
@@ -318,9 +327,9 @@ public class VistaListadoEmpleados extends CustomComponent implements View ,Butt
 
                     result = contrVista.obtenerDescripcionCodigo(result);
                     Item articulo = tablaEmpleados.getItem("" + ids[i]);
-                    String est = "Desactivado";
+                    String est = Constants.DESACTIVADO;
                     if (articulo.getItemProperty("estado").getValue().equals("Activo")) {
-                        est = "Desactivado";
+                        est = Constants.DESACTIVADO;
                     }
                     articulo.getItemProperty("estado").setValue(est);
                     i++;
@@ -336,9 +345,9 @@ public class VistaListadoEmpleados extends CustomComponent implements View ,Butt
                 aviso.setPosition(Position.MIDDLE_CENTER);
                 aviso.show(Page.getCurrent());
                 Item articulo = tablaEmpleados.getItem("" + idSeleccionado);
-                String est = "Desactivado";
+                String est = Constants.DESACTIVADO;
                 if (articulo.getItemProperty("estado").getValue().equals("Activo")) {
-                    est = "Desactivado";
+                    est = Constants.DESACTIVADO;
                 }
                 articulo.getItemProperty("estado").setValue(est);
             }

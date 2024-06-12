@@ -9,7 +9,10 @@ import org.springframework.beans.factory.annotation.Value;
 
 import com.dina.genasoft.db.entity.TPermisos;
 import com.dina.genasoft.utils.Utils;
+import com.dina.genasoft.vistas.facturas.VistaListadoFacturas;
 import com.dina.genasoft.vistas.maestros.empleados.VistaEmpleado;
+import com.dina.genasoft.vistas.pesajes.VistaListadoPesajes;
+import com.dina.genasoft.vistas.pesajes.VistaNuevoPesaje;
 import com.vaadin.server.Resource;
 import com.vaadin.server.ThemeResource;
 import com.vaadin.spring.annotation.SpringComponent;
@@ -47,7 +50,7 @@ public class Menu extends CustomComponent {
     /** Evento que muestra la vista de las cajas. */
     private MenuBar.Command inventarioPesajes;
     /** Evento que muestra la vista de las cajas. */
-    private MenuBar.Command listadoPesajes;
+    private MenuBar.Command registroPesajes;
     /** Evento que muestra la vista de los productos. */
     private MenuBar.Command entornoFacturacion;
     /** Evento que muestra la vista para crear pedidos de envases. */
@@ -86,7 +89,7 @@ public class Menu extends CustomComponent {
             listados.addItem("Entorno Maestros", new ThemeResource("icons/addUser-16.ico"), entornoMaestros);
         }
         if (Utils.booleanFromInteger(permisos.getCrearPesaje())) {
-            listados.addItem("Registo Pesajes", new ThemeResource("icons/addUser-16.ico"), listadoPesajes);
+            listados.addItem("Registo Pesajes", new ThemeResource("icons/addUser-16.ico"), registroPesajes);
         }
         if (Utils.booleanFromInteger(permisos.getEntornoPesajes())) {
             listados.addItem("Inventario pesajes", new ThemeResource("icons/report-16.ico"), inventarioPesajes);
@@ -138,6 +141,33 @@ public class Menu extends CustomComponent {
             public void menuSelected(MenuItem selectedItem) {
 
                 getUI().getNavigator().navigateTo(VistaMenuPrincipalMaestros.NAME + "/" + idEmpleado);
+            }
+
+        };
+
+        registroPesajes = new MenuBar.Command() {
+
+            public void menuSelected(MenuItem selectedItem) {
+
+                getUI().getNavigator().navigateTo(VistaNuevoPesaje.NAME + "/" + idEmpleado);
+            }
+
+        };
+
+        inventarioPesajes = new MenuBar.Command() {
+
+            public void menuSelected(MenuItem selectedItem) {
+
+                getUI().getNavigator().navigateTo(VistaListadoPesajes.NAME + "/" + idEmpleado);
+            }
+
+        };
+
+        entornoFacturacion = new MenuBar.Command() {
+
+            public void menuSelected(MenuItem selectedItem) {
+
+                getUI().getNavigator().navigateTo(VistaListadoFacturas.NAME + "/" + idEmpleado);
             }
 
         };

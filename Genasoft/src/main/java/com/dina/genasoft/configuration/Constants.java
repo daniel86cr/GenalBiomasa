@@ -47,10 +47,18 @@ public final class Constants {
     public static String SESION_INVALIDA                        = "GBE-015";
     /** Constante de error que nos indica que el empleado ya está desactivado .*/
     public static String EMPL_DESACTIVADO                       = "GBE-016";
-    /** Constante con el texto activo para que sea uniforme en toda la aplicación. */
+    /** Constante con el texto 'activo' para que sea uniforme en toda la aplicación. */
     public static String ACTIVO                                 = "Activo";
-    /** Constante con el texto activo para que sea uniforme en toda la aplicación. */
+    /** Constante con el texto 'desactivado' para que sea uniforme en toda la aplicación. */
     public static String DESACTIVADO                            = "Desactivado";
+    /** Constante con el texto 'anulado' para que sea uniforme en toda la aplicación. */
+    public static String ANULADO                                = "Anulado";
+    /** Constante con el texto 'albarán' para que sea uniforme en toda la aplicación. */
+    public static String ALBARAN                                = "Albarán";
+    /** Constante con el texto 'facturado' para que sea uniforme en toda la aplicación. */
+    public static String FACTURADO                              = "Facturado";
+    /** Constante con el texto 'no facturado' para que sea uniforme en toda la aplicación. */
+    public static String NO_FACTURADO                           = "No Facturado";
     /** Constante de error que nos indica que el cliente ya existe con el CIF indicado. */
     public static String CLIENTE_EXISTE_CIF                     = "GBE-017";
     /** Constante de error que indica que no existe el cliente. */
@@ -125,4 +133,12 @@ public final class Constants {
     public static String PESAJE_DESACTIVADO                     = "GBE-052";
     /** Constante de error que nos indica que el pesaje indicado no existe. */
     public static String PESAJE_NO_EXISTE                       = "GBE-053";
+    /** Constante de error que indica que se ha producido un error al registrar el banco. */
+    public static String BD_KO_CREAR_BANCO                      = "GBE-054";
+    /** Constante de error que nos indica que el banco ya existe con el nombre indicado. */
+    public static String BANCO_EXISTE_NOMBRE                    = "GBE-055";
+    /** Constante de error que indica que se ha producido un error al modificar el banco. */
+    public static String BD_KO_MODIF_BANCO                      = "GBE-056";
+    /** Constante de error que indica que está bloqueado el registro por otro usuario para evitar errores. */
+    public static String BD_KO_OPERACION_BLOQUEADA              = "GBE-057";
 }
