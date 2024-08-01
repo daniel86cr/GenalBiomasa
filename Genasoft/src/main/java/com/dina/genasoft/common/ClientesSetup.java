@@ -22,6 +22,7 @@ import com.dina.genasoft.db.entity.TClientesOperadores;
 import com.dina.genasoft.db.entity.TClientesOperadoresVista;
 import com.dina.genasoft.db.entity.TClientesTransportistas;
 import com.dina.genasoft.db.entity.TClientesTransportistasVista;
+import com.dina.genasoft.db.entity.TClientesVehiculos;
 import com.dina.genasoft.db.entity.TClientesVista;
 import com.dina.genasoft.db.entity.TDireccionCliente;
 import com.dina.genasoft.db.entity.TDireccionClienteVista;
@@ -36,6 +37,7 @@ import com.dina.genasoft.db.mapper.TClientesMapper;
 import com.dina.genasoft.db.mapper.TClientesMaterialesMapper;
 import com.dina.genasoft.db.mapper.TClientesOperadoresMapper;
 import com.dina.genasoft.db.mapper.TClientesTransportistasMapper;
+import com.dina.genasoft.db.mapper.TClientesVehiculosMapper;
 import com.dina.genasoft.db.mapper.TDireccionClienteMapper;
 import com.dina.genasoft.db.mapper.TRegistrosCambiosClientesMapper;
 import com.dina.genasoft.db.mapper.TRegistrosCambiosDireccionClienteMapper;
@@ -66,6 +68,9 @@ public class ClientesSetup implements Serializable {
     /** Inyección por Spring del mapper TClientesMaterialesMapper.*/
     @Autowired
     private TClientesMaterialesMapper               tClientesMaterialesMapper;
+    /** Inyección por Spring del mapper TClientesVehiculosMapper.*/
+    @Autowired
+    private TClientesVehiculosMapper                tClientesVehiculosMapper;
     /** Inyección por Spring del mapper TDireccionClienteMapper.*/
     @Autowired
     private TDireccionClienteMapper                 tDireccionClienteMapper;
@@ -440,12 +445,34 @@ public class ClientesSetup implements Serializable {
         return Constants.OPERACION_OK;
     }
 
+    public String asignarVehiculoCliente(TClientesVehiculos record) {
+        TClientesVehiculos aux = tClientesVehiculosMapper.selectByPrimaryKey(record.getIdCliente(), record.getMatricula(), record.getTipo());
+        if (aux != null) {
+            modificarVehiculoCliente(record);
+        } else {
+            tClientesVehiculosMapper.insert(record);
+        }
+
+        return Constants.OPERACION_OK;
+    }
+
     public String modificarMaterialCliente(TClientesMateriales record) {
         TClientesMateriales aux = tClientesMaterialesMapper.selectByPrimaryKey(record.getIdCliente(), record.getIdMaterial());
         if (aux == null) {
             asignarMaterialCliente(record);
         } else {
             tClientesMaterialesMapper.updateByPrimaryKey(record);
+        }
+
+        return Constants.OPERACION_OK;
+    }
+
+    public String modificarVehiculoCliente(TClientesVehiculos record) {
+        TClientesVehiculos aux = tClientesVehiculosMapper.selectByPrimaryKey(record.getIdCliente(), record.getMatricula(), record.getTipo());
+        if (aux == null) {
+            asignarVehiculoCliente(record);
+        } else {
+            tClientesVehiculosMapper.updateByPrimaryKey(record);
         }
 
         return Constants.OPERACION_OK;
@@ -748,6 +775,22 @@ public class ClientesSetup implements Serializable {
         }
 
         return lResult;
+    }
+
+    /**
+     * Método que nos retorna los materiales activos en el sistema.
+     * @return Los materiales activos encontrados
+     */
+    public List<String> obtenerMatriculasAsignadasCliente(Integer idCliente) {
+        return tClientesMapper.obtenerMatriculasAsignadasCliente(idCliente);
+    }
+
+    /**
+     * Método que nos retorna los materiales activos en el sistema.
+     * @return Los materiales activos encontrados
+     */
+    public List<String> obtenerRemolquesAsignadosCliente(Integer idCliente) {
+        return tClientesMapper.obtenerRemolquesAsignadosCliente(idCliente);
     }
 
 }

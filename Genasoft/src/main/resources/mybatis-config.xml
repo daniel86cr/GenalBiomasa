@@ -18,6 +18,7 @@
         		<typeAlias alias="TClientesMateriales" type="com.dina.genasoft.db.entity.TClientesMateriales" />
         		<typeAlias alias="TClientesOperadores" type="com.dina.genasoft.db.entity.TClientesOperadores" />
         		<typeAlias alias="TClientesTransportistas" type="com.dina.genasoft.db.entity.TClientesTransportistas" />
+        		<typeAlias alias="TClientesVehiculos" type="com.dina.genasoft.db.entity.TClientesVehiculos" />
         		<typeAlias alias="TDireccionCliente" type="com.dina.genasoft.db.entity.TDireccionCliente" />
         		<typeAlias alias="TEmpleadoEmpresa" type="com.dina.genasoft.db.entity.TEmpleadoEmpresa" />
         		<typeAlias alias="TEmpleados" type="com.dina.genasoft.db.entity.TEmpleados" />
@@ -58,6 +59,7 @@
         		<mapper resource="SqlMaps/TClientesMaterialesMapper.xml"></mapper>
         		<mapper resource="SqlMaps/TClientesOperadoresMapper.xml"></mapper>
         		<mapper resource="SqlMaps/TClientesTransportistasMapper.xml"></mapper>
+        		<mapper resource="SqlMaps/TClientesVehiculosMapper.xml"></mapper>
         		<mapper resource="SqlMaps/TDireccionClienteMapper.xml"></mapper>
         		<mapper resource="SqlMaps/TEmpleadoEmpresaMapper.xml"></mapper>
         		<mapper resource="SqlMaps/TEmpleadosMapper.xml"></mapper>

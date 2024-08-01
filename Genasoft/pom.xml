@@ -4,7 +4,7 @@
 
 	<groupId>com.dina.genasoft</groupId>
 	<artifactId>Genasoft</artifactId>
-	<version>1.0.000</version>
+	<version>1.0.001</version>
 	<packaging>jar</packaging>
 
 	<name>Genasoft</name>

@@ -284,4 +284,31 @@
     where 
 		cif = #{cif,jdbcType=VARCHAR}
   </select>
+  
+  <select id="obtenerMatriculasAsignadasCliente" parameterType="java.lang.Integer" resultType="java.lang.String">
+    <!--
+      
+    -->
+    select matricula
+    <include refid="Base_Column_List" />
+    from t_clientes_vehiculos
+    where 
+		id_cliente = #{idCliente,jdbcType=INTEGER}
+	AND
+		tipo = 1
+  </select>
+  
+  
+  <select id="obtenerRemolquesAsignadosCliente" parameterType="java.lang.Integer" resultType="java.lang.String">
+    <!--
+      
+    -->
+    select matricula
+    <include refid="Base_Column_List" />
+    from t_clientes_vehiculos
+    where 
+		id_cliente = #{idCliente,jdbcType=INTEGER}
+	AND
+		tipo = 2
+  </select>
 </mapper>

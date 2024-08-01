@@ -48,7 +48,7 @@ public class EnvioCorreo {
     @Async
     public void enviarCorreo(String email, String titulo, String cuerpo, String adjunto) throws MailException, InterruptedException {
 
-        // NOTIFICACIONES TRAZABILIDADES[Natural TROPIC]
+        // NOTIFICACIONES GENASOFT
         System.setProperty("spring.mail.host", "smtp.gmail.com");
         System.setProperty("spring.mail.username", "dcarmonanotificaciones@gmail.com");
         System.setProperty("spring.mail.password", "N0t1f1c4c10n3s");
