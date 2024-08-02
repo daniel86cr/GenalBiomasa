@@ -1,5 +1,5 @@
 /**
- * Aplicacion Transportes TRAZABILIDADES[Natural TROPIC].
+ * Aplicacion control de pesajes .
  * http://www.TRAZABILIDADES[Natural TROPIC].net/
  * Copyright (C) 2016
  */

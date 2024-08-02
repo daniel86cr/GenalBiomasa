@@ -80,6 +80,9 @@ public class AlbaranPDF extends PdfPageEventHelper {
     /** Contendrá el nombre de la aplicación.*/
     @Value("${pdf.temp}")
     private String                        pdfTemp;
+    /** Contendrá el nombre de la aplicación.*/
+    @Value("${pdf.temp2}")
+    private String                        pdfTemp2;
     /** Contendrá el ID de la dirección de la empresa.*/
     @Value("${app.id.dir}")
     private String                        appIdDir;
@@ -260,7 +263,7 @@ public class AlbaranPDF extends PdfPageEventHelper {
         img = Image.getInstance(path1);
 
         try {
-            imgFirma = Image.getInstance(pdfTemp + "/Firmas/Firma_" + idPesaje + "_1.png");
+            imgFirma = Image.getInstance(pdfTemp2 + "Firma_" + idPesaje + "_1.png");
         } catch (Exception e) {
             imgFirma = null;
         }

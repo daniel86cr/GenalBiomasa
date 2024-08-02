@@ -1131,7 +1131,9 @@ public class VistaListadoFacturas extends CustomComponent implements View ,Butto
         botonera.setSpacing(true);
         //botonera.addComponent(crearButton);
         //botonera.addComponent(modificarButton);
-        botonera.addComponent(eliminarButton);
+        if (Utils.booleanFromInteger(permisos.getEliminarFactura())) {
+            botonera.addComponent(eliminarButton);
+        }
         botonera.addComponent(pdfButton);
         botonera.setMargin(true);
 

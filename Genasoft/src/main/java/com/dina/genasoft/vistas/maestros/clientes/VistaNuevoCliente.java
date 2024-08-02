@@ -20,6 +20,8 @@ import com.dina.genasoft.db.entity.TClientes;
 import com.dina.genasoft.db.entity.TClientesMateriales;
 import com.dina.genasoft.db.entity.TClientesOperadores;
 import com.dina.genasoft.db.entity.TClientesTransportistas;
+import com.dina.genasoft.db.entity.TClientesVehiculos;
+import com.dina.genasoft.db.entity.TDireccionCliente;
 import com.dina.genasoft.db.entity.TEmpleados;
 import com.dina.genasoft.db.entity.TMateriales;
 import com.dina.genasoft.db.entity.TOperacionActual;
@@ -32,7 +34,6 @@ import com.dina.genasoft.utils.Utils;
 import com.dina.genasoft.utils.enums.BancosEnum;
 import com.dina.genasoft.vistas.Menu;
 import com.dina.genasoft.vistas.VistaInicioSesion;
-import com.dina.genasoft.vistas.maestros.clientes.direcciones.VistaNuevaDireccionCliente;
 import com.dina.genasoft.vistas.maestros.materiales.VistaNuevoMaterial;
 import com.dina.genasoft.vistas.maestros.operadores.VistaNuevoOperador;
 import com.dina.genasoft.vistas.maestros.transportistas.VistaNuevoTransportista;
@@ -82,6 +83,10 @@ public class VistaNuevoCliente extends CustomComponent implements View ,Button.C
     private BeanFieldGroup<TClientes>     binder;
     /** El boton para crear el operador.*/
     private Button                        crearButton;
+    /** El boton para crear el operador.*/
+    private Button                        inlcuirMatriculaButton;
+    /** El boton para crear el operador.*/
+    private Button                        inlcuirRemolqueButton;
     /** Combobox para los estados.*/
     private ComboBox                      cbEstado;
     /** Combobox para los materiales.*/
@@ -108,6 +113,16 @@ public class VistaNuevoCliente extends CustomComponent implements View ,Button.C
     /** La caja de texto para el nombre.*/
     private TextField                     txtCif;
     /** La caja de texto para el nombre.*/
+    private TextField                     txtDireccion;
+    /** La caja de texto para el nombre.*/
+    private TextField                     txtCp;
+    /** La caja de texto para el nombre.*/
+    private TextField                     txtPoblacion;
+    /** La caja de texto para el nombre.*/
+    private TextField                     txtProvincia;
+    /** La caja de texto para el nombre.*/
+    private TextField                     txtPais;
+    /** La caja de texto para el nombre.*/
     private TextField                     txtMatricula;
     /** La caja de texto para el nombre.*/
     private TextField                     txtRemolque;
@@ -127,8 +142,10 @@ public class VistaNuevoCliente extends CustomComponent implements View ,Button.C
     private Button                        materialesButton;
     /** Muestra la información relacionada con los operadores del cliente.*/
     private Button                        operadoresButton;
-    /** Muestra la información relacionada con los operadores del cliente.*/
+    /** Muestra la información relacionada con los transportistas del cliente.*/
     private Button                        transportistasButton;
+    /** Muestra la información relacionada con los vehiculos del cliente.*/
+    private Button                        vehiculosButton;
     /** Container que mostrará los campos relacionado con la información principal del cliente. */
     private VerticalLayout                infoPrincipal      = null;
     /** Container que mostrará los campos relacionado con la información de materiales del cliente. */
@@ -137,12 +154,18 @@ public class VistaNuevoCliente extends CustomComponent implements View ,Button.C
     private VerticalLayout                infoOperadores     = null;
     /** Container que mostrará los campos relacionado con la información de operadores del cliente. */
     private VerticalLayout                infoTransportistas = null;
+    /** Container que mostrará los campos relacionado con la información de los vehiculos del cliente. */
+    private VerticalLayout                infoVehiculos      = null;
     /** ListSelect para añadir los materiales para los materiales. */
     private ListSelect                    lsMateriales;
     /** ListSelect para añadir los materiales para los operadores. */
     private ListSelect                    lsOperadores;
     /** ListSelect para añadir los materiales para los transportistas. */
     private ListSelect                    lsTransportistas;
+    /** ListSelect para añadir los materiales para los transportistas. */
+    private ListSelect                    lsMatriculas;
+    /** ListSelect para añadir los materiales para los transportistas. */
+    private ListSelect                    lsRemolques;
     /** Lista con los materiales activos del sistema. */
     private List<TMateriales>             lMateriales;
     /** Lista con los operadores activos del sistema. */
@@ -165,6 +188,13 @@ public class VistaNuevoCliente extends CustomComponent implements View ,Button.C
                     return;
                 }
 
+                if (lsMatriculas.size() < 1) {
+                    Notification aviso = new Notification("Se debe informar al menos una matrícula ", Notification.Type.WARNING_MESSAGE);
+                    aviso.setPosition(Position.MIDDLE_CENTER);
+                    aviso.show(Page.getCurrent());
+                    return;
+                }
+
                 // Construimos el objeto cliente a partir de los datos introducidos en el formulario.
                 construirBean();
                 Integer id = contrVista.crearClienteRetornaId(cliente, user, time);
@@ -174,6 +204,20 @@ public class VistaNuevoCliente extends CustomComponent implements View ,Button.C
                     Notification aviso = new Notification(result, Notification.Type.HUMANIZED_MESSAGE);
                     aviso.setPosition(Position.MIDDLE_CENTER);
                     aviso.show(Page.getCurrent());
+
+                    // Creamos la dirección
+                    TDireccionCliente dir = new TDireccionCliente();
+                    dir.setCodDireccion("Principal");
+                    dir.setCodigoPostal(txtCp.getValue().trim().toUpperCase());
+                    dir.setDireccion(txtDireccion.getValue().trim().toUpperCase());
+                    dir.setEstado(1);
+                    dir.setFechaCrea(Utils.generarFecha());
+                    dir.setIdCliente(id);
+                    dir.setPais(txtPais.getValue().trim().toUpperCase());
+                    dir.setPoblacion(txtPoblacion.getValue().trim().toUpperCase());
+                    dir.setProvincia(txtProvincia.getValue().trim().toUpperCase());
+                    dir.setUsuCrea(user);
+                    contrVista.crearDireccionCliente(dir, user, time);
 
                     // Asociamos los operadores que haya seleccionado
                     @SuppressWarnings("unchecked")
@@ -245,11 +289,53 @@ public class VistaNuevoCliente extends CustomComponent implements View ,Button.C
                         contrVista.crearRegistroCambioCliente(record2, user, time);
                     }
 
+                    // Asociamos las matrículas introducidas
+                    @SuppressWarnings("unchecked")
+                    List<String> lMatriculas = (List<String>) lsMatriculas.getItemIds();
+                    TClientesVehiculos clVeh = null;
+                    for (String matricula : lMatriculas) {
+                        clVeh = new TClientesVehiculos();
+                        clVeh.setEstado(1);
+                        clVeh.setFechaCrea(Utils.generarFecha());
+                        clVeh.setIdCliente(id);
+                        clVeh.setMatricula(matricula);
+                        clVeh.setTipo(1);
+                        clVeh.setUsuCrea(user);
+                        contrVista.asignarVehiculoCliente(clVeh, user, time);
+
+                        record2 = new TRegistrosCambiosClientes();
+                        record2.setCambio("Se le asigna la matrícula: " + matricula);
+                        record2.setFechaCambio(Utils.generarFecha());
+                        record2.setIdCliente(id);
+                        record2.setUsuCrea(user);
+
+                        contrVista.crearRegistroCambioCliente(record2, user, time);
+                    }
+
+                    // Asociamos los remolques introducidos
+                    @SuppressWarnings("unchecked")
+                    List<String> lRemolques = (List<String>) lsRemolques.getItemIds();
+                    clVeh = null;
+                    for (String matricula : lRemolques) {
+                        clVeh = new TClientesVehiculos();
+                        clVeh.setEstado(1);
+                        clVeh.setFechaCrea(Utils.generarFecha());
+                        clVeh.setIdCliente(id);
+                        clVeh.setMatricula(matricula);
+                        clVeh.setTipo(2);
+                        clVeh.setUsuCrea(user);
+                        contrVista.asignarVehiculoCliente(clVeh, user, time);
+
+                        record2 = new TRegistrosCambiosClientes();
+                        record2.setCambio("Se le asigna el remolque: " + matricula);
+                        record2.setFechaCambio(Utils.generarFecha());
+                        record2.setIdCliente(id);
+                        record2.setUsuCrea(user);
+
+                        contrVista.crearRegistroCambioCliente(record2, user, time);
+                    }
+
                     inicializarCampos();
-
-                    MessageBox.createQuestion().withCaption(appName).withMessage("¿Quieres crear una dirección?").withNoButton().withYesButton(() ->
-
-                    getUI().getNavigator().navigateTo(VistaNuevaDireccionCliente.NAME + "/" + id), ButtonOption.caption("Sí")).open();
 
                 } else {
                     String result = contrVista.obtenerDescripcionCodigo(Constants.BD_KO_CREA_CLIENTE);
@@ -285,6 +371,16 @@ public class VistaNuevoCliente extends CustomComponent implements View ,Button.C
                 aviso.show(Page.getCurrent());
             }
 
+        } else if (event.getButton().equals(inlcuirMatriculaButton)) {
+            if (txtMatricula.getValue() != null && !txtMatricula.getValue().trim().isEmpty()) {
+                lsMatriculas.addItem(txtMatricula.getValue().trim().toUpperCase());
+                txtMatricula.setValue(null);
+            }
+        } else if (event.getButton().equals(inlcuirRemolqueButton)) {
+            if (txtRemolque.getValue() != null && !txtRemolque.getValue().trim().isEmpty()) {
+                lsRemolques.addItem(txtRemolque.getValue().trim().toUpperCase());
+                txtRemolque.setValue(null);
+            }
         }
     }
 
@@ -387,7 +483,8 @@ public class VistaNuevoCliente extends CustomComponent implements View ,Button.C
                 generaInformacionPrincipal();
                 generaInformacionMateriales();
                 generaInformacioOperadores();
-                generaInformacioTransportistas();
+                generaInformacionTransportistas();
+                generaInformacionVehiculos();
 
                 Label texto = new Label("Nuevo cliente");
                 texto.setStyleName("tituloTamano18");
@@ -418,6 +515,8 @@ public class VistaNuevoCliente extends CustomComponent implements View ,Button.C
                 viewLayout.setComponentAlignment(infoOperadores, Alignment.MIDDLE_CENTER);
                 viewLayout.addComponent(infoTransportistas);
                 viewLayout.setComponentAlignment(infoTransportistas, Alignment.MIDDLE_CENTER);
+                viewLayout.addComponent(infoVehiculos);
+                viewLayout.setComponentAlignment(infoVehiculos, Alignment.MIDDLE_CENTER);
                 viewLayout.addComponent(crearButton);
                 viewLayout.setComponentAlignment(crearButton, Alignment.MIDDLE_CENTER);
 
@@ -433,6 +532,7 @@ public class VistaNuevoCliente extends CustomComponent implements View ,Button.C
                 infoMateriales.setVisible(false);
                 infoOperadores.setVisible(false);
                 infoTransportistas.setVisible(false);
+                infoVehiculos.setVisible(false);
 
                 // Guardamos la operación en BD.
                 TOperacionActual record = new TOperacionActual();
@@ -478,6 +578,12 @@ public class VistaNuevoCliente extends CustomComponent implements View ,Button.C
         crearButton = new Button("Crear cliente", this);
         crearButton.addStyleName("big");
 
+        inlcuirMatriculaButton = new Button("+", this);
+        inlcuirMatriculaButton.addStyleName("big");
+
+        inlcuirRemolqueButton = new Button("+", this);
+        inlcuirRemolqueButton.addStyleName("big");
+
     }
 
     /**
@@ -504,10 +610,12 @@ public class VistaNuevoCliente extends CustomComponent implements View ,Button.C
                     infoOperadores.setVisible(false);
                     infoMateriales.setVisible(false);
                     infoTransportistas.setVisible(false);
+                    infoVehiculos.setVisible(false);
                     principalButton.addStyleName("down");
                     materialesButton.setStyleName("default");
                     operadoresButton.setStyleName("default");
                     transportistasButton.setStyleName("default");
+                    vehiculosButton.setStyleName("default");
                 }
             }
         });
@@ -524,10 +632,12 @@ public class VistaNuevoCliente extends CustomComponent implements View ,Button.C
                     infoPrincipal.setVisible(false);
                     infoOperadores.setVisible(false);
                     infoTransportistas.setVisible(false);
+                    infoVehiculos.setVisible(false);
                     principalButton.setStyleName("default");
                     materialesButton.setStyleName("down");
                     operadoresButton.setStyleName("default");
                     transportistasButton.setStyleName("default");
+                    vehiculosButton.setStyleName("default");
                 }
             }
         });
@@ -544,16 +654,18 @@ public class VistaNuevoCliente extends CustomComponent implements View ,Button.C
                     infoMateriales.setVisible(false);
                     infoPrincipal.setVisible(false);
                     infoTransportistas.setVisible(false);
+                    infoVehiculos.setVisible(false);
                     principalButton.setStyleName("default");
                     materialesButton.setStyleName("default");
                     operadoresButton.setStyleName("down");
                     transportistasButton.setStyleName("default");
+                    vehiculosButton.setStyleName("default");
 
                 }
             }
         });
 
-        transportistasButton = new Button("Operadores");
+        transportistasButton = new Button("Transportistas");
         transportistasButton.addStyleName("default");
         transportistasButton.addStyleName("down");
 
@@ -565,16 +677,42 @@ public class VistaNuevoCliente extends CustomComponent implements View ,Button.C
                     infoOperadores.setVisible(false);
                     infoMateriales.setVisible(false);
                     infoPrincipal.setVisible(false);
+                    infoVehiculos.setVisible(false);
                     principalButton.setStyleName("default");
                     materialesButton.setStyleName("default");
                     operadoresButton.setStyleName("default");
                     transportistasButton.setStyleName("down");
+                    vehiculosButton.setStyleName("default");
+
+                }
+            }
+        });
+
+        vehiculosButton = new Button("Vehículos");
+        vehiculosButton.addStyleName("default");
+        vehiculosButton.addStyleName("down");
+
+        vehiculosButton.addClickListener(new ClickListener() {
+
+            public void buttonClick(ClickEvent event) {
+                if (!infoVehiculos.isVisible()) {
+                    infoVehiculos.setVisible(true);
+                    infoOperadores.setVisible(false);
+                    infoMateriales.setVisible(false);
+                    infoPrincipal.setVisible(false);
+                    infoTransportistas.setVisible(false);
+                    principalButton.setStyleName("default");
+                    materialesButton.setStyleName("default");
+                    operadoresButton.setStyleName("default");
+                    transportistasButton.setStyleName("default");
+                    vehiculosButton.setStyleName("down");
 
                 }
             }
         });
 
         botonesMenu.addComponent(principalButton);
+        botonesMenu.addComponent(vehiculosButton);
         botonesMenu.addComponent(materialesButton);
         botonesMenu.addComponent(operadoresButton);
         botonesMenu.addComponent(transportistasButton);
@@ -627,6 +765,41 @@ public class VistaNuevoCliente extends CustomComponent implements View ,Button.C
         txtCif.setWidth(appWidth, Sizeable.Unit.EM);
         txtCif.setMaxLength(45);
 
+        // La dirección
+        txtDireccion = new TextField("Dirección: ");
+        txtDireccion.setNullRepresentation("");
+        txtDireccion.setRequired(true);
+        txtDireccion.setWidth(appWidth, Sizeable.Unit.EM);
+        txtDireccion.setMaxLength(445);
+
+        // El CP
+        txtCp = new TextField("CP: ");
+        txtCp.setNullRepresentation("");
+        txtCp.setRequired(true);
+        txtCp.setWidth(appWidth, Sizeable.Unit.EM);
+        txtCp.setMaxLength(445);
+
+        // La población
+        txtPoblacion = new TextField("Población: ");
+        txtPoblacion.setNullRepresentation("");
+        txtPoblacion.setRequired(true);
+        txtPoblacion.setWidth(appWidth, Sizeable.Unit.EM);
+        txtPoblacion.setMaxLength(445);
+
+        // El país
+        txtPais = new TextField("País: ");
+        txtPais.setNullRepresentation("");
+        txtPais.setRequired(true);
+        txtPais.setWidth(appWidth, Sizeable.Unit.EM);
+        txtPais.setMaxLength(45);
+
+        // La provincia
+        txtProvincia = new TextField("Provincia: ");
+        txtProvincia.setNullRepresentation("");
+        txtProvincia.setRequired(true);
+        txtProvincia.setWidth(appWidth, Sizeable.Unit.EM);
+        txtProvincia.setMaxLength(445);
+
         // La matrícula
         txtMatricula = (TextField) binder.buildAndBind("Matrícula:", "matricula");
         txtMatricula.setNullRepresentation("");
@@ -637,7 +810,6 @@ public class VistaNuevoCliente extends CustomComponent implements View ,Button.C
         // Remolque
         txtRemolque = (TextField) binder.buildAndBind("Remolque:", "remolque");
         txtRemolque.setNullRepresentation("");
-        txtRemolque.setRequired(true);
         txtRemolque.setWidth(appWidth, Sizeable.Unit.EM);
         txtRemolque.setMaxLength(45);
 
@@ -654,7 +826,7 @@ public class VistaNuevoCliente extends CustomComponent implements View ,Button.C
         // El banco
         cbBancos.setCaption("Banco:");
         cbBancos.setFilteringMode(FilteringMode.CONTAINS);
-        cbBancos.setNullSelectionAllowed(false);
+        cbBancos.setNullSelectionAllowed(true);
         cbBancos.setWidth(appWidth, Sizeable.Unit.EM);
         cbBancos.addItems(lBancos);
         cbBancos.setNewItemsAllowed(true);
@@ -662,7 +834,6 @@ public class VistaNuevoCliente extends CustomComponent implements View ,Button.C
         // El número de cuenta
         txtNumCuenta = (TextField) binder.buildAndBind("Número de cuenta:", "numCuenta");
         txtNumCuenta.setNullRepresentation("");
-        txtNumCuenta.setRequired(true);
         txtNumCuenta.setWidth(appWidth, Sizeable.Unit.EM);
         txtNumCuenta.setMaxLength(245);
 
@@ -682,22 +853,24 @@ public class VistaNuevoCliente extends CustomComponent implements View ,Button.C
         cliente.setFechaCrea(Utils.generarFecha());
         cliente.setUsuCrea(user);
         cliente.setFechaCrea(Utils.generarFecha());
-        cliente.setNumCuenta(txtNumCuenta.getValue().trim());
+        cliente.setNumCuenta(txtNumCuenta.getValue() != null ? txtNumCuenta.getValue().trim() : "");
 
         Object val = cbBancos.getValue();
-        if (val.getClass().equals(TBancos.class)) {
-            cliente.setIdBanco(((TBancos) val).getId());
-        } else {
-            String nombre = val.toString();
-            // Buscamos el banco por si existe
-            TBancos b = contrVista.obtenerBancoPorNombre(nombre.trim().toUpperCase(), user, time);
-            if (b == null) {
-                b = new TBancos();
-                b.setEstado(BancosEnum.ACTIVO.getValue());
-                b.setNombre(nombre.trim().toUpperCase());
-                cliente.setIdBanco(contrVista.crearBancoRetornaId(b, user, time));
+        if (val != null) {
+            if (val.getClass().equals(TBancos.class)) {
+                cliente.setIdBanco(((TBancos) val).getId());
             } else {
-                cliente.setIdBanco(b.getId());
+                String nombre = val.toString();
+                // Buscamos el banco por si existe
+                TBancos b = contrVista.obtenerBancoPorNombre(nombre.trim().toUpperCase(), user, time);
+                if (b == null) {
+                    b = new TBancos();
+                    b.setEstado(BancosEnum.ACTIVO.getValue());
+                    b.setNombre(nombre.trim().toUpperCase());
+                    cliente.setIdBanco(contrVista.crearBancoRetornaId(b, user, time));
+                } else {
+                    cliente.setIdBanco(b.getId());
+                }
             }
         }
     }
@@ -712,6 +885,9 @@ public class VistaNuevoCliente extends CustomComponent implements View ,Button.C
         txtRemolque.setValue(null);
         txtMatricula.setValue(null);
         cbBancos.clear();
+        lsMatriculas.removeAllItems();
+        lsRemolques.removeAllItems();
+        txtPais.setValue(null);
     }
 
     /**
@@ -719,7 +895,7 @@ public class VistaNuevoCliente extends CustomComponent implements View ,Button.C
      * @return true si no se cumple la validación
      */
     private boolean validarCamposObligatorios() {
-        return !cbEstado.isValid() || !txtCif.isValid() || !txtRazonSocial.isValid() || !txtNumCuenta.isValid() || !cbBancos.isValid();
+        return !cbEstado.isValid() || !txtCif.isValid() || !txtRazonSocial.isValid() || !txtDireccion.isValid() || !txtCp.isValid() || !txtPoblacion.isValid() || !txtProvincia.isValid() || !txtPais.isValid();
     }
 
     /**
@@ -742,10 +918,16 @@ public class VistaNuevoCliente extends CustomComponent implements View ,Button.C
         formulario1.setComponentAlignment(txtRazonSocial, Alignment.MIDDLE_CENTER);
         formulario1.addComponent(txtCif);
         formulario1.setComponentAlignment(txtCif, Alignment.MIDDLE_CENTER);
-        formulario1.addComponent(txtMatricula);
-        formulario1.setComponentAlignment(txtMatricula, Alignment.MIDDLE_CENTER);
-        formulario1.addComponent(txtRemolque);
-        formulario1.setComponentAlignment(txtRemolque, Alignment.MIDDLE_CENTER);
+        formulario1.addComponent(txtDireccion);
+        formulario1.setComponentAlignment(txtDireccion, Alignment.MIDDLE_CENTER);
+        formulario1.addComponent(txtPoblacion);
+        formulario1.setComponentAlignment(txtPoblacion, Alignment.MIDDLE_CENTER);
+        formulario1.addComponent(txtCp);
+        formulario1.setComponentAlignment(txtCp, Alignment.MIDDLE_CENTER);
+        formulario1.addComponent(txtProvincia);
+        formulario1.setComponentAlignment(txtProvincia, Alignment.MIDDLE_CENTER);
+        formulario1.addComponent(txtPais);
+        formulario1.setComponentAlignment(txtPais, Alignment.MIDDLE_CENTER);
         formulario1.addComponent(cbBancos);
         formulario1.setComponentAlignment(cbBancos, Alignment.MIDDLE_CENTER);
         formulario1.addComponent(txtNumCuenta);
@@ -933,7 +1115,7 @@ public class VistaNuevoCliente extends CustomComponent implements View ,Button.C
     /**
      * Método que nos crea la parte de la interfaz con la información principal de los clientes
      */
-    private void generaInformacioTransportistas() {
+    private void generaInformacionTransportistas() {
         infoTransportistas = new VerticalLayout();
         infoTransportistas.setSpacing(true);
         infoTransportistas.setMargin(true);
@@ -958,7 +1140,7 @@ public class VistaNuevoCliente extends CustomComponent implements View ,Button.C
                         cbTransportistas.clear();
                     } else {
                         try {
-                            name = (String) cbOperadores.getValue();
+                            name = (String) cbTransportistas.getValue();
                             TTransportistas mat = contrVista.obtenerTransportistaPorNombre(name.trim().toUpperCase(), user, time);
                             // Buscamos el material por si aca...
                             if (mat == null) {
@@ -1013,6 +1195,80 @@ public class VistaNuevoCliente extends CustomComponent implements View ,Button.C
 
         infoTransportistas.addComponent(body);
         infoTransportistas.setComponentAlignment(body, Alignment.MIDDLE_CENTER);
+    }
+
+    /**
+     * Método que nos crea la parte de la interfaz con la información principal de los clientes
+     */
+    private void generaInformacionVehiculos() {
+        infoVehiculos = new VerticalLayout();
+        infoVehiculos.setSpacing(true);
+        infoVehiculos.setMargin(true);
+
+        HorizontalLayout body1 = new HorizontalLayout();
+        body1.setSpacing(true);
+        body1.setMargin(true);
+
+        HorizontalLayout body2 = new HorizontalLayout();
+        body2.setSpacing(true);
+        body2.setMargin(true);
+
+        txtMatricula = new TextField("Matrícula: ");
+        txtMatricula.setNullRepresentation("");
+        txtMatricula.setWidth(appWidth, Sizeable.Unit.EM);
+        txtMatricula.setMaxLength(245);
+        txtMatricula.setRequired(true);
+
+        txtRemolque = new TextField("Remolque: ");
+        txtRemolque.setNullRepresentation("");
+        txtRemolque.setWidth(appWidth, Sizeable.Unit.EM);
+        txtRemolque.setMaxLength(245);
+        txtRemolque.setRequired(true);
+
+        lsMatriculas = new ListSelect("Matrículas asignadas");
+        lsMatriculas.setWidth(appWidth, Sizeable.Unit.EM);
+        lsMatriculas.removeAllItems();
+        lsMatriculas.addValueChangeListener(new ValueChangeListener() {
+
+            @Override
+            public void valueChange(ValueChangeEvent event) {
+                if (lsMatriculas.getValue() != null) {
+                    lsMatriculas.removeItem(lsMatriculas.getValue());
+                }
+            }
+        });
+
+        lsRemolques = new ListSelect("Remolques asignados");
+        lsRemolques.setWidth(appWidth, Sizeable.Unit.EM);
+        lsRemolques.removeAllItems();
+        lsRemolques.addValueChangeListener(new ValueChangeListener() {
+
+            @Override
+            public void valueChange(ValueChangeEvent event) {
+                if (lsRemolques.getValue() != null) {
+                    lsRemolques.removeItem(lsRemolques.getValue());
+                }
+            }
+        });
+
+        body1.addComponent(txtMatricula);
+        body1.setComponentAlignment(txtMatricula, Alignment.MIDDLE_CENTER);
+        body1.addComponent(inlcuirMatriculaButton);
+        body1.setComponentAlignment(inlcuirMatriculaButton, Alignment.MIDDLE_CENTER);
+        body1.addComponent(lsMatriculas);
+        body1.setComponentAlignment(lsMatriculas, Alignment.MIDDLE_CENTER);
+
+        body2.addComponent(txtRemolque);
+        body2.setComponentAlignment(txtRemolque, Alignment.MIDDLE_CENTER);
+        body2.addComponent(inlcuirRemolqueButton);
+        body2.setComponentAlignment(inlcuirRemolqueButton, Alignment.MIDDLE_CENTER);
+        body2.addComponent(lsRemolques);
+        body2.setComponentAlignment(lsRemolques, Alignment.MIDDLE_CENTER);
+
+        infoVehiculos.addComponent(body1);
+        infoVehiculos.setComponentAlignment(body1, Alignment.MIDDLE_CENTER);
+        infoVehiculos.addComponent(body2);
+        infoVehiculos.setComponentAlignment(body2, Alignment.MIDDLE_CENTER);
     }
 
 }

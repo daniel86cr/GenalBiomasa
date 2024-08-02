@@ -1246,9 +1246,15 @@ public class VistaListadoPesajes extends CustomComponent implements View ,Button
         //Botonera
         HorizontalLayout botonera = new HorizontalLayout();
         botonera.setSpacing(true);
-        botonera.addComponent(crearButton);
-        botonera.addComponent(modificarButton);
-        botonera.addComponent(eliminarButton);
+        if (Utils.booleanFromInteger(permisos.getCrearPesaje())) {
+            botonera.addComponent(crearButton);
+        }
+        if (Utils.booleanFromInteger(permisos.getModificarPesaje())) {
+            botonera.addComponent(modificarButton);
+        }
+        if (Utils.booleanFromInteger(permisos.getEliminarPesaje())) {
+            botonera.addComponent(eliminarButton);
+        }
         botonera.addComponent(pdfButton);
         botonera.setMargin(true);
 
@@ -1259,9 +1265,10 @@ public class VistaListadoPesajes extends CustomComponent implements View ,Button
         HorizontalLayout hor = new HorizontalLayout();
         hor.setSpacing(true);
         hor.setMargin(true);
-
-        hor.addComponent(facturarButton);
-        hor.addComponent(facturar2Button);
+        if (Utils.booleanFromInteger(permisos.getCrearFactura())) {
+            hor.addComponent(facturarButton);
+            hor.addComponent(facturar2Button);
+        }
 
         return hor;
     }

@@ -36,6 +36,7 @@ import com.dina.genasoft.db.entity.TClientes;
 import com.dina.genasoft.db.entity.TClientesMateriales;
 import com.dina.genasoft.db.entity.TClientesOperadores;
 import com.dina.genasoft.db.entity.TClientesTransportistas;
+import com.dina.genasoft.db.entity.TClientesVehiculos;
 import com.dina.genasoft.db.entity.TClientesVista;
 import com.dina.genasoft.db.entity.TDireccionCliente;
 import com.dina.genasoft.db.entity.TDireccionClienteVista;
@@ -1502,6 +1503,54 @@ public class ControladorVistas implements Serializable {
      * @return Los clientes encontrados.
      * @throws GenasoftException Si se ha iniciado sesión en otro dispositivo.
      */
+    public List<String> obtenerMatriculasAsignadasCliente(Integer idCliente, Integer userId, long time) throws GenasoftException {
+        List<String> lResult = Utils.generarListaGenerica();
+
+        Timestamp t = new Timestamp(time);
+        if (commonSetup.conexionValida(userId, t, estadoAplicacion)) {
+            lResult = clientesSetup.obtenerMatriculasAsignadasCliente(idCliente);
+        } else {
+            if (estadoAplicacion == null || estadoAplicacion.equals(-1)) {
+                throw new GenasoftException(Constants.LICENCIA_NO_VALIDA);
+            } else {
+                throw new GenasoftException(Constants.SESION_INVALIDA);
+            }
+        }
+        // Retornamos los clientes encontrados.
+        return lResult;
+    }
+
+    /**
+     * Método que nos retorna los clientes activos en el sistema
+     * @param userId El usuario que está activo.
+     * @param time El tiempo en milisegundos.
+     * @return Los clientes encontrados.
+     * @throws GenasoftException Si se ha iniciado sesión en otro dispositivo.
+     */
+    public List<String> obtenerRemolquesAsignadosCliente(Integer idCliente, Integer userId, long time) throws GenasoftException {
+        List<String> lResult = Utils.generarListaGenerica();
+
+        Timestamp t = new Timestamp(time);
+        if (commonSetup.conexionValida(userId, t, estadoAplicacion)) {
+            lResult = clientesSetup.obtenerRemolquesAsignadosCliente(idCliente);
+        } else {
+            if (estadoAplicacion == null || estadoAplicacion.equals(-1)) {
+                throw new GenasoftException(Constants.LICENCIA_NO_VALIDA);
+            } else {
+                throw new GenasoftException(Constants.SESION_INVALIDA);
+            }
+        }
+        // Retornamos los clientes encontrados.
+        return lResult;
+    }
+
+    /**
+     * Método que nos retorna los clientes activos en el sistema
+     * @param userId El usuario que está activo.
+     * @param time El tiempo en milisegundos.
+     * @return Los clientes encontrados.
+     * @throws GenasoftException Si se ha iniciado sesión en otro dispositivo.
+     */
     public List<TOperadores> obtenerOperadoresAsignadosCliente(Integer idCliente, Integer userId, long time) throws GenasoftException {
         List<TOperadores> lResult = Utils.generarListaGenerica();
 
@@ -1804,6 +1853,31 @@ public class ControladorVistas implements Serializable {
         Timestamp t = new Timestamp(time);
         if (commonSetup.conexionValida(userId, t, estadoAplicacion)) {
             result = clientesSetup.asignarMaterialCliente(record);
+        } else {
+            if (estadoAplicacion == null || estadoAplicacion.equals(-1)) {
+                throw new GenasoftException(Constants.LICENCIA_NO_VALIDA);
+            } else {
+                throw new GenasoftException(Constants.SESION_INVALIDA);
+            }
+        }
+        // Retornamos el cliente encontrado.
+        return result;
+    }
+
+    /**
+     * Método que nos retorna el cliente a partir del ID.
+     * @param id El ID del cliente por el que realizar la búsqueda.
+     * @param userId El usuario que está activo.
+     * @param time El tiempo en milisegundos.
+     * @return El cliente encontrado.
+     * @throws GenasoftException Si se ha iniciado sesión en otro dispositivo.
+     */
+    public String asignarVehiculoCliente(TClientesVehiculos record, Integer userId, long time) throws GenasoftException {
+        String result = null;
+
+        Timestamp t = new Timestamp(time);
+        if (commonSetup.conexionValida(userId, t, estadoAplicacion)) {
+            result = clientesSetup.asignarVehiculoCliente(record);
         } else {
             if (estadoAplicacion == null || estadoAplicacion.equals(-1)) {
                 throw new GenasoftException(Constants.LICENCIA_NO_VALIDA);
@@ -2543,8 +2617,8 @@ public class ControladorVistas implements Serializable {
             }
         } catch (MailException | InterruptedException e) {
             result = "Error al enviar la notificación, compruebe que la dirección de correo es correcta. Si el problema persiste, contacte con el administrador";
-            //enviarTelegram(Integer.valueOf(userNotifications), "** ERROR TRAZABILIDADES [GENAL BIOMASA] *** \\n Error al enviar correo al destinatario. \\n ID empleado: " + idEmpleado + ", email:" + empl.getEmail(), userId, time);
-            //enviarWhatsApp(Integer.valueOf(userNotifications), "** ERROR TRAZABILIDADES [GENAL BIOMASA] *** \\n Error al enviar correo al destinatario. \\n ID empleado: " + idEmpleado + ", email:" + empl.getEmail(), userId, time);
+            //enviarTelegram(Integer.valueOf(userNotifications), "** ERROR [GENAL BIOMASA] *** \\n Error al enviar correo al destinatario. \\n ID empleado: " + idEmpleado + ", email:" + empl.getEmail(), userId, time);
+            //enviarWhatsApp(Integer.valueOf(userNotifications), "** ERROR [GENAL BIOMASA] *** \\n Error al enviar correo al destinatario. \\n ID empleado: " + idEmpleado + ", email:" + empl.getEmail(), userId, time);
         } catch (Exception e) {
 
         }

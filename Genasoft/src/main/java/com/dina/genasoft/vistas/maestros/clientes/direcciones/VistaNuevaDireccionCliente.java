@@ -90,6 +90,8 @@ public class VistaNuevaDireccionCliente extends CustomComponent implements View 
     private TextField                         txtCp;
     /** La caja de texto para el precio.*/
     private TextField                         txtProvincia;
+    /** La caja de texto para el precio.*/
+    private TextField                         txtPais;
     /** Los permisos del empleado actual. */
     private TPermisos                         permisos = null;
     /** El usuario que está logado. */
@@ -289,6 +291,8 @@ public class VistaNuevaDireccionCliente extends CustomComponent implements View 
                 formulario1.setComponentAlignment(txtCiudad, Alignment.MIDDLE_CENTER);
                 formulario1.addComponent(txtProvincia);
                 formulario1.setComponentAlignment(txtProvincia, Alignment.MIDDLE_CENTER);
+                formulario1.addComponent(txtPais);
+                formulario1.setComponentAlignment(txtPais, Alignment.MIDDLE_CENTER);
                 formulario1.addComponent(cbEstado);
                 formulario1.setComponentAlignment(cbEstado, Alignment.MIDDLE_CENTER);
                 body.addComponent(formulario1);
@@ -405,6 +409,13 @@ public class VistaNuevaDireccionCliente extends CustomComponent implements View 
         txtProvincia.setRequired(true);
         txtProvincia.setMaxLength(445);
 
+        // Provincia.
+        txtProvincia = (TextField) binder.buildAndBind("País: ", "pais");
+        txtProvincia.setNullRepresentation("");
+        txtProvincia.setWidth(appWidth, Sizeable.Unit.EM);
+        txtProvincia.setRequired(true);
+        txtProvincia.setMaxLength(45);
+
         // Los estados.
         cbEstado.setCaption("Estado:");
         cbEstado.addItem(Constants.ACTIVO);
@@ -430,7 +441,7 @@ public class VistaNuevaDireccionCliente extends CustomComponent implements View 
         direccion.setProvincia(txtProvincia.getValue().trim().toUpperCase());
         direccion.setFechaCrea(Utils.generarFecha());
         direccion.setUsuCrea(user);
-        direccion.setPais("ES");
+        direccion.setPais(txtPais.getValue().trim().toUpperCase());
         direccion.setFechaCrea(Utils.generarFecha());
         direccion.setIdCliente(cliente.getId());
     }
@@ -445,6 +456,7 @@ public class VistaNuevaDireccionCliente extends CustomComponent implements View 
         cbEstado.setValue(Constants.ACTIVO);
         txtCiudad.setValue(null);
         txtProvincia.setValue(null);
+        txtPais.setValue(null);
     }
 
     /**
@@ -452,6 +464,6 @@ public class VistaNuevaDireccionCliente extends CustomComponent implements View 
      * @return true si no se cumple la validación
      */
     private boolean validarCamposObligatorios() {
-        return !cbEstado.isValid() || !txtCodDireccion.isValid() || !txtDireccion.isValid() || !txtCp.isValid() || !txtProvincia.isValid() || !txtCiudad.isValid();
+        return !cbEstado.isValid() || !txtCodDireccion.isValid() || !txtDireccion.isValid() || !txtCp.isValid() || !txtProvincia.isValid() || !txtCiudad.isValid() || !txtPais.isValid();
     }
 }

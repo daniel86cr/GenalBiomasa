@@ -58,4 +58,8 @@ public interface TClientesMapper {
     List<TClientes> obtenerTodosClientes();
 
     List<TClientes> obtenerClientesActivos();
+
+    List<String> obtenerMatriculasAsignadasCliente(@Param("idCliente") Integer idCliente);
+
+    List<String> obtenerRemolquesAsignadosCliente(@Param("idCliente") Integer idCliente);
 }
