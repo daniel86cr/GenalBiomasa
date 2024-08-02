@@ -1505,7 +1505,7 @@ public class VistaCliente extends CustomComponent implements View ,Button.ClickL
      * @return El Grid con las columnas.
      */
     private void crearTablaDirecciones() {
-        tablaDirecciones = new TablaGenerica(new Object[] { "codDireccion", "direccion", "codigoPostal", "poblacion", "provincia", "fechaCrea", "estado" }, new String[] { "Código dirección", "Dirección", "Código postal", "Población", "Provincia", "Fecha alta", "Estado" }, bcDirecciones);
+        tablaDirecciones = new TablaGenerica(new Object[] { "codDireccion", "direccion", "codigoPostal", "poblacion", "provincia", "pais", "fechaCrea", "estado" }, new String[] { "Código dirección", "Dirección", "Código postal", "Población", "Provincia", "País", "Fecha alta", "Estado" }, bcDirecciones);
         tablaDirecciones.addStyleName("big striped");
         tablaDirecciones.setPageLength(20);
 

@@ -21,6 +21,7 @@ import com.dina.genasoft.configuration.Constants;
 import com.dina.genasoft.db.entity.TClientes;
 import com.dina.genasoft.db.entity.TDireccionCliente;
 import com.dina.genasoft.db.entity.TEmpleados;
+import com.dina.genasoft.db.entity.TMateriales;
 import com.dina.genasoft.db.entity.TNumeroAlbaran;
 import com.dina.genasoft.db.entity.TOperadores;
 import com.dina.genasoft.db.entity.TPesajes;
@@ -65,6 +66,9 @@ public class PesajesSetup implements Serializable {
     /** Inyección de Spring para poder acceder a la capa de datos de transportistas. */
     @Autowired
     private TransportistasSetup            transportistasSetup;
+    /** Inyección de Spring para poder acceder a la capa de datos de materiales. */
+    @Autowired
+    private MaterialesSetup                materialesSetup;
     /** Inyección por Spring del mapper TNumeroAlbaran.*/
     @Autowired
     private TNumeroAlbaranMapper           tNumeroAlbaranMapper;
@@ -271,6 +275,7 @@ public class PesajesSetup implements Serializable {
         List<TDireccionCliente> lDirs = clientesSetup.obtenerTodasDireccionesCliente();
         List<TOperadores> lOpers = operadoresSetup.obtenerTodosOperadores();
         List<TTransportistas> lTrans = transportistasSetup.obtenerTodosTransportistas();
+        List<TMateriales> lMats = materialesSetup.obtenerTodosMateriales();
 
         // Nutrimos el diccionario con los empleados
         Map<Integer, String> mEmpleados = lEmpl.stream().collect(Collectors.toMap(TEmpleados::getId, TEmpleados::getNombre));
@@ -282,6 +287,8 @@ public class PesajesSetup implements Serializable {
         Map<Integer, String> mOpers = lOpers.stream().collect(Collectors.toMap(TOperadores::getId, TOperadores::getNombre));
         // Nutrimos el diccionario con los transportistas
         Map<Integer, String> mTrans = lTrans.stream().collect(Collectors.toMap(TTransportistas::getId, TTransportistas::getNombre));
+        // Nutrimos el diccionario con los materiales
+        Map<Integer, String> mMats = lMats.stream().collect(Collectors.toMap(TMateriales::getId, TMateriales::getDescripcion));
 
         TPesajesVista aux = null;
         String campo = "";
@@ -316,6 +323,12 @@ public class PesajesSetup implements Serializable {
             if (p.getIdTransportista() != null) {
                 campo = mTrans.get(p.getIdTransportista());
                 aux.setIdTransportista(campo != null ? campo : "N/D; ID: " + p.getIdTransportista());
+            }
+
+            // Material
+            if (p.getIdMaterial() != null) {
+                campo = mMats.get(p.getIdMaterial());
+                aux.setIdMaterial(campo != null ? campo : "N/D; ID: " + p.getIdMaterial());
             }
 
             lResult.add(aux);

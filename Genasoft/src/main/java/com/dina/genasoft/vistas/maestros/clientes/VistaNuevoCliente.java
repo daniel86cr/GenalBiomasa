@@ -34,7 +34,6 @@ import com.dina.genasoft.utils.Utils;
 import com.dina.genasoft.utils.enums.BancosEnum;
 import com.dina.genasoft.vistas.Menu;
 import com.dina.genasoft.vistas.VistaInicioSesion;
-import com.dina.genasoft.vistas.maestros.clientes.direcciones.VistaNuevaDireccionCliente;
 import com.dina.genasoft.vistas.maestros.materiales.VistaNuevoMaterial;
 import com.dina.genasoft.vistas.maestros.operadores.VistaNuevoOperador;
 import com.dina.genasoft.vistas.maestros.transportistas.VistaNuevoTransportista;
@@ -121,6 +120,8 @@ public class VistaNuevoCliente extends CustomComponent implements View ,Button.C
     private TextField                     txtPoblacion;
     /** La caja de texto para el nombre.*/
     private TextField                     txtProvincia;
+    /** La caja de texto para el nombre.*/
+    private TextField                     txtPais;
     /** La caja de texto para el nombre.*/
     private TextField                     txtMatricula;
     /** La caja de texto para el nombre.*/
@@ -212,7 +213,7 @@ public class VistaNuevoCliente extends CustomComponent implements View ,Button.C
                     dir.setEstado(1);
                     dir.setFechaCrea(Utils.generarFecha());
                     dir.setIdCliente(id);
-                    dir.setPais("ES");
+                    dir.setPais(txtPais.getValue().trim().toUpperCase());
                     dir.setPoblacion(txtPoblacion.getValue().trim().toUpperCase());
                     dir.setProvincia(txtProvincia.getValue().trim().toUpperCase());
                     dir.setUsuCrea(user);
@@ -335,10 +336,6 @@ public class VistaNuevoCliente extends CustomComponent implements View ,Button.C
                     }
 
                     inicializarCampos();
-
-                    MessageBox.createQuestion().withCaption(appName).withMessage("¿Quieres crear una dirección?").withNoButton().withYesButton(() ->
-
-                    getUI().getNavigator().navigateTo(VistaNuevaDireccionCliente.NAME + "/" + id), ButtonOption.caption("Sí")).open();
 
                 } else {
                     String result = contrVista.obtenerDescripcionCodigo(Constants.BD_KO_CREA_CLIENTE);
@@ -789,6 +786,13 @@ public class VistaNuevoCliente extends CustomComponent implements View ,Button.C
         txtPoblacion.setWidth(appWidth, Sizeable.Unit.EM);
         txtPoblacion.setMaxLength(445);
 
+        // El país
+        txtPais = new TextField("País: ");
+        txtPais.setNullRepresentation("");
+        txtPais.setRequired(true);
+        txtPais.setWidth(appWidth, Sizeable.Unit.EM);
+        txtPais.setMaxLength(45);
+
         // La provincia
         txtProvincia = new TextField("Provincia: ");
         txtProvincia.setNullRepresentation("");
@@ -883,6 +887,7 @@ public class VistaNuevoCliente extends CustomComponent implements View ,Button.C
         cbBancos.clear();
         lsMatriculas.removeAllItems();
         lsRemolques.removeAllItems();
+        txtPais.setValue(null);
     }
 
     /**
@@ -890,7 +895,7 @@ public class VistaNuevoCliente extends CustomComponent implements View ,Button.C
      * @return true si no se cumple la validación
      */
     private boolean validarCamposObligatorios() {
-        return !cbEstado.isValid() || !txtCif.isValid() || !txtRazonSocial.isValid() || !txtDireccion.isValid() || !txtCp.isValid() || !txtPoblacion.isValid() || !txtProvincia.isValid();
+        return !cbEstado.isValid() || !txtCif.isValid() || !txtRazonSocial.isValid() || !txtDireccion.isValid() || !txtCp.isValid() || !txtPoblacion.isValid() || !txtProvincia.isValid() || !txtPais.isValid();
     }
 
     /**
@@ -921,6 +926,8 @@ public class VistaNuevoCliente extends CustomComponent implements View ,Button.C
         formulario1.setComponentAlignment(txtCp, Alignment.MIDDLE_CENTER);
         formulario1.addComponent(txtProvincia);
         formulario1.setComponentAlignment(txtProvincia, Alignment.MIDDLE_CENTER);
+        formulario1.addComponent(txtPais);
+        formulario1.setComponentAlignment(txtPais, Alignment.MIDDLE_CENTER);
         formulario1.addComponent(cbBancos);
         formulario1.setComponentAlignment(cbBancos, Alignment.MIDDLE_CENTER);
         formulario1.addComponent(txtNumCuenta);

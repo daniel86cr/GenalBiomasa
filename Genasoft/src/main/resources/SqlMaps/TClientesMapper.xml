@@ -290,7 +290,7 @@
       
     -->
     select matricula
-    <include refid="Base_Column_List" />
+    
     from t_clientes_vehiculos
     where 
 		id_cliente = #{idCliente,jdbcType=INTEGER}
@@ -304,7 +304,7 @@
       
     -->
     select matricula
-    <include refid="Base_Column_List" />
+    
     from t_clientes_vehiculos
     where 
 		id_cliente = #{idCliente,jdbcType=INTEGER}

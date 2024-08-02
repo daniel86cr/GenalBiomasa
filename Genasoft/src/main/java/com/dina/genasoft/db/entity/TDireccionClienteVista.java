@@ -326,5 +326,8 @@ public class TDireccionClienteVista implements Serializable {
         this.usuCrea = "" + dir.getUsuCrea();
         this.usuModifica = "" + dir.getUsuModifica();
         this.codigoPostal = dir.getCodigoPostal();
+        this.poblacion = dir.getPoblacion();
+        this.provincia = dir.getProvincia();
+        this.pais = dir.getPais();
     }
 }

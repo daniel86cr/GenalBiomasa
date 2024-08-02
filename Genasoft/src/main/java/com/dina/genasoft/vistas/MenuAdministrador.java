@@ -200,7 +200,7 @@ public class MenuAdministrador extends CustomComponent {
                 lbl2.setStyleName("tituloTamano16");
 
                 Label lbl3 = new Label();
-                lbl3.setValue("Versión 1.0.001");
+                lbl3.setValue("Versión 1.0.2");
                 lbl3.setStyleName("tituloTamano12");
                 Label lbl1 = new Label();
                 Label lbl11 = new Label();

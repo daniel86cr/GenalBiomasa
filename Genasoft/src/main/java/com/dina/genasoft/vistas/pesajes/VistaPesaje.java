@@ -32,7 +32,6 @@ import com.dina.genasoft.utils.Utils;
 import com.dina.genasoft.utils.enums.PesajesEnum;
 import com.dina.genasoft.vistas.Menu;
 import com.dina.genasoft.vistas.VistaInicioSesion;
-import com.dina.genasoft.vistas.maestros.clientes.VistaNuevoCliente;
 import com.dina.genasoft.vistas.maestros.operadores.VistaNuevoOperador;
 import com.dina.genasoft.vistas.maestros.transportistas.VistaNuevoTransportista;
 import com.vaadin.annotations.Theme;
@@ -93,6 +92,10 @@ public class VistaPesaje extends CustomComponent implements View ,Button.ClickLi
     private ComboBox                      cbOperadores;
     /** Combobox para los operadores.*/
     private ComboBox                      cbTransportistas;
+    /** Combobox para los operadores.*/
+    private ComboBox                      cbMatriculas;
+    /** Combobox para los operadores.*/
+    private ComboBox                      cbRemolques;
     /** El pesaje a modificar.*/
     private TPesajes                      nPesajes;
     /** Contendrá el nombre de la aplicación.*/
@@ -113,10 +116,6 @@ public class VistaPesaje extends CustomComponent implements View ,Button.ClickLi
     private TextField                     txtOrigen;
     /** La caja de texto para el destino.*/
     private TextField                     txtDestino;
-    /** La caja de texto para la matrícula.*/
-    private TextField                     txtMatricula;
-    /** La caja de texto para el remolque.*/
-    private TextField                     txtRemolque;
     /** La caja de texto para los kilos brutos.*/
     private TextField                     txtKgsBrutos;
     /** La caja de texto para la tara.*/
@@ -144,6 +143,10 @@ public class VistaPesaje extends CustomComponent implements View ,Button.ClickLi
     private List<TOperadores>             lOperadores;
     /** Los transportistas activos del sistema.*/
     private List<TTransportistas>         lTransportistas;
+    /** Las matrículas asociadas al cliente.*/
+    private List<String>                  lMatriculas;
+    /** Los remolques asociados al cliente.*/
+    private List<String>                  lRemolques;
     private Double                        bruto, tara, neto;
     private List<TDireccionCliente>       lTodasDirs;
     private String                        name;
@@ -247,11 +250,17 @@ public class VistaPesaje extends CustomComponent implements View ,Button.ClickLi
 
                 permisos = contrVista.obtenerPermisosEmpleado(empleado, user, time);
 
-                lClientes = contrVista.obtenerClientesActivos(user, time);
+                lClientes = contrVista.obtenerTodosClientes(user, time);
 
                 lMateriales = contrVista.obtenerTodosMateriales(user, time);
 
-                lTransportistas = contrVista.obtenerTransportistasActivos(user, time);
+                lOperadores = contrVista.obtenerTodosOperadores(user, time);
+
+                lTransportistas = contrVista.obtenerTodosTransportistas(user, time);
+
+                lMatriculas = Utils.generarListaGenerica();
+
+                lRemolques = Utils.generarListaGenerica();
 
                 if (permisos == null) {
                     Notification aviso = new Notification("No se ha podido identificar los permisos asignados, contacta con el administrador.", Notification.Type.ERROR_MESSAGE);
@@ -271,8 +280,6 @@ public class VistaPesaje extends CustomComponent implements View ,Button.ClickLi
                     getUI().getNavigator().navigateTo(VistaInicioSesion.NAME);
                     return;
                 }
-
-                lMateriales = Utils.generarListaGenerica();
 
                 bruto = Double.valueOf(0);
                 tara = Double.valueOf(0);
@@ -354,10 +361,10 @@ public class VistaPesaje extends CustomComponent implements View ,Button.ClickLi
                 formulario1.setComponentAlignment(txtOrigen, Alignment.MIDDLE_CENTER);
                 //formulario2.addComponent(txtDestino);
                 //formulario2.setComponentAlignment(txtDestino, Alignment.MIDDLE_CENTER);
-                formulario2.addComponent(txtMatricula);
-                formulario2.setComponentAlignment(txtMatricula, Alignment.MIDDLE_CENTER);
-                formulario2.addComponent(txtRemolque);
-                formulario2.setComponentAlignment(txtRemolque, Alignment.MIDDLE_CENTER);
+                formulario2.addComponent(cbMatriculas);
+                formulario2.setComponentAlignment(cbMatriculas, Alignment.MIDDLE_CENTER);
+                formulario2.addComponent(cbRemolques);
+                formulario2.setComponentAlignment(cbRemolques, Alignment.MIDDLE_CENTER);
                 formulario2.addComponent(cbTransportistas);
                 formulario2.setComponentAlignment(cbTransportistas, Alignment.MIDDLE_CENTER);
                 formulario2.addComponent(txtKgsBrutos);
@@ -392,6 +399,32 @@ public class VistaPesaje extends CustomComponent implements View ,Button.ClickLi
                 viewLayout.setExpandRatio(titulo, 0.1f);
                 viewLayout.setMargin(true);
                 viewLayout.setSpacing(true);
+
+                if (!lMatriculas.contains(nPesajes.getMatricula())) {
+                    cbMatriculas.addItem(nPesajes.getMatricula());
+                    cbMatriculas.setValue(nPesajes.getMatricula());
+                } else {
+                    for (String matr : lMatriculas) {
+                        if (matr.equals(nPesajes.getMatricula())) {
+                            cbMatriculas.setValue(matr);
+                            break;
+                        }
+                    }
+                }
+
+                if (nPesajes.getRemolque() != null && !nPesajes.getRemolque().isEmpty()) {
+                    if (!lRemolques.contains(nPesajes.getRemolque())) {
+                        cbRemolques.addItem(nPesajes.getRemolque());
+                        cbRemolques.setValue(nPesajes.getRemolque());
+                    } else {
+                        for (String matr : lRemolques) {
+                            if (matr.equals(nPesajes.getRemolque())) {
+                                cbRemolques.setValue(matr);
+                                break;
+                            }
+                        }
+                    }
+                }
 
                 if (nPesajes.getEstado().equals(PesajesEnum.FACTURADO.getValue())) {
                     Notification aviso = new Notification("El pesaje está facturado, no se permiten modificaciones.", Notification.Type.ERROR_MESSAGE);
@@ -471,164 +504,6 @@ public class VistaPesaje extends CustomComponent implements View ,Button.ClickLi
         cbClientes = new ComboBox();
         cbClientes.setEnabled(false);
         cbClientes.addStyleName("big");
-        cbClientes.addValueChangeListener(new ValueChangeListener() {
-
-            @Override
-            public void valueChange(ValueChangeEvent event) {
-                if (cbClientes.getValue() != null) {
-                    if (cbClientes.getValue().getClass().equals(TClientes.class)) {
-                        try {
-                            TClientes cl = (TClientes) cbClientes.getValue();
-                            txtMatricula.setValue(cl.getMatricula());
-                            txtRemolque.setValue(cl.getRemolque());
-                            cbDirecciones.removeAllItems();
-                            List<TDireccionCliente> lDirs = contrVista.obtenerDireccionesClientePorIdCliente(cl.getId(), user, time);
-                            cbDirecciones.addItems(lDirs);
-                            if (lDirs.size() == 1) {
-                                cbDirecciones.setValue(lDirs.get(0));
-                            } else if (lDirs.isEmpty()) {
-                                Notification aviso = new Notification("No se han identificado direcciones del cliente seleccionado.", Notification.Type.ERROR_MESSAGE);
-                                aviso.setPosition(Position.MIDDLE_CENTER);
-                                aviso.show(Page.getCurrent());
-                            }
-
-                            lMateriales = contrVista.obtenerMaterialesAsignadosCliente(cl.getId(), user, time);
-                            cbMateriales.removeAllItems();
-                            cbMateriales.addItems(lMateriales);
-                            if (lMateriales.size() == 1) {
-                                cbMateriales.setValue(lMateriales.get(0));
-                            } else if (lMateriales.isEmpty()) {
-                                Notification aviso = new Notification("No se han identificado materiales asignados al cliente seleccionado", Notification.Type.ERROR_MESSAGE);
-                                aviso.setPosition(Position.MIDDLE_CENTER);
-                                aviso.show(Page.getCurrent());
-                            }
-
-                            lOperadores = contrVista.obtenerOperadoresAsignadosCliente(cl.getId(), user, time);
-                            cbOperadores.removeAllItems();
-                            cbOperadores.addItems(lOperadores);
-                            if (lOperadores.size() == 1) {
-                                cbOperadores.setValue(lOperadores.get(0));
-                            } else if (lOperadores.isEmpty()) {
-                                Notification aviso = new Notification("No se han identificado operadores asignados al cliente seleccionado", Notification.Type.ERROR_MESSAGE);
-                                aviso.setPosition(Position.MIDDLE_CENTER);
-                                aviso.show(Page.getCurrent());
-                            }
-
-                            lTransportistas = contrVista.obtenerTransportistasAsignadosCliente(cl.getId(), user, time);
-                            cbTransportistas.removeAllItems();
-                            cbTransportistas.addItems(lTransportistas);
-                            if (lTransportistas.size() == 1) {
-                                cbTransportistas.setValue(lTransportistas.get(0));
-                            } else if (lTransportistas.isEmpty()) {
-                                Notification aviso = new Notification("No se han identificado transportistas asignados al cliente seleccionado", Notification.Type.ERROR_MESSAGE);
-                                aviso.setPosition(Position.MIDDLE_CENTER);
-                                aviso.show(Page.getCurrent());
-                            }
-
-                        } catch (MyBatisSystemException e) {
-                            Notification aviso = new Notification("No se ha podido establecer conexión con la base de datos.", Notification.Type.ERROR_MESSAGE);
-                            aviso.setPosition(Position.MIDDLE_CENTER);
-                            aviso.show(Page.getCurrent());
-                            log.error("Error al obtener datos de base de datos ", e);
-                        } catch (GenasoftException tbe) {
-                            if (tbe.getMessage().equals(Constants.SESION_INVALIDA)) {
-                                Notification aviso = new Notification(contrVista.obtenerDescripcionCodigo(tbe.getMessage()), Notification.Type.WARNING_MESSAGE);
-                                aviso.setPosition(Position.MIDDLE_CENTER);
-                                aviso.show(Page.getCurrent());
-                                getSession().setAttribute("user", null);
-                                getSession().setAttribute("fecha", null);
-                                // Redirigimos a la página de inicio.
-                                getUI().getNavigator().navigateTo(VistaInicioSesion.NAME);
-                            } else {
-                                Notification aviso = new Notification(tbe.getMessage(), Notification.Type.ERROR_MESSAGE);
-                                aviso.setPosition(Position.MIDDLE_CENTER);
-                                aviso.show(Page.getCurrent());
-                            }
-                        }
-                    } else {
-                        try {
-                            name = (String) cbClientes.getValue();
-                            // Buscamos si existe el cliente por nombre
-                            TClientes cl = contrVista.obtenerClientePorNombre(name.trim().toUpperCase(), user, time);
-                            if (cl == null) {
-                                if (name.contains(" ")) {
-                                    name = name.replaceAll(" ", "_");
-                                }
-                                MessageBox.createQuestion().withCaption(appName).withMessage("¿Quieres crear un nuevo cliente?").withNoButton().withYesButton(() ->
-
-                                Page.getCurrent().open("#!" + VistaNuevoCliente.NAME + "/" + user + "," + name, "_blank"), ButtonOption.caption("Sí")).open();
-                                cbOperadores.clear();
-                            } else {
-                                txtMatricula.setValue(cl.getMatricula());
-                                txtRemolque.setValue(cl.getRemolque());
-                                cbDirecciones.removeAllItems();
-                                List<TDireccionCliente> lDirs = contrVista.obtenerDireccionesClientePorIdCliente(cl.getId(), user, time);
-                                cbDirecciones.addItems(lDirs);
-                                if (lDirs.size() == 1) {
-                                    cbDirecciones.setValue(lDirs.get(0));
-                                } else if (lDirs.isEmpty()) {
-                                    Notification aviso = new Notification("No se han identificado direcciones del cliente seleccionado.", Notification.Type.ERROR_MESSAGE);
-                                    aviso.setPosition(Position.MIDDLE_CENTER);
-                                    aviso.show(Page.getCurrent());
-                                }
-
-                                lMateriales = contrVista.obtenerMaterialesAsignadosCliente(cl.getId(), user, time);
-                                cbMateriales.removeAllItems();
-                                cbMateriales.addItems(lMateriales);
-                                if (lMateriales.size() == 1) {
-                                    cbMateriales.setValue(lMateriales.get(0));
-                                } else if (lMateriales.isEmpty()) {
-                                    Notification aviso = new Notification("No se han identificado materiales asignados al cliente seleccionado", Notification.Type.ERROR_MESSAGE);
-                                    aviso.setPosition(Position.MIDDLE_CENTER);
-                                    aviso.show(Page.getCurrent());
-                                }
-
-                                lOperadores = contrVista.obtenerOperadoresAsignadosCliente(cl.getId(), user, time);
-                                cbOperadores.removeAllItems();
-                                cbOperadores.addItems(lOperadores);
-                                if (lOperadores.size() == 1) {
-                                    cbOperadores.setValue(lOperadores.get(0));
-                                } else if (lOperadores.isEmpty()) {
-                                    Notification aviso = new Notification("No se han identificado operadores asignados al cliente seleccionado", Notification.Type.ERROR_MESSAGE);
-                                    aviso.setPosition(Position.MIDDLE_CENTER);
-                                    aviso.show(Page.getCurrent());
-                                }
-
-                                lTransportistas = contrVista.obtenerTransportistasAsignadosCliente(cl.getId(), user, time);
-                                cbTransportistas.removeAllItems();
-                                cbTransportistas.addItems(lTransportistas);
-                                if (lTransportistas.size() == 1) {
-                                    cbTransportistas.setValue(lTransportistas.get(0));
-                                } else if (lTransportistas.isEmpty()) {
-                                    Notification aviso = new Notification("No se han identificado transportistas asignados al cliente seleccionado", Notification.Type.ERROR_MESSAGE);
-                                    aviso.setPosition(Position.MIDDLE_CENTER);
-                                    aviso.show(Page.getCurrent());
-                                }
-                            }
-                        } catch (MyBatisSystemException e) {
-                            Notification aviso = new Notification("No se ha podido establecer conexión con la base de datos.", Notification.Type.ERROR_MESSAGE);
-                            aviso.setPosition(Position.MIDDLE_CENTER);
-                            aviso.show(Page.getCurrent());
-                            log.error("Error al obtener datos de base de datos ", e);
-                        } catch (GenasoftException tbe) {
-                            if (tbe.getMessage().equals(Constants.SESION_INVALIDA)) {
-                                Notification aviso = new Notification(contrVista.obtenerDescripcionCodigo(tbe.getMessage()), Notification.Type.WARNING_MESSAGE);
-                                aviso.setPosition(Position.MIDDLE_CENTER);
-                                aviso.show(Page.getCurrent());
-                                getSession().setAttribute("user", null);
-                                getSession().setAttribute("fecha", null);
-                                // Redirigimos a la página de inicio.
-                                getUI().getNavigator().navigateTo(VistaInicioSesion.NAME);
-                            } else {
-                                Notification aviso = new Notification(tbe.getMessage(), Notification.Type.ERROR_MESSAGE);
-                                aviso.setPosition(Position.MIDDLE_CENTER);
-                                aviso.show(Page.getCurrent());
-                            }
-                        }
-                    }
-                }
-            }
-        });
 
         // ComboBox para los materiales.
         cbMateriales = new ComboBox();
@@ -680,21 +555,22 @@ public class VistaPesaje extends CustomComponent implements View ,Button.ClickLi
         txtDestino.setMaxLength(445);
         txtDestino.setValue(nPesajes.getDestino());
 
-        // La matrícula.
-        txtMatricula = new TextField("Matrícula");
-        txtMatricula.setNullRepresentation("");
-        txtMatricula.setRequired(true);
-        txtMatricula.setWidth(appWidth, Sizeable.Unit.EM);
-        txtMatricula.setMaxLength(445);
-        txtMatricula.setValue(nPesajes.getMatricula());
+        cbMatriculas = new ComboBox("Matrícula:");
+        cbMatriculas.addItems(lMatriculas);
+        cbMatriculas.addStyleName("big");
+        cbMatriculas.setFilteringMode(FilteringMode.CONTAINS);
+        cbMatriculas.setRequired(true);
+        cbMatriculas.setNullSelectionAllowed(false);
+        cbMatriculas.setNewItemsAllowed(true);
+        cbMatriculas.setWidth(appWidth, Sizeable.Unit.EM);
 
-        // El remolque.
-        txtRemolque = new TextField("Remolque");
-        txtRemolque.setNullRepresentation("");
-        txtRemolque.setRequired(true);
-        txtRemolque.setWidth(appWidth, Sizeable.Unit.EM);
-        txtRemolque.setMaxLength(445);
-        txtRemolque.setValue(nPesajes.getRemolque());
+        cbRemolques = new ComboBox("Remolque:");
+        cbRemolques.addItems(lRemolques);
+        cbRemolques.addStyleName("big");
+        cbRemolques.setFilteringMode(FilteringMode.CONTAINS);
+        cbRemolques.setNullSelectionAllowed(false);
+        cbRemolques.setWidth(appWidth, Sizeable.Unit.EM);
+        cbRemolques.setNewItemsAllowed(true);
 
         // Los Kgs brutos.
         txtKgsBrutos = new TextField("Kilos brutos:");
@@ -831,9 +707,7 @@ public class VistaPesaje extends CustomComponent implements View ,Button.ClickLi
             @Override
             public void valueChange(ValueChangeEvent event) {
                 if (cbOperadores.getValue() != null) {
-                    if (cbOperadores.getValue().getClass().equals(TOperadores.class)) {
-                        cbOperadores.clear();
-                    } else {
+                    if (!cbOperadores.getValue().getClass().equals(TOperadores.class)) {
                         try {
                             name = (String) cbOperadores.getValue();
                             TOperadores mat = contrVista.obtenerOperadorPorNombre(name.trim().toUpperCase(), user, time);
@@ -888,11 +762,9 @@ public class VistaPesaje extends CustomComponent implements View ,Button.ClickLi
             @Override
             public void valueChange(ValueChangeEvent event) {
                 if (cbTransportistas.getValue() != null) {
-                    if (cbTransportistas.getValue().getClass().equals(TTransportistas.class)) {
-                        cbTransportistas.clear();
-                    } else {
+                    if (!cbTransportistas.getValue().getClass().equals(TTransportistas.class)) {
                         try {
-                            name = (String) cbOperadores.getValue();
+                            name = (String) cbTransportistas.getValue();
                             TTransportistas mat = contrVista.obtenerTransportistaPorNombre(name.trim().toUpperCase(), user, time);
                             // Buscamos el material por si aca...
                             if (mat == null) {
@@ -949,6 +821,7 @@ public class VistaPesaje extends CustomComponent implements View ,Button.ClickLi
         cbDirecciones.setRequired(true);
         cbDirecciones.setNullSelectionAllowed(false);
         cbDirecciones.setWidth(appWidth, Sizeable.Unit.EM);
+        cbDirecciones.addItems(lTodasDirs);
         for (TDireccionCliente dir : lTodasDirs) {
             if (dir.getId().equals(nPesajes.getIdDireccion())) {
                 cbDirecciones.setValue(dir);
@@ -1114,7 +987,7 @@ public class VistaPesaje extends CustomComponent implements View ,Button.ClickLi
 
         nPesajes.setNumeroAlbaran(value);
 
-        value = txtMatricula.getValue();
+        value = (String) cbMatriculas.getValue();
 
         if (value != null) {
             value = value.trim().toUpperCase();
@@ -1132,7 +1005,7 @@ public class VistaPesaje extends CustomComponent implements View ,Button.ClickLi
 
         nPesajes.setMatricula(value);
 
-        value = txtRemolque.getValue();
+        value = (String) cbRemolques.getValue();
 
         if (value != null) {
             value = value.trim().toUpperCase();
@@ -1239,8 +1112,8 @@ public class VistaPesaje extends CustomComponent implements View ,Button.ClickLi
      * @return true si no se cumple la validación
      */
     private boolean validarCamposObligatorios() {
-        return !cbClientes.isValid() || !cbMateriales.isValid() || !txtRemolque.isValid() || !txtKgsBrutos.isValid() || !txtMatricula.isValid() || !fechaPesaje.isValid() || !cbDirecciones.isValid() || !fechaPesaje.isValid()
-                || !cbTransportistas.isValid() || !cbOperadores.isValid();
+        return !cbClientes.isValid() || !cbMateriales.isValid() || !txtKgsBrutos.isValid() || !cbMatriculas.isValid() || !fechaPesaje.isValid() || !cbDirecciones.isValid() || !fechaPesaje.isValid() || !cbTransportistas.isValid()
+                || !cbOperadores.isValid();
     }
 
 }

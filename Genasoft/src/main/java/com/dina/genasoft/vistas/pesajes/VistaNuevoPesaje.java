@@ -90,6 +90,10 @@ public class VistaNuevoPesaje extends CustomComponent implements View ,Button.Cl
     private ComboBox                      cbOperadores;
     /** Combobox para los operadores.*/
     private ComboBox                      cbTransportistas;
+    /** Combobox para los operadores.*/
+    private ComboBox                      cbMatriculas;
+    /** Combobox para los operadores.*/
+    private ComboBox                      cbRemolques;
     /** El pesaje a registrar.*/
     private TPesajes                      nPesaje;
     /** Contendrá el nombre de la aplicación.*/
@@ -109,10 +113,6 @@ public class VistaNuevoPesaje extends CustomComponent implements View ,Button.Cl
     private TextField                     txtOrigen;
     /** La caja de texto para el destino.*/
     private TextField                     txtDestino;
-    /** La caja de texto para la matrícula.*/
-    private TextField                     txtMatricula;
-    /** La caja de texto para el remolque.*/
-    private TextField                     txtRemolque;
     /** La caja de texto para los kilos brutos.*/
     private TextField                     txtKgsBrutos;
     /** La caja de texto para la tara.*/
@@ -138,6 +138,10 @@ public class VistaNuevoPesaje extends CustomComponent implements View ,Button.Cl
     private List<TOperadores>             lOperadores;
     /** Los transportistas activos del sistema.*/
     private List<TTransportistas>         lTransportistas;
+    /** Las matrículas asociadas al cliente.*/
+    private List<String>                  lMatriculas;
+    /** Los remolques asociados al cliente.*/
+    private List<String>                  lRemolques;
     private Double                        bruto, tara, neto;
     private String                        name;
 
@@ -238,6 +242,10 @@ public class VistaNuevoPesaje extends CustomComponent implements View ,Button.Cl
 
                 lTransportistas = Utils.generarListaGenerica();
 
+                lMatriculas = Utils.generarListaGenerica();
+
+                lRemolques = Utils.generarListaGenerica();
+
                 bruto = Double.valueOf(0);
                 tara = Double.valueOf(0);
                 neto = Double.valueOf(0);
@@ -334,10 +342,10 @@ public class VistaNuevoPesaje extends CustomComponent implements View ,Button.Cl
                 formulario1.setComponentAlignment(txtOrigen, Alignment.MIDDLE_CENTER);
                 //formulario2.addComponent(txtDestino);
                 //formulario2.setComponentAlignment(txtDestino, Alignment.MIDDLE_CENTER);
-                formulario2.addComponent(txtMatricula);
-                formulario2.setComponentAlignment(txtMatricula, Alignment.MIDDLE_CENTER);
-                formulario2.addComponent(txtRemolque);
-                formulario2.setComponentAlignment(txtRemolque, Alignment.MIDDLE_CENTER);
+                formulario2.addComponent(cbMatriculas);
+                formulario2.setComponentAlignment(cbMatriculas, Alignment.MIDDLE_CENTER);
+                formulario2.addComponent(cbRemolques);
+                formulario2.setComponentAlignment(cbRemolques, Alignment.MIDDLE_CENTER);
                 formulario2.addComponent(cbTransportistas);
                 formulario2.setComponentAlignment(cbTransportistas, Alignment.MIDDLE_CENTER);
                 formulario2.addComponent(txtKgsBrutos);
@@ -426,8 +434,6 @@ public class VistaNuevoPesaje extends CustomComponent implements View ,Button.Cl
                     if (cbClientes.getValue().getClass().equals(TClientes.class)) {
                         try {
                             TClientes cl = (TClientes) cbClientes.getValue();
-                            txtMatricula.setValue(cl.getMatricula());
-                            txtRemolque.setValue(cl.getRemolque());
                             cbDirecciones.removeAllItems();
                             List<TDireccionCliente> lDirs = contrVista.obtenerDireccionesClientePorIdCliente(cl.getId(), user, time);
                             cbDirecciones.addItems(lDirs);
@@ -472,6 +478,24 @@ public class VistaNuevoPesaje extends CustomComponent implements View ,Button.Cl
                                 aviso.show(Page.getCurrent());
                             }
 
+                            lMatriculas = contrVista.obtenerMatriculasAsignadasCliente(cl.getId(), user, time);
+                            cbMatriculas.removeAllItems();
+                            cbMatriculas.addItems(lMatriculas);
+                            if (lMatriculas.size() == 1) {
+                                cbMatriculas.setValue(lMatriculas.get(0));
+                            } else if (lMatriculas.isEmpty()) {
+                                Notification aviso = new Notification("No se han identificado matrículas asignadas al cliente seleccionado", Notification.Type.ERROR_MESSAGE);
+                                aviso.setPosition(Position.MIDDLE_CENTER);
+                                aviso.show(Page.getCurrent());
+                            }
+
+                            lRemolques = contrVista.obtenerRemolquesAsignadosCliente(cl.getId(), user, time);
+                            cbRemolques.removeAllItems();
+                            cbRemolques.addItems(lRemolques);
+                            if (lRemolques.size() == 1) {
+                                cbRemolques.setValue(lRemolques.get(0));
+                            }
+
                         } catch (MyBatisSystemException e) {
                             Notification aviso = new Notification("No se ha podido establecer conexión con la base de datos.", Notification.Type.ERROR_MESSAGE);
                             aviso.setPosition(Position.MIDDLE_CENTER);
@@ -506,8 +530,6 @@ public class VistaNuevoPesaje extends CustomComponent implements View ,Button.Cl
                                 Page.getCurrent().open("#!" + VistaNuevoCliente.NAME + "/" + user + "," + name, "_blank"), ButtonOption.caption("Sí")).open();
                                 cbOperadores.clear();
                             } else {
-                                txtMatricula.setValue(cl.getMatricula());
-                                txtRemolque.setValue(cl.getRemolque());
                                 cbDirecciones.removeAllItems();
                                 List<TDireccionCliente> lDirs = contrVista.obtenerDireccionesClientePorIdCliente(cl.getId(), user, time);
                                 cbDirecciones.addItems(lDirs);
@@ -550,6 +572,24 @@ public class VistaNuevoPesaje extends CustomComponent implements View ,Button.Cl
                                     Notification aviso = new Notification("No se han identificado transportistas asignados al cliente seleccionado", Notification.Type.ERROR_MESSAGE);
                                     aviso.setPosition(Position.MIDDLE_CENTER);
                                     aviso.show(Page.getCurrent());
+                                }
+
+                                lMatriculas = contrVista.obtenerMatriculasAsignadasCliente(cl.getId(), user, time);
+                                cbMatriculas.removeAllItems();
+                                cbMatriculas.addItems(lMatriculas);
+                                if (lMatriculas.size() == 1) {
+                                    cbMatriculas.setValue(lMatriculas.get(0));
+                                } else if (lMatriculas.isEmpty()) {
+                                    Notification aviso = new Notification("No se han identificado matrículas asignadas al cliente seleccionado", Notification.Type.ERROR_MESSAGE);
+                                    aviso.setPosition(Position.MIDDLE_CENTER);
+                                    aviso.show(Page.getCurrent());
+                                }
+
+                                lRemolques = contrVista.obtenerRemolquesAsignadosCliente(cl.getId(), user, time);
+                                cbRemolques.removeAllItems();
+                                cbRemolques.addItems(lRemolques);
+                                if (lRemolques.size() == 1) {
+                                    cbRemolques.setValue(lRemolques.get(0));
                                 }
                             }
                         } catch (MyBatisSystemException e) {
@@ -641,9 +681,7 @@ public class VistaNuevoPesaje extends CustomComponent implements View ,Button.Cl
             @Override
             public void valueChange(ValueChangeEvent event) {
                 if (cbOperadores.getValue() != null) {
-                    if (cbOperadores.getValue().getClass().equals(TOperadores.class)) {
-                        cbOperadores.clear();
-                    } else {
+                    if (!cbOperadores.getValue().getClass().equals(TOperadores.class)) {
                         try {
                             name = (String) cbOperadores.getValue();
                             TOperadores mat = contrVista.obtenerOperadorPorNombre(name.trim().toUpperCase(), user, time);
@@ -692,11 +730,9 @@ public class VistaNuevoPesaje extends CustomComponent implements View ,Button.Cl
             @Override
             public void valueChange(ValueChangeEvent event) {
                 if (cbTransportistas.getValue() != null) {
-                    if (cbTransportistas.getValue().getClass().equals(TTransportistas.class)) {
-                        cbTransportistas.clear();
-                    } else {
+                    if (!cbTransportistas.getValue().getClass().equals(TTransportistas.class)) {
                         try {
-                            name = (String) cbOperadores.getValue();
+                            name = (String) cbTransportistas.getValue();
                             TTransportistas mat = contrVista.obtenerTransportistaPorNombre(name.trim().toUpperCase(), user, time);
                             // Buscamos el material por si aca...
                             if (mat == null) {
@@ -729,6 +765,23 @@ public class VistaNuevoPesaje extends CustomComponent implements View ,Button.Cl
                 }
             }
         });
+
+        cbMatriculas = new ComboBox("Matrícula:");
+        cbMatriculas.addItems(lMatriculas);
+        cbMatriculas.addStyleName("big");
+        cbMatriculas.setFilteringMode(FilteringMode.CONTAINS);
+        cbMatriculas.setRequired(true);
+        cbMatriculas.setNullSelectionAllowed(false);
+        cbMatriculas.setNewItemsAllowed(true);
+        cbMatriculas.setWidth(appWidth, Sizeable.Unit.EM);
+
+        cbRemolques = new ComboBox("Remolque:");
+        cbRemolques.addItems(lRemolques);
+        cbRemolques.addStyleName("big");
+        cbRemolques.setFilteringMode(FilteringMode.CONTAINS);
+        cbRemolques.setNullSelectionAllowed(false);
+        cbRemolques.setNewItemsAllowed(true);
+        cbRemolques.setWidth(appWidth, Sizeable.Unit.EM);
 
     }
 
@@ -767,20 +820,6 @@ public class VistaNuevoPesaje extends CustomComponent implements View ,Button.Cl
         txtDestino.setNullRepresentation("");
         txtDestino.setWidth(appWidth, Sizeable.Unit.EM);
         txtDestino.setMaxLength(445);
-
-        // La matrícula.
-        txtMatricula = new TextField("Matrícula");
-        txtMatricula.setNullRepresentation("");
-        txtMatricula.setRequired(true);
-        txtMatricula.setWidth(appWidth, Sizeable.Unit.EM);
-        txtMatricula.setMaxLength(445);
-
-        // El remolque.
-        txtRemolque = new TextField("Remolque");
-        txtRemolque.setNullRepresentation("");
-        txtRemolque.setRequired(true);
-        txtRemolque.setWidth(appWidth, Sizeable.Unit.EM);
-        txtRemolque.setMaxLength(445);
 
         // Los Kgs brutos.
         txtKgsBrutos = new TextField("Kilos brutos:");
@@ -998,12 +1037,12 @@ public class VistaNuevoPesaje extends CustomComponent implements View ,Button.Cl
         }
 
         nPesaje.setLerMaterial(mat.getLer());
-        nPesaje.setMatricula(txtMatricula.getValue() != null ? txtMatricula.getValue().trim().toUpperCase() : "");
+        nPesaje.setMatricula(cbMatriculas.getValue() != null ? cbMatriculas.getValue().toString().trim().toUpperCase() : "");
         nPesaje.setNumeroAlbaran(contrVista.obtenerNumeroAlbaran("" + PesajesEnum.TIPO_GENERICO.getValue(), user, time));
         nPesaje.setObra(txtObra.getValue().trim().toUpperCase());
         nPesaje.setOrigen(txtOrigen.getValue().trim().toUpperCase());
         nPesaje.setRefMaterial(mat.getReferencia());
-        nPesaje.setRemolque(txtRemolque.getValue() != null ? txtRemolque.getValue().trim().toUpperCase() : "");
+        nPesaje.setRemolque(cbRemolques.getValue() != null ? cbRemolques.getValue().toString().trim().toUpperCase() : "");
         nPesaje.setUsuCrea(user);
         nPesaje.setIdOperador(((TOperadores) cbOperadores.getValue()).getId());
         nPesaje.setIdTransportista(((TTransportistas) cbTransportistas.getValue()).getId());
@@ -1030,10 +1069,10 @@ public class VistaNuevoPesaje extends CustomComponent implements View ,Button.Cl
     private void inicializarCampos() throws ReadOnlyException, GenasoftException {
         txtAlbaran.setValue(null);
         txtOrigen.setValue(null);
-        txtRemolque.setValue(null);
+        cbMatriculas.removeAllItems();
         txtObra.setValue(null);
         cbClientes.setValue(Constants.ACTIVO);
-        txtMatricula.setValue(null);
+        cbRemolques.removeAllItems();
         txtKgsBrutos.setValue(null);
         cbClientes.clear();
         cbMateriales.clear();
@@ -1051,7 +1090,7 @@ public class VistaNuevoPesaje extends CustomComponent implements View ,Button.Cl
      * @return true si no se cumple la validación
      */
     private boolean validarCamposObligatorios() {
-        return !cbClientes.isValid() || !cbMateriales.isValid() || !txtRemolque.isValid() || !txtKgsBrutos.isValid() || !txtMatricula.isValid() || !fechaPesaje.isValid() || !cbDirecciones.isValid() || !fechaPesaje.isValid()
-                || !cbTransportistas.isValid() || !cbOperadores.isValid();
+        return !cbClientes.isValid() || !cbMateriales.isValid() || !txtKgsBrutos.isValid() || !cbMatriculas.isValid() || !fechaPesaje.isValid() || !cbDirecciones.isValid() || !fechaPesaje.isValid() || !cbTransportistas.isValid()
+                || !cbOperadores.isValid();
     }
 }
