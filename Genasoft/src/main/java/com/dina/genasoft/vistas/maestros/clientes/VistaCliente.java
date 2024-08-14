@@ -1081,7 +1081,7 @@ public class VistaCliente extends CustomComponent implements View ,Button.ClickL
             nClientes.setUsuModifica(user);
         }
 
-        value = txtNumCuenta.getValue().trim().toUpperCase();
+        value = txtNumCuenta.getValue();
 
         if (value != null) {
             value = value.trim().toUpperCase();
@@ -1099,20 +1099,22 @@ public class VistaCliente extends CustomComponent implements View ,Button.ClickL
 
         Integer idBanco = null;
 
-        Object val = cbBancos.getValue();
-        if (val.getClass().equals(TBancos.class)) {
-            idBanco = ((TBancos) val).getId();
-        } else {
-            String nombre = val.toString();
-            // Buscamos el banco por si existe
-            TBancos b = contrVista.obtenerBancoPorNombre(nombre.trim().toUpperCase(), user, time);
-            if (b == null) {
-                b = new TBancos();
-                b.setEstado(BancosEnum.ACTIVO.getValue());
-                b.setNombre(nombre.trim().toUpperCase());
-                idBanco = contrVista.crearBancoRetornaId(b, user, time);
+        if (cbBancos.getValue() != null) {
+            Object val = cbBancos.getValue();
+            if (val.getClass().equals(TBancos.class)) {
+                idBanco = ((TBancos) val).getId();
             } else {
-                idBanco = b.getId();
+                String nombre = val.toString();
+                // Buscamos el banco por si existe
+                TBancos b = contrVista.obtenerBancoPorNombre(nombre.trim().toUpperCase(), user, time);
+                if (b == null) {
+                    b = new TBancos();
+                    b.setEstado(BancosEnum.ACTIVO.getValue());
+                    b.setNombre(nombre.trim().toUpperCase());
+                    idBanco = contrVista.crearBancoRetornaId(b, user, time);
+                } else {
+                    idBanco = b.getId();
+                }
             }
         }
 

@@ -6,6 +6,8 @@
 package com.dina.genasoft.vistas.pesajes;
 
 import java.text.DecimalFormat;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.List;
 
 import javax.annotation.PostConstruct;
@@ -949,6 +951,12 @@ public class VistaPesaje extends CustomComponent implements View ,Button.ClickLi
             cambios = cambios + "\n Se le cambia el origen, antes tenia: " + nPesajes.getOrigen() + " y ahora tiene: " + value;
         }
 
+        Date val2 = fechaPesaje.getValue();
+
+        if (!val2.equals(nPesajes.getFechaPesaje())) {
+            cambios = cambios + "\n Se le cambia la fecha del pesaje, antes tenia: " + new SimpleDateFormat("dd/MM/yyyy").format(nPesajes.getFechaPesaje()) + " y ahora tiene: " + new SimpleDateFormat("dd/MM/yyyy").format(val2);
+        }
+        nPesajes.setFechaPesaje(fechaPesaje.getValue());
         nPesajes.setOrigen(value);
 
         value = txtDestino.getValue();
