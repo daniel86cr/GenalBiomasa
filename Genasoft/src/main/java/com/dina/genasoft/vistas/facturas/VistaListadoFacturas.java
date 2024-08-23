@@ -93,6 +93,8 @@ public class VistaListadoFacturas extends CustomComponent implements View ,Butto
     /** El boton para crear un pesaje.*/
     private Button                                     crearButton;
     /** El boton para crear un pesaje.*/
+    private Button                                     cambiarFechasButton;
+    /** El boton para crear un pesaje.*/
     private Button                                     modificarButton;
     /** El boton para eliminar un pesaje.*/
     private Button                                     eliminarButton;
@@ -254,6 +256,7 @@ public class VistaListadoFacturas extends CustomComponent implements View ,Butto
                 HorizontalLayout botonera = crearBotonera(permisos);
 
                 viewLayout.addComponent(filtro);
+                viewLayout.addComponent(cambiarFechasButton);
                 viewLayout.addComponent(botonera);
                 //if (Utils.booleanFromInteger(permisos.getCrearFactura())) {
                 //    viewLayout.addComponent(crearBotonera2());
@@ -315,6 +318,7 @@ public class VistaListadoFacturas extends CustomComponent implements View ,Butto
     private void crearBotones() {
         // Creamos los botones.
         crearButton = new Button("Registrar pesaje", this);
+        cambiarFechasButton = new Button("Cambiar fechas", this);
         modificarButton = new Button("Editar pesaje", this);
         eliminarButton = new Button("Eliminar factura", this);
 
@@ -332,6 +336,15 @@ public class VistaListadoFacturas extends CustomComponent implements View ,Butto
      * Este metodo nos crea el evento para cada botón.
      */
     private void eventosBotones() {
+
+        // Evento para modificar un empleado.
+        cambiarFechasButton.addClickListener(new ClickListener() {
+
+            public void buttonClick(ClickEvent event) {
+                cambiarFechas();
+            }
+
+        });
 
         // Evento para crear un nuevo empleado.
         crearButton.addClickListener(new ClickListener() {
@@ -749,11 +762,11 @@ public class VistaListadoFacturas extends CustomComponent implements View ,Butto
 
         // La fecha Desde
         fDesde = new DateField("");
-        fDesde.setValue(Utils.obtenerPrimerDiaMesEnCurso());
+        fDesde.setValue(Utils.obtenerPrimerDiaYearEnCurso());
 
         // La fecha Hasta
         fHasta = new DateField("");
-        fHasta.setValue(Utils.obtenerUltimoDiaMesEnCurso());
+        fHasta.setValue(Utils.obtenerUltimoDiaYearEnCurso());
 
         Label tituloFiltrar = new Label("Filtrar");
         tituloFiltrar.setStyleName("tituloTamano12");

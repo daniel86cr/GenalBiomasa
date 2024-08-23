@@ -31,10 +31,12 @@ import org.springframework.web.bind.annotation.RestController;
 import com.dina.genasoft.common.ClientesSetup;
 import com.dina.genasoft.common.CommonSetup;
 import com.dina.genasoft.common.FacturasSetup;
+import com.dina.genasoft.common.PesajesSetup;
 import com.dina.genasoft.db.entity.TClientes;
 import com.dina.genasoft.db.entity.TFacturas;
 import com.dina.genasoft.db.entity.TLineasFactura;
 import com.dina.genasoft.db.entity.TOperacionActual;
+import com.dina.genasoft.db.entity.TPesajes;
 import com.dina.genasoft.db.entity.TTrace;
 import com.dina.genasoft.db.entity.TTrace2;
 import com.dina.genasoft.exception.GenasoftException;
@@ -59,6 +61,9 @@ public class Controller {
     /** Inyección de Spring para poder acceder a la lógica de exportación de datos en Excel.*/
     @Autowired
     private ClientesSetup                 clientesSetup;
+    /** Inyección de Spring para poder acceder a la lógica de exportación de datos en Excel.*/
+    @Autowired
+    private PesajesSetup                  pesajesSetup;
     /** Inyección de Spring para poder acceder a la lógica de exportación de datos en Excel.*/
     @Autowired
     private CommonSetup                   commonSetup;
@@ -128,7 +133,7 @@ public class Controller {
                 List<String> lNombres = Utils.generarListaGenerica();
 
                 String nombreZip = "";
-                TFacturas factura = null;
+                TPesajes factura = null;
 
                 if (!parametros.contains(",")) {
                     parametros = parametros.concat(",");
@@ -137,15 +142,14 @@ public class Controller {
 
                 String[] values = parametros.split(",");
                 String nombreLogo = pdfTemp + "/logo_albaran.png";
-                Integer idFactura = 0;
+                Integer idPesaje = 0;
                 TClientes cl = null;
                 String nombre = null;
-                List<TLineasFactura> lineas = null;
                 for (int i = 0; i < size; i++) {
-                    idFactura = Integer.valueOf(values[i]);
-                    factura = facturasSetup.obtenerFacturaPorId(idFactura);
+                    idPesaje = Integer.valueOf(values[i]);
+                    factura = pesajesSetup.obtenerPesajePorId(idPesaje);
                     cl = clientesSetup.obtenerClientePorId(factura.getIdCliente());
-                    nombre = factura.getNumeroFactura();
+                    nombre = factura.getNumeroAlbaran();
 
                     nombre = nombre + "_" + cl.getNombre();
 
@@ -164,7 +168,6 @@ public class Controller {
                     if (nombre.contains(",")) {
                         nombre = nombre.replaceAll(",", "-");
                     }
-                    lineas = facturasSetup.obtenerLineasFacturaPorIdFactura(idFactura);
 
                     String nombreTemporal = "";
 
@@ -172,7 +175,7 @@ public class Controller {
 
                     nombreTemporal = nombreTemporal + "_tmp";
                     // Generamos el fichero PDF con los datos del pedido.
-                    albaranPDF.createPdf(idFactura, nombreTemporal, nombreLogo, false);
+                    albaranPDF.createPdf(idPesaje, nombreTemporal, nombreLogo, false);
 
                     nombreZip = nombreTemporal + ".pdf";
 

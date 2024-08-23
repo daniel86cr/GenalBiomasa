@@ -618,7 +618,12 @@ public class AlbaranPDF extends PdfPageEventHelper {
             cell.setBorder(PdfPCell.NO_BORDER);
             cell.setCellEvent(new CustomBorder(solid, solid, solid, solid));
             table.addCell(cell);
-            table.addCell(tabla2Columnas("MATRÍCULA: " + pesaje.getMatricula(), "REMOLQUE: " + pesaje.getRemolque()));
+            String remolque = pesaje.getRemolque() != null ? pesaje.getRemolque() : "";
+            if (remolque.isEmpty()) {
+                table.addCell(tabla2Columnas("MATRÍCULA: " + pesaje.getMatricula(), ""));
+            } else {
+                table.addCell(tabla2Columnas("MATRÍCULA: " + pesaje.getMatricula(), "REMOLQUE: " + pesaje.getRemolque()));
+            }
             // MATERIAL
             cell = new PdfPCell(new Phrase("", cabecera2));
             cell.addElement(new Phrase("MATERIAL: " + pesaje.getRefMaterial() + " " + pesaje.getDescMaterial(), boldFont));
@@ -788,7 +793,14 @@ public class AlbaranPDF extends PdfPageEventHelper {
             cell.setBorder(PdfPCell.NO_BORDER);
             cell.setCellEvent(new CustomBorder(null, null, null, null));
             table.addCell(cell);
-            cell = new PdfPCell(new Phrase("DNI: " + pesaje.getDniConductor() + ", " + pesaje.getNombreConductor(), cabecera2));
+            String dni = pesaje.getDniConductor() != null ? pesaje.getDniConductor() : "";
+            String nombre = pesaje.getNombreConductor() != null ? pesaje.getNombreConductor() : "";
+            if (dni.isEmpty() && nombre.isEmpty()) {
+                cell = new PdfPCell(new Phrase("DNI: ", cabecera2));
+            } else {
+                cell = new PdfPCell(new Phrase("DNI: " + dni + ", " + nombre, cabecera2));
+            }
+
             cell.setBorder(PdfPCell.NO_BORDER);
             cell.setCellEvent(new CustomBorder(null, null, null, null));
             cell.setHorizontalAlignment(Element.ALIGN_CENTER);

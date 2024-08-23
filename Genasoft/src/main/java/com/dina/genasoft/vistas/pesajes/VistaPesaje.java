@@ -1054,21 +1054,21 @@ public class VistaPesaje extends CustomComponent implements View ,Button.ClickLi
 
         TClientes cl = (TClientes) cbClientes.getValue();
 
-        if (cl.getId().equals(nPesajes.getIdCliente())) {
+        if (!cl.getId().equals(nPesajes.getIdCliente())) {
             cambios = cambios + "\n Se le cambia el cliente antes tenia: " + nPesajes.getIdCliente() + " y ahora tiene: " + cl.getId();
             nPesajes.setIdCliente(cl.getId());
         }
 
         TDireccionCliente dir = (TDireccionCliente) cbDirecciones.getValue();
 
-        if (dir.getId().equals(nPesajes.getIdDireccion())) {
+        if (!dir.getId().equals(nPesajes.getIdDireccion())) {
             cambios = cambios + "\n Se le cambia la dirección del cliente antes tenia: " + nPesajes.getIdDireccion() + " y ahora tiene: " + dir.getId();
             nPesajes.setIdDireccion(cl.getId());
         }
 
         TMateriales mat = (TMateriales) cbMateriales.getValue();
 
-        if (mat.getId().equals(nPesajes.getIdMaterial())) {
+        if (!mat.getId().equals(nPesajes.getIdMaterial())) {
             cambios = cambios + "\n Se le cambia el material antes tenia: " + nPesajes.getIdMaterial() + " y ahora tiene: " + mat.getId();
             nPesajes.setIdMaterial(cl.getId());
             nPesajes.setLerMaterial(mat.getLer());

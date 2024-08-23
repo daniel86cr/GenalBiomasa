@@ -88,6 +88,8 @@ public class VistaListadoPesajes extends CustomComponent implements View ,Button
     /** El boton para crear un pesaje.*/
     private Button                               crearButton;
     /** El boton para crear un pesaje.*/
+    private Button                               cambiarFechasButton;
+    /** El boton para crear un pesaje.*/
     private Button                               modificarButton;
     /** El boton para eliminar un pesaje.*/
     private Button                               eliminarButton;
@@ -247,6 +249,7 @@ public class VistaListadoPesajes extends CustomComponent implements View ,Button
                 HorizontalLayout botonera = crearBotonera(permisos);
 
                 viewLayout.addComponent(filtro);
+                viewLayout.addComponent(cambiarFechasButton);
                 viewLayout.addComponent(botonera);
                 if (Utils.booleanFromInteger(permisos.getCrearFactura())) {
                     viewLayout.addComponent(crearBotonera2());
@@ -303,6 +306,7 @@ public class VistaListadoPesajes extends CustomComponent implements View ,Button
     private void crearBotones() {
         // Creamos los botones.
         crearButton = new Button("Registrar pesaje", this);
+        cambiarFechasButton = new Button("Cambiar fechas", this);
         modificarButton = new Button("Editar pesaje", this);
         eliminarButton = new Button("Anular pesaje", this);
         facturarButton = new Button("Generar factura", this);
@@ -322,6 +326,15 @@ public class VistaListadoPesajes extends CustomComponent implements View ,Button
      * Este metodo nos crea el evento para cada botón.
      */
     private void eventosBotones() {
+
+        // Evento para modificar un empleado.
+        cambiarFechasButton.addClickListener(new ClickListener() {
+
+            public void buttonClick(ClickEvent event) {
+                cambiarFechas();
+            }
+
+        });
 
         // Evento para crear un nuevo empleado.
         crearButton.addClickListener(new ClickListener() {
