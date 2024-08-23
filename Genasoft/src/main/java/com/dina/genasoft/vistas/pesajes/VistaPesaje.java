@@ -1031,18 +1031,28 @@ public class VistaPesaje extends CustomComponent implements View ,Button.ClickLi
 
         nPesajes.setRemolque(value);
 
-        Double val = Utils.formatearValorDouble(txtKgsBrutos.getValue().trim());
+        Double val = null;
 
-        if (!val.equals(nPesajes.getKgsBruto())) {
-            cambios = cambios + "\n Se le cambian los kilos brutos, antes tenia: " + df.format(nPesajes.getKgsBruto()) + " y ahora tiene: " + df.format(val);
-            nPesajes.setKgsBruto(val);
+        try {
+            val = Utils.formatearValorDouble(txtKgsBrutos.getValue().trim());
+
+            if (!val.equals(nPesajes.getKgsBruto())) {
+                cambios = cambios + "\n Se le cambian los kilos brutos, antes tenia: " + df.format(nPesajes.getKgsBruto()) + " y ahora tiene: " + df.format(val);
+                nPesajes.setKgsBruto(val);
+            }
+        } catch (Exception e) {
+            throw new GenasoftException("No se ha introducido un valor numérico válido en el campo: " + txtKgsBrutos.getCaption());
         }
 
-        val = Utils.formatearValorDouble(txtTara.getValue().trim());
+        try {
 
-        if (!val.equals(nPesajes.getTara())) {
-            cambios = cambios + "\n Se le cambian los kilos de TARA, antes tenia: " + df.format(nPesajes.getTara()) + " y ahora tiene: " + df.format(val);
-            nPesajes.setTara(val);
+            val = Utils.formatearValorDouble(txtTara.getValue().trim());
+            if (!val.equals(nPesajes.getTara())) {
+                cambios = cambios + "\n Se le cambian los kilos de TARA, antes tenia: " + df.format(nPesajes.getTara()) + " y ahora tiene: " + df.format(val);
+                nPesajes.setTara(val);
+            }
+        } catch (Exception e) {
+            throw new GenasoftException("No se ha introducido un valor numérico válido en el campo: " + txtTara.getCaption());
         }
 
         val = Utils.formatearValorDouble(txtKgsNetos.getValue().trim());

@@ -209,16 +209,32 @@ public class PesajesSetup implements Serializable {
      */
     public String crearPesaje(TPesajes record) {
         String result = Constants.OPERACION_OK;
+        try {
+            if (record.getId() != null && record.getId().equals(-1)) {
+                // Es una modificación.
+            } else {
 
-        if (record.getId() != null && record.getId().equals(-1)) {
-            // Es una modificación.
-        } else {
-            try {
-                result = tPesajesMapper.insert(record) == 1 ? Constants.OPERACION_OK : Constants.BD_KO_CREA_PESAJE;
-            } catch (Exception e) {
-                result = Constants.BD_KO_CREA_PESAJE;
-                log.error(Constants.BD_KO_CREA_PESAJE + ", Error al crear el registro de creación del pesaje: " + record.toString2() + ", ", e);
+                // Buscamos el pesaje por nº de albarán por si ya existe uno con el mismo número.
+
+                TPesajes aux = obtenerPesajePorAlbaran(record.getNumeroAlbaran());
+
+                record.setNumeroAlbaran(obtenerNumeroAlbaran("" + PesajesEnum.TIPO_GENERICO.getValue()));
+
+                if (aux != null) {
+                    aux.setNumeroAlbaran(obtenerNumeroAlbaran("" + PesajesEnum.TIPO_GENERICO.getValue()));
+                }
+
+                try {
+                    result = tPesajesMapper.insert(record) == 1 ? Constants.OPERACION_OK : Constants.BD_KO_CREA_PESAJE;
+                } catch (Exception e) {
+                    // Reestablece
+                    restarNumeroAlbaran("" + PesajesEnum.TIPO_GENERICO.getValue());
+                    result = Constants.BD_KO_CREA_PESAJE;
+                    log.error(Constants.BD_KO_CREA_PESAJE + ", Error al crear el registro de creación del pesaje: " + record.toString2() + ", ", e);
+                }
             }
+        } catch (Exception e) {
+            restarNumeroAlbaran("" + PesajesEnum.TIPO_GENERICO.getValue());
         }
 
         return result;
@@ -460,6 +476,73 @@ public class PesajesSetup implements Serializable {
                 }
             }
         }
+        // Retornamos el número del albaran encontrado
+        return result;
+    }
+
+    /**
+     * Método que nos retorna el número de albaran que le corresponde
+     * @param tipoPesaje
+     * @return
+     */
+    public String restarNumeroAlbaran(String tipoPesaje) {
+        String result = "-1";
+
+        Calendar cal = Calendar.getInstance();
+
+        cal.setTime(Utils.generarFecha());
+        int year = cal.get(Calendar.YEAR);
+        Boolean entra = false;
+        if (tipoPesaje.equals("00")) {
+            year = cal.get(Calendar.YEAR) % 100;
+            entra = true;
+        }
+
+        TNumeroAlbaran nAlbaran = tNumeroAlbaranMapper.obtenerNumeroAlbaran(tipoPesaje, year);
+
+        String resultado = "" + year;
+        resultado = resultado + nAlbaran.getUltimoNumero();
+        result = resultado;
+        String valor = String.valueOf(Integer.valueOf(nAlbaran.getUltimoNumero()) - 1);
+        if (nAlbaran.getUltimoNumero().length() == 6) {
+            while (valor.length() < 6) {
+                valor = "0" + valor;
+            }
+        } else {
+            while (valor.length() < 4) {
+                valor = "0" + valor;
+            }
+        }
+        nAlbaran.setUltimoNumero(valor);
+        nAlbaran.setFechaUltimaConsulta(Utils.generarFecha());
+        int cont = 0;
+        boolean insert = false;
+        while (cont < 10) {
+
+            if (tNumeroAlbaranMapper.updateByPrimaryKey(nAlbaran) == 1) {
+                insert = true;
+                cont = 10;
+            } else {
+                try {
+                    Thread.sleep(2000);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+                cont++;
+            }
+        }
+        if (!insert) {
+            if (userNotifications != null) {
+                try {
+                    // Buscamos el empleado de las notificaciones
+                    TEmpleados empl = empleadosSetup.obtenerEmpleadoPorId(Integer.valueOf(userNotifications));
+                    envioCorreo.enviarCorreo(empl.getEmail(), "GENASOFT ERROR - No se ha podido generar el número de albarán", "No se ha podido realizar el insert", resultado);
+                } catch (Exception e) {
+                    log.error("Se ha producido un error al enviar la notificación al usuario: " + userNotifications);
+                }
+            }
+        }
+
         // Retornamos el número del albaran encontrado
         return result;
     }

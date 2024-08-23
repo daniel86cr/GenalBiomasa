@@ -1038,9 +1038,9 @@ public class VistaNuevoPesaje extends CustomComponent implements View ,Button.Cl
 
         nPesaje.setLerMaterial(mat.getLer());
         nPesaje.setMatricula(cbMatriculas.getValue() != null ? cbMatriculas.getValue().toString().trim().toUpperCase() : "");
-        nPesaje.setNumeroAlbaran(contrVista.obtenerNumeroAlbaran("" + PesajesEnum.TIPO_GENERICO.getValue(), user, time));
-        nPesaje.setObra(txtObra.getValue().trim().toUpperCase());
-        nPesaje.setOrigen(txtOrigen.getValue().trim().toUpperCase());
+        //nPesaje.setNumeroAlbaran(contrVista.obtenerNumeroAlbaran("" + PesajesEnum.TIPO_GENERICO.getValue(), user, time));
+        nPesaje.setObra(txtObra.getValue() != null ? txtObra.getValue().trim().toUpperCase() : "");
+        nPesaje.setOrigen(txtOrigen.getValue() != null ? txtOrigen.getValue().trim().toUpperCase() : "");
         nPesaje.setRefMaterial(mat.getReferencia());
         nPesaje.setRemolque(cbRemolques.getValue() != null ? cbRemolques.getValue().toString().trim().toUpperCase() : "");
         nPesaje.setUsuCrea(user);
