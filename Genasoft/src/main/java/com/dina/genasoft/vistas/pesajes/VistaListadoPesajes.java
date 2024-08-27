@@ -532,7 +532,7 @@ public class VistaListadoPesajes extends CustomComponent implements View ,Button
      * @return El Grid con las columnas.
      */
     private void crearTablaPesajes(TPermisos permisos) {
-        tablaPesajes = new TablaGenerica(new Object[] { "numeroAlbaran", "idCliente", "idDireccion", "idOperador", "idTransportista", "fechaPesaje", "obra", "origen", "idMaterial", "kgsBruto", "tara", "kgsNeto", "fechaCrea", "estado" }, new String[] { "Nº Albarán", "Cliente", "Dirección", "Operador", "Transportista", "Fecha", "Obra", "Origen", "Material", "Kilos brutos", "TARA", "Kilos netos", "Registrado por", "Estado" }, bcPesajes);
+        tablaPesajes = new TablaGenerica(new Object[] { "numeroAlbaran", "idCliente", "idDireccion", "idOperador", "idTransportista", "fechaPesaje", "matricula", "origen", "idMaterial", "kgsBruto", "tara", "kgsNeto", "usuCrea", "fechaCrea", "estado" }, new String[] { "Nº Albarán", "Cliente", "Dirección", "Operador", "Transportista", "Fecha", "Matrícula", "Origen", "Material", "Kilos brutos", "TARA", "Kilos netos", "Registrado por", "Fecha registro", "Estado" }, bcPesajes);
         tablaPesajes.addStyleName("big striped");
         tablaPesajes.setPageLength(25);
 
@@ -625,6 +625,14 @@ public class VistaListadoPesajes extends CustomComponent implements View ,Button
 
             // The actual filter logic + error handling
             try {
+                if (value != null) {
+                    if (value.contains("(")) {
+                        value = value.replaceAll("\\(", " ");
+                    }
+                    if (value.contains(")")) {
+                        value = value.replaceAll("\\)", " ");
+                    }
+                }
                 boolean result = value.toLowerCase().matches(regex);
                 status.setValue(""); // OK
                 return result;
@@ -899,14 +907,14 @@ public class VistaListadoPesajes extends CustomComponent implements View ,Button
         table.addContainerProperty("Material", ComboBox.class, null);
         table.addContainerProperty("Obra", TextField.class, null);
         table.addContainerProperty("Origen", TextField.class, null);
-        table.addContainerProperty("Destino", TextField.class, null);
+        //table.addContainerProperty("Destino", TextField.class, null);
         table.addContainerProperty("Matrícula", TextField.class, null);
-        table.addContainerProperty("Remolque", TextField.class, null);
+        //table.addContainerProperty("Remolque", TextField.class, null);
         table.addContainerProperty("Estado", ComboBox.class, null);
         table.setPageLength(table.size());
 
         // Los componentes que componen al filtro
-        table.addItem(new Object[] { fAlbaran, fClientes, fMaterial, fObra, fOrigen, fDestino, fMatricula, fRemolque, fEstados }, 1);
+        table.addItem(new Object[] { fAlbaran, fClientes, fMaterial, fObra, fOrigen, fMatricula, fEstados }, 1);
 
         // Fechas
         Table table2 = new Table();
